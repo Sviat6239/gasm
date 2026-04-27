@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <cctype>
 using namespace std;
 
 struct Tokens {
@@ -43,19 +44,37 @@ struct Tokens {
 
 int main() {
 
-    vector<string> codeParts;
-    vector<string> codeLines;
-
-    string codeLine;
-
     ifstream code("index.asm");
+    string line;
+    vector<string> tokens;
 
-    while (getline(code, codeLine, ' ')) {
-        codeParts.push_back(codeLine);
+    while (getline(code, line)) {
+        string current;
+
+        for (char ch : line) {
+            if (isspace(static_cast<unsigned char>(ch))) {
+                if (!current.empty()) {
+                    tokens.push_back(current);
+                    current.clear();
+                }
+            } else if (ch == ':' || ch == ';' || ch == ',') {
+                if (!current.empty()) {
+                    tokens.push_back(current);
+                    current.clear();
+                }
+                tokens.push_back(string(1, ch));
+            } else {
+                current += ch;
+            }
+        }
+
+        if (!current.empty()) {
+            tokens.push_back(current);
+        }
     }
 
-    for (int i = 0; i < codeParts.size(); i++) {
-        cout << codeParts[i] << endl;
+    for (const auto& t : tokens) {
+        cout << "[" << t << "]";
     }
 
     return 0;
