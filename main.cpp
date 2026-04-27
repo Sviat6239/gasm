@@ -19,6 +19,23 @@ struct Tokens {
         DW,
         DD,
         DQ,
+        INT8,
+        INT16,
+        INT32,
+        INT64,
+        UINT8,
+        UINT16,
+        UINT32,
+        UINT64,
+        FLOAT,
+        DOUBLE,
+        CHAR,
+        STRUCT,
+        ENDSTRUCT,
+        MACRO,
+        ENDMACRO,
+        IF,
+        ELSE,
         ASSIGN,
         COLON,
         SEMICOLON,
@@ -67,7 +84,7 @@ int main() {
                     lineTokens.push_back(current);
                     current.clear();
                 }
-            } else if (ch == ':' || ch == ';' || ch == ',' || ch == '=') {
+            } else if (ch == ':' || ch == ';' || ch == ',' || ch == '=' || ch == '"' || ch == '<' || ch == '>' || ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}') {
                 if (!current.empty()) {
                     lineTokens.push_back(current);
                     current.clear();
