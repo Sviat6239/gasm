@@ -12,6 +12,7 @@ struct Tokens {
         WIN64,
         ELF32,
         ELF64,
+        ENTRY,
         DECLARE,
         IDENTIFIER,
         DB,
