@@ -1,7 +1,7 @@
 # GASM - High-Level Assembler (HLA)
 
 `gasm` is an experimental high-level assembler written in C++.
-Right now, the project focuses on the very first front-end step: splitting source lines into tokens.
+Right now, the project focuses on the front-end pipeline and a small command-line interface for choosing input files and output format.
 
 ## Status
 
@@ -14,11 +14,12 @@ Current state:
   - **Phase 3 (IR)** → `vector<IRNode>` (IR-ready stream with symbol resolution)
 - **Symbol Management**: `SymbolTable` tracks user-defined labels and validates the application entry point.
 - **Entry Point Resolution**: Correctly identifies the address of the label specified by the `entry` directive.
+- **CLI Workflow**: You can now choose an input file, view help, list source files, and select the output format.
+- **Output Modes**: `--emit ir` writes a textual `.ir` artifact; `--emit bin` writes a compact binary IR container.
 - **Bare Metal & OS Support**: Includes a comprehensive set of tokens for BIOS (Legacy) and UEFI (modern) development.
 - **Instruction Classification**: Tokens are clearly categorized into architecture-specific sets (x86, ARM, RISC-V).
 - String literals inside `"..."` are kept as a single `STRING(...)` token.
 - `#` starts a comment and ignores the rest of the line.
-- Tokens are stored as `vector<vector<string>>` (per-line token list) and printed as `TOKEN(value)`.
 
 ## Platform & Architecture Support
 
@@ -79,7 +80,9 @@ The current prototype:
 - treats spaces/tabs/newlines as token boundaries,
 - emits punctuation as standalone tokens (`:`, `;`, `,`, `=`, `"`, `<`, `>`, `(`, `)`, `[`, `]`, `{`, `}`),
 - handles string literals and comments,
-- prints each token as `TOKEN(value)`.
+- builds a token stream, a simple IR stream, and a symbol table,
+- writes output to a file instead of only printing to stdout,
+- supports either a textual `.ir` artifact or a binary IR artifact.
 
 Pipeline overview:
 - **Phase 1 (Lexer)**: `lex()` returns `vector<TokenString>`.
@@ -131,25 +134,74 @@ Each time you run the compiler, it performs a basic **Symbol Resolution** pass:
 
 ## Project Structure
 
-- `main.cpp` - prototype front-end (lexer → parser → IR, token dump, symbol resolution)
+- `main.cpp` - prototype front-end (lexer → parser → IR, CLI, symbol resolution)
 - `index.asm` - sample HLA source file
 - `examples/` - categorized multi-platform code snippets
-- `CMakeLists.txt` - CMake build configuration (target: `rasm`)
+- `CMakeLists.txt` - CMake build configuration (target: `gasm`)
 
 ## Build and Run
+
+### Show help
+
+```powershell
+cmake -S . -B build
+cmake --build build
+.\build\gasm.exe --help
+```
+
+### Compile default `index.asm` to textual IR
+
+```powershell
+.\build\gasm.exe
+```
+
+### Compile a specific file
+
+```powershell
+.\build\gasm.exe examples/x86/02_math.asm --emit ir
+```
+
+### Write binary IR instead of `.ir`
+
+```powershell
+.\build\gasm.exe examples/x86/02_math.asm --emit bin --output out.bin
+```
+
+### List available source files
+
+```powershell
+.\build\gasm.exe --list-inputs
+```
+
+You can also run `.uild\gasm.exe --pick` to choose a source file interactively.
+
+### Linux build
+
+Make sure you have `cmake` and a C++ compiler installed.
 
 ```bash
 cmake -S . -B build
 cmake --build build
-./build/rasm
 ```
+
+### Linux run
+
+```bash
+./build/gasm --help
+./build/gasm
+./build/gasm examples/x86/02_math.asm --emit ir
+./build/gasm examples/x86/02_math.asm --emit bin --output out.bin
+./build/gasm --list-inputs
+```
+
+You can also run `./build/gasm --pick` to choose a source file interactively.
 
 ## Quick Verify
 
-After running `rasm`, check that:
+After running `gasm`, check that:
 - punctuation appears as separate tokens (`SEMICOLON(;)`, `COLON(:)`, `ASSIGN(=)`),
-- lines are printed in the same order as in `index.asm`,
-- labels like `_start:` become `IDENTIFIER(_start) COLON(:)`.
+- the selected output file is created,
+- labels like `_start:` become `IDENTIFIER(_start) COLON(:)` in the generated IR.
 
 ## Roadmap
 
@@ -159,6 +211,7 @@ After running `rasm`, check that:
 - Implement backend/code generation
 - Add diagnostics with line/column information
 - Add tests for tokenizer/parser behavior
+- Replace the temporary binary IR container with a real code-generation backend
 
 ## Motivation
 

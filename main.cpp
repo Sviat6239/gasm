@@ -1,11 +1,13 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <string>
 #include <cctype>
 #include <map>
 #include <unordered_map>
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
+#include <cstdint>
 
 using namespace std;
 
@@ -19,8 +21,8 @@ struct Tokens {
     enum Token {
         // Directives and configuration
         FORMAT,
-        WIN32,
-        WIN64,
+        WIN_32,
+        WIN_64,
         ELF32,
         ELF64,
         BIN,        // Pure binary format
@@ -367,6 +369,20 @@ struct IRNode {
     size_t line;
 };
 
+enum class EmitMode {
+    Ir,
+    Binary,
+};
+
+struct CliOptions {
+    string inputPath;
+    string outputPath;
+    EmitMode emitMode = EmitMode::Ir;
+    bool showHelp = false;
+    bool pickInput = false;
+    bool listInputs = false;
+};
+
 static bool isNumberToken(const string& token) {
     if (token.empty()) {
         return false;
@@ -397,11 +413,18 @@ static string toUpper(string value) {
     return value;
 }
 
+static string toLowerCopy(string value) {
+    transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
+        return static_cast<char>(tolower(ch));
+    });
+    return value;
+}
+
 static const unordered_map<string, Tokens::Token>& keywordTokens() {
     static const unordered_map<string, Tokens::Token> kTokens = {
         {"format", Tokens::FORMAT},
-        {"win32", Tokens::WIN32},
-        {"win64", Tokens::WIN64},
+        {"win32", Tokens::WIN_32},
+        {"win64", Tokens::WIN_64},
         {"elf32", Tokens::ELF32},
         {"elf64", Tokens::ELF64},
         {"bin", Tokens::BIN},
@@ -896,28 +919,338 @@ static string displayName(const Token& token) {
     }
 }
 
-static void printTokens(const vector<Token>& tokens) {
-    size_t currentLine = 0;
-    for (const auto& token : tokens) {
-        if (currentLine != 0 && token.line != currentLine) {
-            cout << endl;
-        }
-        currentLine = token.line;
-        cout << displayName(token) << "(" << token.lexeme << ") ";
+
+static string emitModeName(EmitMode mode) {
+    return mode == EmitMode::Ir ? "ir" : "bin";
+}
+
+static bool parseEmitMode(const string& value, EmitMode& mode) {
+    string normalized = toLowerCopy(value);
+    if (normalized == "ir") {
+        mode = EmitMode::Ir;
+        return true;
     }
-    if (!tokens.empty()) {
-        cout << endl;
+    if (normalized == "bin" || normalized == "binary") {
+        mode = EmitMode::Binary;
+        return true;
+    }
+    return false;
+}
+
+static filesystem::path projectRoot() {
+    filesystem::path current = filesystem::current_path();
+    for (int depth = 0; depth < 6; ++depth) {
+        if (filesystem::exists(current / "index.asm") || filesystem::exists(current / "examples")) {
+            return current;
+        }
+        if (!current.has_parent_path()) {
+            break;
+        }
+        current = current.parent_path();
+    }
+    return filesystem::current_path();
+}
+
+static vector<filesystem::path> discoverInputs(const filesystem::path& root) {
+    vector<filesystem::path> inputs;
+    if (filesystem::exists(root / "index.asm")) {
+        inputs.push_back(root / "index.asm");
+    }
+
+    filesystem::path examplesDir = root / "examples";
+    if (!filesystem::exists(examplesDir)) {
+        return inputs;
+    }
+
+    error_code ec;
+    for (filesystem::recursive_directory_iterator it(examplesDir, ec), end; it != end && !ec; it.increment(ec)) {
+        if (it->is_regular_file() && toLowerCopy(it->path().extension().string()) == ".asm") {
+            inputs.push_back(it->path());
+        }
+    }
+
+    sort(inputs.begin(), inputs.end());
+    return inputs;
+}
+
+static void printUsage(const string& exeName, const filesystem::path& root) {
+    cout << "Usage:\n"
+         << "  " << exeName << " [input.asm] [--emit ir|bin] [--output FILE]\n"
+         << "  " << exeName << " --input input.asm --emit ir|bin --output FILE\n"
+         << "  " << exeName << " --pick\n"
+         << "  " << exeName << " --list-inputs\n\n"
+         << "Options:\n"
+         << "  -h, --help           Show this help\n"
+         << "  -i, --input PATH     Source file to compile\n"
+         << "  -e, --emit MODE      Output mode: ir or bin\n"
+         << "  -o, --output FILE    Output file path\n"
+         << "      --pick           Choose input file interactively\n"
+         << "      --list-inputs    List discovered .asm files\n\n"
+         << "Defaults:\n"
+         << "  input  -> index.asm if present\n"
+         << "  emit   -> ir\n"
+         << "  output -> input file with .ir or .bin extension\n\n"
+         << "Detected project root: " << root.string() << endl;
+}
+
+static void printInputList(const vector<filesystem::path>& inputs) {
+    if (inputs.empty()) {
+        cout << "No .asm files found.\n";
+        return;
+    }
+
+    cout << "Available inputs:\n";
+    for (size_t i = 0; i < inputs.size(); ++i) {
+        cout << "  [" << (i + 1) << "] " << inputs[i].string() << '\n';
     }
 }
 
-int main() {
+static bool parseArguments(int argc, char* argv[], CliOptions& options, string& error) {
+    for (int i = 1; i < argc; ++i) {
+        string arg = argv[i];
+        if (arg == "-h" || arg == "--help") {
+            options.showHelp = true;
+            continue;
+        }
+        if (arg == "-i" || arg == "--input") {
+            if (i + 1 >= argc) {
+                error = "Missing value for --input";
+                return false;
+            }
+            options.inputPath = argv[++i];
+            continue;
+        }
+        if (arg == "-e" || arg == "--emit") {
+            if (i + 1 >= argc) {
+                error = "Missing value for --emit";
+                return false;
+            }
+            if (!parseEmitMode(argv[++i], options.emitMode)) {
+                error = "Unsupported --emit value. Use 'ir' or 'bin'.";
+                return false;
+            }
+            continue;
+        }
+        if (arg == "-o" || arg == "--output") {
+            if (i + 1 >= argc) {
+                error = "Missing value for --output";
+                return false;
+            }
+            options.outputPath = argv[++i];
+            continue;
+        }
+        if (arg == "--pick") {
+            options.pickInput = true;
+            continue;
+        }
+        if (arg == "--list-inputs") {
+            options.listInputs = true;
+            continue;
+        }
+        if (!arg.empty() && arg.front() != '-') {
+            if (options.inputPath.empty()) {
+                options.inputPath = arg;
+                continue;
+            }
+            error = "Unexpected extra positional argument: " + arg;
+            return false;
+        }
+
+        error = "Unknown argument: " + arg;
+        return false;
+    }
+
+    return true;
+}
+
+static bool resolveInput(const filesystem::path& root, const string& requested, string& resolved) {
+    filesystem::path direct(requested);
+    if (filesystem::exists(direct)) {
+        resolved = direct.string();
+        return true;
+    }
+
+    filesystem::path fromRoot = root / direct;
+    if (filesystem::exists(fromRoot)) {
+        resolved = fromRoot.string();
+        return true;
+    }
+
+    return false;
+}
+
+static bool chooseInputInteractively(const vector<filesystem::path>& inputs, string& chosen) {
+    if (inputs.empty()) {
+        cout << "Enter path to an .asm file: ";
+        getline(cin, chosen);
+        return !chosen.empty();
+    }
+
+    cout << "Select input file:\n";
+    for (size_t i = 0; i < inputs.size(); ++i) {
+        cout << "  [" << (i + 1) << "] " << inputs[i].string() << '\n';
+    }
+    cout << "  [0] Enter a custom path\n";
+    cout << "Choice: ";
+
+    string choiceText;
+    getline(cin, choiceText);
+    if (choiceText.empty()) {
+        return false;
+    }
+
+    try {
+        int choice = stoi(choiceText);
+        if (choice == 0) {
+            cout << "Path: ";
+            getline(cin, chosen);
+            return !chosen.empty();
+        }
+        if (choice < 1 || static_cast<size_t>(choice) > inputs.size()) {
+            return false;
+        }
+        chosen = inputs[static_cast<size_t>(choice - 1)].string();
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+static string defaultOutputPath(const string& inputPath, EmitMode mode) {
+    filesystem::path output(inputPath);
+    output.replace_extension(mode == EmitMode::Ir ? ".ir" : ".bin");
+    return output.string();
+}
+
+static bool writeTextIr(const string& outputPath, const vector<Token>& tokens, const vector<IRNode>& ir, const SymbolTable& symbolTable) {
+    ofstream out(outputPath);
+    if (!out.is_open()) {
+        cerr << "Failed to open output file: " << outputPath << endl;
+        return false;
+    }
+
+    out << "; GASM intermediate representation\n";
+    out << "; mode: textual ir\n\n";
+
+    out << "[tokens]\n";
+    for (const auto& token : tokens) {
+        out << token.line << '\t' << displayName(token) << '\t' << token.lexeme << '\n';
+    }
+
+    out << "\n[ir]\n";
+    for (const auto& node : ir) {
+        Token temp{node.type, node.lexeme, node.line};
+        out << node.line << '\t' << displayName(temp) << '\t' << node.lexeme << '\n';
+    }
+
+    out << "\n[symbols]\n";
+    if (!symbolTable.entryLabel.empty()) {
+        out << "entry\t" << symbolTable.entryLabel << '\n';
+    }
+    for (const auto& pair : symbolTable.labels) {
+        out << "label\t" << pair.first << '\t' << pair.second << '\n';
+    }
+
+    return true;
+}
+
+static void writeUint32(ostream& out, uint32_t value) {
+    out.write(reinterpret_cast<const char*>(&value), sizeof(value));
+}
+
+static void writeString(ostream& out, const string& value) {
+    writeUint32(out, static_cast<uint32_t>(value.size()));
+    out.write(value.data(), static_cast<streamsize>(value.size()));
+}
+
+static bool writeBinaryIrArtifact(const string& outputPath, const vector<IRNode>& ir, const SymbolTable& symbolTable) {
+    ofstream out(outputPath, ios::binary);
+    if (!out.is_open()) {
+        cerr << "Failed to open output file: " << outputPath << endl;
+        return false;
+    }
+
+    const char magic[4] = {'G', 'A', 'S', 'M'};
+    out.write(magic, sizeof(magic));
+    writeUint32(out, 1);
+    writeUint32(out, static_cast<uint32_t>(ir.size()));
+    writeUint32(out, static_cast<uint32_t>(symbolTable.labels.size()));
+    writeString(out, symbolTable.entryLabel);
+
+    for (const auto& node : ir) {
+        writeUint32(out, static_cast<uint32_t>(node.type));
+        writeUint32(out, static_cast<uint32_t>(node.line));
+        writeString(out, node.lexeme);
+    }
+
+    for (const auto& pair : symbolTable.labels) {
+        writeString(out, pair.first);
+        writeUint32(out, static_cast<uint32_t>(pair.second));
+    }
+
+    return true;
+}
+
+static void printEntryResolution(const SymbolTable& symbolTable) {
+    if (symbolTable.entryLabel.empty()) {
+        return;
+    }
+
+    cout << "\nEntry point resolution:\n";
+    cout << "Target: " << symbolTable.entryLabel << '\n';
+    auto entryIt = symbolTable.labels.find(symbolTable.entryLabel);
+    if (entryIt != symbolTable.labels.end()) {
+        cout << "Status: RESOLVED at line " << entryIt->second << '\n';
+    } else {
+        cout << "Status: UNRESOLVED (Error: Label not found)" << endl;
+    }
+}
+
+int main(int argc, char* argv[]) {
     SymbolTable symbolTable;
 
-    // Load source code from file
-    ifstream code("index.asm");
+    CliOptions options;
+    string cliError;
+    if (!parseArguments(argc, argv, options, cliError)) {
+        cerr << cliError << endl;
+        printUsage(argc > 0 ? argv[0] : "gasm", projectRoot());
+        return 1;
+    }
+
+    filesystem::path root = projectRoot();
+    vector<filesystem::path> inputs = discoverInputs(root);
+
+    if (options.showHelp) {
+        printUsage(argc > 0 ? argv[0] : "gasm", root);
+        if (!inputs.empty()) {
+            cout << '\n';
+            printInputList(inputs);
+        }
+        return 0;
+    }
+
+    if (options.listInputs) {
+        printInputList(inputs);
+        return 0;
+    }
+
+    if (options.pickInput || options.inputPath.empty()) {
+        if (!chooseInputInteractively(inputs, options.inputPath)) {
+            cerr << "No input file selected." << endl;
+            return 1;
+        }
+    }
+
+    string resolvedInput;
+    if (!resolveInput(root, options.inputPath, resolvedInput)) {
+        cerr << "Failed to open source file: " << options.inputPath << endl;
+        return 1;
+    }
+
+    ifstream code(resolvedInput);
 
     if (!code.is_open()) {
-        cerr << "Failed to open index.asm" << endl;
+        cerr << "Failed to open source file: " << resolvedInput << endl;
         return 1;
     }
 
@@ -932,20 +1265,23 @@ int main() {
 
     // Phase 3: IR
     vector<IRNode> ir = buildIR(parsedTokens, symbolTable);
-    (void)ir;
 
-    printTokens(parsedTokens);
-
-    if (!symbolTable.entryLabel.empty()) {
-        cout << "\nEntry point resolution:" << endl;
-        cout << "Target: " << symbolTable.entryLabel << endl;
-        auto entryIt = symbolTable.labels.find(symbolTable.entryLabel);
-        if (entryIt != symbolTable.labels.end()) {
-            cout << "Status: RESOLVED at line " << entryIt->second << endl;
-        } else {
-            cout << "Status: UNRESOLVED (Error: Label not found)" << endl;
-        }
+    string outputPath = options.outputPath.empty() ? defaultOutputPath(resolvedInput, options.emitMode) : options.outputPath;
+    bool writeOk = false;
+    if (options.emitMode == EmitMode::Ir) {
+        writeOk = writeTextIr(outputPath, parsedTokens, ir, symbolTable);
+    } else {
+        writeOk = writeBinaryIrArtifact(outputPath, ir, symbolTable);
     }
+
+    if (!writeOk) {
+        return 1;
+    }
+
+    cout << "Compiled: " << resolvedInput << '\n';
+    cout << "Emit mode: " << emitModeName(options.emitMode) << '\n';
+    cout << "Output: " << outputPath << endl;
+    printEntryResolution(symbolTable);
 
     return 0;
 }
