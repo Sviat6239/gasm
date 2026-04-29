@@ -21,13 +21,16 @@ Current state:
 Current sample input (`index.asm`):
 
 ```asm
-format win32;
 arch x86;
+format elf64;
+
 declare number dw = 84;
 declare msg1 char[] = "Grether than 150";
 declare msg2 char[] = "Less than 150";
+
 entry _start;
 # simple comment
+
 _start:
     mov rax, 84;
     add rax, number;
@@ -44,14 +47,14 @@ _start:
 The current prototype:
 - treats spaces/tabs/newlines as token boundaries,
 - emits punctuation as standalone tokens (`:`, `;`, `,`, `=`, `"`, `<`, `>`, `(`, `)`, `[`, `]`, `{`, `}`),
-- keeps tokens grouped by source line,
+- handles string literals and comments,
 - prints each token as `TOKEN(value)`.
 
 Example output shape:
 
 ```text
-FORMAT(format) WIN32(win32) SEMICOLON(;)
 ARCH(arch) X86(x86) SEMICOLON(;)
+FORMAT(format) ELF64(elf64) SEMICOLON(;)
 DECLARE(declare) IDENTIFIER(number) DW(dw) ASSIGN(=) NUMBER(84) SEMICOLON(;)
 DECLARE(declare) IDENTIFIER(msg1) CHAR(char) LEFTHESE([) RIGHTHESE(]) ASSIGN(=) STRING(Grether than 150) SEMICOLON(;)
 DECLARE(declare) IDENTIFIER(msg2) CHAR(char) LEFTHESE([) RIGHTHESE(]) ASSIGN(=) STRING(Less than 150) SEMICOLON(;)
@@ -62,27 +65,25 @@ IDENTIFIER(_start) COLON(:)
 
 ## Token Vocabulary
 
-`Tokens::Token` currently includes the following planned language tokens:
+`Tokens::Token` currently includes the following tokens:
 
 - Output formats: `format`, `win32`, `win64`, `elf32`, `elf64`
-- Architecture tags: `arch`, `x86`, `aarch64`
+- Architecture tags: `arch`, `x86`, `aarch`, `aarch64`, `rv32`, `rv64`
 - Declarations and structure keywords: `entry`, `declare`, `struct`, `endstruct`, `macro`, `endmacro`, `if`, `else`
 - Data directives and types: `db`, `dw`, `dd`, `dq`, `int8`, `int16`, `int32`, `int64`, `uint8`, `uint16`, `uint32`, `uint64`, `float`, `double`, `char`
-- Statements and punctuation: `=`, `:`, `;`, `,`, `string`, `number`
+- Statements and punctuation: `=`, `:`, `;`, `,`, `(`, `)`, `[`, `]`, `{`, `}`, `<`, `>`, `string`, `number`
 - Instructions: `mov`, `add`, `sub`, `mul`, `div`, `sqr`, `pow`, `cmp`, `jmp`, `jnz`, `inc`, `dec`, `print`, `call`
 - Registers:
-  - 64-bit: `rax`, `rbx`, `rcx`, `rdx`, `rsp`, `rbp`, `rsi`, `rdi`, `r8`-`r15`
-  - 32-bit: `eax`, `ebx`, `ecx`, `edx`, `esp`, `ebp`, `esi`, `edi`, `r8d`-`r15d`
-  - 16-bit: `ax`, `bx`, `cx`, `dx`, `sp`, `bp`, `si`, `di`, `r8w`-`r15w`
-  - 8-bit: `al`, `bl`, `cl`, `dl`, `ah`, `bh`, `ch`, `dh`, `spl`, `bpl`, `sil`, `dil`, `r8b`-`r15b`
-  - Segment and special registers: `cs`, `ds`, `es`, `fs`, `gs`, `ss`, `rip`, `eip`, `ip`, `rflags`, `eflags`, `flags`
+  - x86 (64/32/16/8-bit): `rax`-`r15`, `eax`-`r15d`, `ax`-`r15w`, `al`-`r15b`, `rip`, `flags`, segments.
+  - AArch64: `x0`-`x30`, `w0`-`w30`.
+  - ARM: `r0`-`r7`.
 
-Token classification is now partial: keywords and known symbols are mapped to token names, while unknown words become `IDENTIFIER(...)` and numbers/string literals are printed explicitly.
+Token classification is partial: keywords, registers, and punctuation are mapped to tokens; unknown words become `IDENTIFIER(...)`.
 
 ## Notes
 
-- `>=` is not a single token yet; it is currently split into `>` and `=` because tokenization is character-based.
-- `#` comments are line-based only and stop tokenization for the rest of the line.
+- `>=` is not a single token yet; it is split into `>` and `=`.
+- `#` comments are line-based.
 - `"..."` string literals can contain spaces and punctuation without being split.
 
 ## Project Structure
@@ -118,4 +119,3 @@ After running `rasm`, check that:
 ## Motivation
 
 The long-term goal of `gasm` is to make low-level programming more approachable by combining assembly-level control with a cleaner high-level syntax.
-
