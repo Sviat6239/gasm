@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "lexer.h"
 
-static vector<Token> parse(const vector<TokenString>& rawTokens) {
+vector<Token> parse(const vector<TokenString>& rawTokens) {
     vector<Token> parsed;
     parsed.reserve(rawTokens.size());
 

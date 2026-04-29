@@ -5,7 +5,7 @@
 
 using namespace std;
 
-static const unordered_map<string, Tokens::Token>& keywordTokens() {
+const unordered_map<string, Tokens::Token>& keywordTokens() {
     static const unordered_map<string, Tokens::Token> kTokens = {
         {"format", Tokens::FORMAT},
         {"win32", Tokens::WIN_32},
@@ -295,7 +295,7 @@ static const unordered_map<string, Tokens::Token>& keywordTokens() {
     return kTokens;
 }
 
-static Tokens::Token classifyToken(const string& token) {
+Tokens::Token classifyToken(const string& token) {
     if (token.size() >= 2 && token.front() == '"' && token.back() == '"') {
         return Tokens::STRING;
     }
@@ -353,7 +353,7 @@ static Tokens::Token classifyToken(const string& token) {
     return Tokens::ERROR;
 }
 
-static vector<TokenString> lex(istream& code) {
+vector<TokenString> lex(istream& code) {
     vector<TokenString> tokens;
     string line;
     size_t lineNumber = 0;

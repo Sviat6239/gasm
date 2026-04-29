@@ -1,6 +1,6 @@
 #include "ir.h"
 
-static vector<IRNode> buildIR(const vector<Token>& tokens, SymbolTable& symbolTable) {
+vector<IRNode> buildIR(const vector<Token>& tokens, SymbolTable& symbolTable) {
     vector<IRNode> ir;
     ir.reserve(tokens.size());
 

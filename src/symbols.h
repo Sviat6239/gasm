@@ -4,5 +4,5 @@
 
 using namespace std;
 
-static string displayName(const Token& token);
-static void printEntryResolution(const SymbolTable& symbolTable);
+string displayName(const Token& token);
+void printEntryResolution(const SymbolTable& symbolTable);

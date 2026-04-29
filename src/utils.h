@@ -4,7 +4,7 @@
 
 using namespace std;
 
-static bool isNumberToken(const string& token);
-static bool isIdentifierStart(const string& token);
-static string toUpper(string value);
-static string toLowerCopy(string value);
+bool isNumberToken(const string& token);
+bool isIdentifierStart(const string& token);
+string toUpper(string value);
+string toLowerCopy(string value);

@@ -1,7 +1,10 @@
 #include "utils.h"
 #include <cctype>
+#include <algorithm>
 
-static bool isNumberToken(const string& token) {
+using namespace std;
+
+bool isNumberToken(const string& token) {
     if (token.empty()) {
         return false;
     }
@@ -20,18 +23,18 @@ static bool isNumberToken(const string& token) {
     return true;
 }
 
-static bool isIdentifierStart(const string& token) {
+bool isIdentifierStart(const string& token) {
     return !token.empty() && (isalpha(static_cast<unsigned char>(token.front())) || token.front() == '_');
 }
 
-static string toUpper(string value) {
+string toUpper(string value) {
     transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
         return static_cast<char>(toupper(ch));
     });
     return value;
 }
 
-static string toLowerCopy(string value) {
+string toLowerCopy(string value) {
     transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
         return static_cast<char>(tolower(ch));
     });
