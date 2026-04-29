@@ -11,7 +11,9 @@ Current state:
 - A `Tokens::Token` enum is defined for the language vocabulary.
 - `main.cpp` reads `index.asm` line by line.
 - A basic tokenizer splits tokens by whitespace and punctuation: `:`, `;`, `,`, `=`, `"`, `<`, `>`, `(`, `)`, `[`, `]`, `{`, `}`.
-- Tokens are stored as `vector<vector<string>>` (per-line token list) and printed.
+- String literals inside `"..."` are kept as a single `STRING(...)` token.
+- `#` starts a comment and ignores the rest of the line.
+- Tokens are stored as `vector<vector<string>>` (per-line token list) and printed as `TOKEN(value)`.
 - Token classification, parser, and code generation are not implemented yet.
 
 ## Example Input
@@ -20,12 +22,20 @@ Current sample input (`index.asm`):
 
 ```asm
 format win32;
+arch x86;
 declare number dw = 84;
+declare msg1 char[] = "Grether than 150";
+declare msg2 char[] = "Less than 150";
 entry _start;
-
+# simple comment
 _start:
     mov rax, 84;
     add rax, number;
+    if(rax >= 150){
+        print msg1;
+    } else {
+        print msg2;
+    }
     print rax;
 ```
 
@@ -35,14 +45,19 @@ The current prototype:
 - treats spaces/tabs/newlines as token boundaries,
 - emits punctuation as standalone tokens (`:`, `;`, `,`, `=`, `"`, `<`, `>`, `(`, `)`, `[`, `]`, `{`, `}`),
 - keeps tokens grouped by source line,
-- prints each token as `[token]`.
+- prints each token as `TOKEN(value)`.
 
 Example output shape:
 
 ```text
-[format] [win32] [;]
-[declare] [number] [dw] [=] [84] [;]
-...
+FORMAT(format) WIN32(win32) SEMICOLON(;)
+ARCH(arch) X86(x86) SEMICOLON(;)
+DECLARE(declare) IDENTIFIER(number) DW(dw) ASSIGN(=) NUMBER(84) SEMICOLON(;)
+DECLARE(declare) IDENTIFIER(msg1) CHAR(char) LEFTHESE([) RIGHTHESE(]) ASSIGN(=) STRING(Grether than 150) SEMICOLON(;)
+DECLARE(declare) IDENTIFIER(msg2) CHAR(char) LEFTHESE([) RIGHTHESE(]) ASSIGN(=) STRING(Less than 150) SEMICOLON(;)
+ENTRY(entry) IDENTIFIER(_start) SEMICOLON(;)
+IDENTIFIER(_start) COLON(:)
+... 
 ```
 
 ## Token Vocabulary
@@ -50,10 +65,11 @@ Example output shape:
 `Tokens::Token` currently includes the following planned language tokens:
 
 - Output formats: `format`, `win32`, `win64`, `elf32`, `elf64`
+- Architecture tags: `arch`, `x86`, `aarch64`
 - Declarations and structure keywords: `entry`, `declare`, `struct`, `endstruct`, `macro`, `endmacro`, `if`, `else`
 - Data directives and types: `db`, `dw`, `dd`, `dq`, `int8`, `int16`, `int32`, `int64`, `uint8`, `uint16`, `uint32`, `uint64`, `float`, `double`, `char`
 - Statements and punctuation: `=`, `:`, `;`, `,`, `string`, `number`
-- Instructions: `mov`, `add`, `sub`, `mul`, `div`, `sqr`, `pow`, `cmp`, `jmp`, `jnz`, `inc`, `dec`, `print`
+- Instructions: `mov`, `add`, `sub`, `mul`, `div`, `sqr`, `pow`, `cmp`, `jmp`, `jnz`, `inc`, `dec`, `print`, `call`
 - Registers:
   - 64-bit: `rax`, `rbx`, `rcx`, `rdx`, `rsp`, `rbp`, `rsi`, `rdi`, `r8`-`r15`
   - 32-bit: `eax`, `ebx`, `ecx`, `edx`, `esp`, `ebp`, `esi`, `edi`, `r8d`-`r15d`
@@ -61,7 +77,13 @@ Example output shape:
   - 8-bit: `al`, `bl`, `cl`, `dl`, `ah`, `bh`, `ch`, `dh`, `spl`, `bpl`, `sil`, `dil`, `r8b`-`r15b`
   - Segment and special registers: `cs`, `ds`, `es`, `fs`, `gs`, `ss`, `rip`, `eip`, `ip`, `rflags`, `eflags`, `flags`
 
-Token classification is still a future step; right now the program only splits and prints raw strings.
+Token classification is now partial: keywords and known symbols are mapped to token names, while unknown words become `IDENTIFIER(...)` and numbers/string literals are printed explicitly.
+
+## Notes
+
+- `>=` is not a single token yet; it is currently split into `>` and `=` because tokenization is character-based.
+- `#` comments are line-based only and stop tokenization for the rest of the line.
+- `"..."` string literals can contain spaces and punctuation without being split.
 
 ## Project Structure
 
@@ -80,9 +102,9 @@ cmake --build build
 ## Quick Verify
 
 After running `rasm`, check that:
-- punctuation appears as separate tokens (`[;]`, `[,]`, `[:]`, `[=]`, `[""]`),
+- punctuation appears as separate tokens (`SEMICOLON(;)`, `COLON(:)`, `ASSIGN(=)`),
 - lines are printed in the same order as in `index.asm`,
-- labels like `_start:` become `[_start] [:]`.
+- labels like `_start:` become `IDENTIFIER(_start) COLON(:)`.
 
 ## Roadmap
 

@@ -4,7 +4,7 @@ declare number dw = 84;
 declare msg1 char[] = "Grether than 150";
 declare msg2 char[] = "Less than 150";
 entry _start;
-
+# simple comment
 _start:
     mov rax, 84;
     add rax, number;

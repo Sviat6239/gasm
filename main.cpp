@@ -158,14 +158,43 @@ int main() {
     while (getline(code, line)) {
         vector<string> lineTokens;
         string current;
+        bool inString = false;
 
         for (char ch : line) {
+            if (inString) {
+                current += ch;
+                if (ch == '"') {
+                    lineTokens.push_back(current);
+                    current.clear();
+                    inString = false;
+                }
+                continue;
+            }
+
+            if (ch == '"') {
+                if (!current.empty()) {
+                    lineTokens.push_back(current);
+                    current.clear();
+                }
+                current += ch;
+                inString = true;
+                continue;
+            }
+
+            if (ch == '#') {
+                if (!current.empty()) {
+                    lineTokens.push_back(current);
+                    current.clear();
+                }
+                break;
+            }
+
             if (isspace(static_cast<unsigned char>(ch))) {
                 if (!current.empty()) {
                     lineTokens.push_back(current);
                     current.clear();
                 }
-            } else if (ch == ':' || ch == ';' || ch == ',' || ch == '=' || ch == '"' || ch == '<' || ch == '>' || ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}') {
+            } else if (ch == ':' || ch == ';' || ch == ',' || ch == '=' || ch == '<' || ch == '>' || ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}') {
                 if (!current.empty()) {
                     lineTokens.push_back(current);
                     current.clear();
@@ -177,7 +206,17 @@ int main() {
         }
 
         if (!current.empty()) {
+            if (inString) {
+                cerr << "Unterminated string literal: " << current << endl;
+                return 1;
+            }
+
             lineTokens.push_back(current);
+        }
+
+        if (inString) {
+            cerr << "Unterminated string literal" << endl;
+            return 1;
         }
 
         tokens.push_back(lineTokens);
