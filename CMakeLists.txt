@@ -3,4 +3,5 @@ project(gasm)
 
 set(CMAKE_CXX_STANDARD 26)
 
-add_executable(gasm main.cpp)
+file(GLOB_RECURSE SRC_FILES src/*.cpp)
+add_executable(gasm main.cpp ${SRC_FILES})
