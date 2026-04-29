@@ -15,6 +15,27 @@ Current state:
 - `#` starts a comment and ignores the rest of the line.
 - Tokens are stored as `vector<vector<string>>` (per-line token list) and printed as `TOKEN(value)`.
 - Token classification is nearly complete for core instructions and registers across x86, ARM64, and RISC-V.
+- Support for multi-platform examples including Linux (Direct Syscalls), Windows (Win64 ABI), and Bare Metal.
+
+## Platform & Architecture Support
+
+`gasm` targets three major architectures with specific platform support:
+- **x86 (64-bit)**: Windows (Win64 ABI), Linux (System V ABI).
+- **AArch64**: Linux (SVC), Windows on ARM (bl/adr).
+- **RISC-V (32/64-bit)**: Linux (ecall), Bare Metal/Embedded.
+
+## Examples
+
+The project now includes **60+ examples** (20 per architecture) demonstrating various features:
+- Linux Syscalls (`syscall`, `svc`, `ecall`)
+- Windows API calls (`MessageBox`, shadow space)
+- High-level constructs (`if`, `else`, `while`, `struct`, `macro`)
+- Architecture-specific logic (Bitfields on ARM, Upper Immediates on RISC-V)
+
+You can find them in:
+- `examples/x86/`
+- `examples/aarch64/`
+- `examples/riscv/`
 
 ## Example Input
 
@@ -78,8 +99,8 @@ LDR(ldr) X0(x0) COMMA(,) LEFTHESE([) SP(sp) RIGHTHESE(]) SEMICOLON(;)
   - **RISC-V**: `lui`, `auipc`, `lw`, `sw`, `ld`, `sd`, `addi`, `slt`, `slti`, `jal`, `jalr`, `beq`, `bne`, `blt`, `bge`.
 - **Registers**:
   - **x86**: `rax`-`r15`, `eax`-`r15d`, `ax`-`r15w`, `al`-`r15b`, `rip`, `flags`, segments.
-  - **AArch64**: `x0`-`x30`, `w0`-`w30`.
-  - **ARM**: `r0`-`r7`.
+  - **AArch64/ARM**: `x0`-`x30`, `w0`-`w30`, `v0`-`v31`, `r0`-`r7`, `cpsr`, `spsr`.
+  - **RISC-V**: ABI aliases (`zero`, `ra`, `sp`, `gp`, `tp`, `t0-t6`, `s0-s11`, `a0-a7`) and numeric `x0-x31`.
 
 ## Notes
 
@@ -91,6 +112,7 @@ LDR(ldr) X0(x0) COMMA(,) LEFTHESE([) SP(sp) RIGHTHESE(]) SEMICOLON(;)
 
 - `main.cpp` - prototype front-end (`Tokens::Token`, file reading, token splitting, token dump)
 - `index.asm` - sample HLA source file
+- `examples/` - categorized multi-platform code snippets
 - `CMakeLists.txt` - CMake build configuration (target: `rasm`)
 
 ## Build and Run
