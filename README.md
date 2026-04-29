@@ -8,7 +8,10 @@ Right now, the project focuses on the very first front-end step: splitting sourc
 This project is in an early prototype stage.
 
 Current state:
-- **Doxygen-style Documentation**: Core logic is fully commented to industry standards.
+- **Three-phase Pipeline**:
+  - **Phase 1 (Lexer)** → `vector<TokenString>` (raw lexemes with line info)
+  - **Phase 2 (Parser)** → `vector<Token>` (classified tokens)
+  - **Phase 3 (IR)** → `vector<IRNode>` (IR-ready stream with symbol resolution)
 - **Symbol Management**: `SymbolTable` tracks user-defined labels and validates the application entry point.
 - **Entry Point Resolution**: Correctly identifies the address of the label specified by the `entry` directive.
 - **Bare Metal & OS Support**: Includes a comprehensive set of tokens for BIOS (Legacy) and UEFI (modern) development.
@@ -78,6 +81,11 @@ The current prototype:
 - handles string literals and comments,
 - prints each token as `TOKEN(value)`.
 
+Pipeline overview:
+- **Phase 1 (Lexer)**: `lex()` returns `vector<TokenString>`.
+- **Phase 2 (Parser)**: `parse()` returns `vector<Token>`.
+- **Phase 3 (IR)**: `buildIR()` returns `vector<IRNode>` and updates `SymbolTable`.
+
 Example output shape:
 
 ```text
@@ -123,7 +131,7 @@ Each time you run the compiler, it performs a basic **Symbol Resolution** pass:
 
 ## Project Structure
 
-- `main.cpp` - prototype front-end (`Tokens::Token`, file reading, token splitting, token dump)
+- `main.cpp` - prototype front-end (lexer → parser → IR, token dump, symbol resolution)
 - `index.asm` - sample HLA source file
 - `examples/` - categorized multi-platform code snippets
 - `CMakeLists.txt` - CMake build configuration (target: `rasm`)
@@ -145,7 +153,7 @@ After running `rasm`, check that:
 
 ## Roadmap
 
-- Add keyword-aware lexical token classification (map strings to `Tokens::Token`)
+- Enrich IR nodes with instruction/operand structure
 - Implement parser for directives, labels, and instructions
 - Add semantic analysis (symbol table, type checks)
 - Implement backend/code generation

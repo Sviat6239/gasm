@@ -4,6 +4,8 @@
 #include <string>
 #include <cctype>
 #include <map>
+#include <unordered_map>
+#include <algorithm>
 
 using namespace std;
 
@@ -64,6 +66,15 @@ struct Tokens {
         COMMA,
         STRING,
         NUMBER,
+        LPAREN,
+        RPAREN,
+        LBRACE,
+        RBRACE,
+        LBRACKET,
+        RBRACKET,
+        LESS,
+        GREATER,
+        ERROR,
 
         // x86-64 / ARM64 instructions
         MOV,
@@ -339,6 +350,566 @@ struct SymbolTable {
     string entryLabel;          // The name of the defined entry point (e.g., "_start")
 };
 
+struct TokenString {
+    string text;
+    size_t line;
+};
+
+struct Token {
+    Tokens::Token type;
+    string lexeme;
+    size_t line;
+};
+
+struct IRNode {
+    Tokens::Token type;
+    string lexeme;
+    size_t line;
+};
+
+static bool isNumberToken(const string& token) {
+    if (token.empty()) {
+        return false;
+    }
+    size_t start = 0;
+    if (token.front() == '-') {
+        if (token.size() == 1) {
+            return false;
+        }
+        start = 1;
+    }
+    for (size_t i = start; i < token.size(); ++i) {
+        if (!isdigit(static_cast<unsigned char>(token[i]))) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool isIdentifierStart(const string& token) {
+    return !token.empty() && (isalpha(static_cast<unsigned char>(token.front())) || token.front() == '_');
+}
+
+static string toUpper(string value) {
+    transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
+        return static_cast<char>(toupper(ch));
+    });
+    return value;
+}
+
+static const unordered_map<string, Tokens::Token>& keywordTokens() {
+    static const unordered_map<string, Tokens::Token> kTokens = {
+        {"format", Tokens::FORMAT},
+        {"win32", Tokens::WIN32},
+        {"win64", Tokens::WIN64},
+        {"elf32", Tokens::ELF32},
+        {"elf64", Tokens::ELF64},
+        {"bin", Tokens::BIN},
+        {"efi", Tokens::EFI},
+        {"arch", Tokens::ARCH},
+        {"x86", Tokens::X86},
+        {"aarch64", Tokens::AARCH64},
+        {"entry", Tokens::ENTRY},
+        {"declare", Tokens::DECLARE},
+        {"identifier", Tokens::IDENTIFIER},
+        {"db", Tokens::DB},
+        {"dw", Tokens::DW},
+        {"dd", Tokens::DD},
+        {"dq", Tokens::DQ},
+        {"int8", Tokens::INT8},
+        {"int16", Tokens::INT16},
+        {"int32", Tokens::INT32},
+        {"int64", Tokens::INT64},
+        {"uint8", Tokens::UINT8},
+        {"uint16", Tokens::UINT16},
+        {"uint32", Tokens::UINT32},
+        {"uint64", Tokens::UINT64},
+        {"float", Tokens::FLOAT},
+        {"double", Tokens::DOUBLE},
+        {"char", Tokens::CHAR},
+        {"struct", Tokens::STRUCT},
+        {"endstruct", Tokens::ENDSTRUCT},
+        {"macro", Tokens::MACRO},
+        {"endmacro", Tokens::ENDMACRO},
+        {"if", Tokens::IF},
+        {"else", Tokens::ELSE},
+        {"mov", Tokens::MOV},
+        {"add", Tokens::ADD},
+        {"sub", Tokens::SUB},
+        {"mul", Tokens::MUL},
+        {"div", Tokens::DIV},
+        {"sqr", Tokens::SQR},
+        {"pow", Tokens::POW},
+        {"cmp", Tokens::CMP},
+        {"jmp", Tokens::JMP},
+        {"jnz", Tokens::JNZ},
+        {"inc", Tokens::INC},
+        {"dec", Tokens::DEC},
+        {"xor", Tokens::XOR},
+        {"and", Tokens::AND},
+        {"or", Tokens::OR},
+        {"not", Tokens::NOT},
+        {"shl", Tokens::SHL},
+        {"shr", Tokens::SHR},
+        {"sar", Tokens::SAR},
+        {"rol", Tokens::ROL},
+        {"ror", Tokens::ROR},
+        {"ret", Tokens::RET},
+        {"int", Tokens::INT},
+        {"syscall", Tokens::SYSCALL},
+        {"ldr", Tokens::LDR},
+        {"str", Tokens::STR},
+        {"orr", Tokens::ORR},
+        {"eor", Tokens::EOR},
+        {"bic", Tokens::BIC},
+        {"lsl", Tokens::LSL},
+        {"lsr", Tokens::LSR},
+        {"asr", Tokens::ASR},
+        {"tst", Tokens::TST},
+        {"b", Tokens::B},
+        {"bl", Tokens::BL_OP},
+        {"bx", Tokens::BX_OP},
+        {"adr", Tokens::ADR},
+        {"sdiv", Tokens::SDIV},
+        {"udiv", Tokens::UDIV},
+        {"bfi", Tokens::BFI},
+        {"ubfx", Tokens::UBFX},
+        {"cbz", Tokens::CBZ},
+        {"cbnz", Tokens::CBNZ},
+        {"lui", Tokens::LUI},
+        {"auipc", Tokens::AUIPC},
+        {"lw", Tokens::LW},
+        {"sw", Tokens::SW},
+        {"ld", Tokens::LD},
+        {"sd", Tokens::SD},
+        {"addi", Tokens::ADDI},
+        {"slt", Tokens::SLT},
+        {"slti", Tokens::SLTI},
+        {"jal", Tokens::JAL},
+        {"jalr", Tokens::JALR},
+        {"beq", Tokens::BEQ},
+        {"bne", Tokens::BNE},
+        {"blt", Tokens::BLT},
+        {"bge", Tokens::BGE},
+        {"rax", Tokens::RAX},
+        {"rbx", Tokens::RBX},
+        {"rcx", Tokens::RCX},
+        {"rdx", Tokens::RDX},
+        {"rsp", Tokens::RSP},
+        {"rbp", Tokens::RBP},
+        {"rsi", Tokens::RSI},
+        {"rdi", Tokens::RDI},
+        {"r8", Tokens::R8},
+        {"r9", Tokens::R9},
+        {"r10", Tokens::R10},
+        {"r11", Tokens::R11},
+        {"r12", Tokens::R12},
+        {"r13", Tokens::R13},
+        {"r14", Tokens::R14},
+        {"r15", Tokens::R15},
+        {"eax", Tokens::EAX},
+        {"ebx", Tokens::EBX},
+        {"ecx", Tokens::ECX},
+        {"edx", Tokens::EDX},
+        {"esp", Tokens::ESP},
+        {"ebp", Tokens::EBP},
+        {"esi", Tokens::ESI},
+        {"edi", Tokens::EDI},
+        {"r8d", Tokens::R8D},
+        {"r9d", Tokens::R9D},
+        {"r10d", Tokens::R10D},
+        {"r11d", Tokens::R11D},
+        {"r12d", Tokens::R12D},
+        {"r13d", Tokens::R13D},
+        {"r14d", Tokens::R14D},
+        {"r15d", Tokens::R15D},
+        {"ax", Tokens::AX},
+        {"bx", Tokens::BX},
+        {"cx", Tokens::CX},
+        {"dx", Tokens::DX},
+        {"sp", Tokens::SP},
+        {"bp", Tokens::BP},
+        {"si", Tokens::SI},
+        {"di", Tokens::DI},
+        {"r8w", Tokens::R8W},
+        {"r9w", Tokens::R9W},
+        {"r10w", Tokens::R10W},
+        {"r11w", Tokens::R11W},
+        {"r12w", Tokens::R12W},
+        {"r13w", Tokens::R13W},
+        {"r14w", Tokens::R14W},
+        {"r15w", Tokens::R15W},
+        {"al", Tokens::AL},
+        {"bl", Tokens::BL},
+        {"cl", Tokens::CL},
+        {"dl", Tokens::DL},
+        {"ah", Tokens::AH},
+        {"bh", Tokens::BH},
+        {"ch", Tokens::CH},
+        {"dh", Tokens::DH},
+        {"spl", Tokens::SPL},
+        {"bpl", Tokens::BPL},
+        {"sil", Tokens::SIL},
+        {"dil", Tokens::DIL},
+        {"r8b", Tokens::R8B},
+        {"r9b", Tokens::R9B},
+        {"r10b", Tokens::R10B},
+        {"r11b", Tokens::R11B},
+        {"r12b", Tokens::R12B},
+        {"r13b", Tokens::R13B},
+        {"r14b", Tokens::R14B},
+        {"r15b", Tokens::R15B},
+        {"cs", Tokens::CS},
+        {"ds", Tokens::DS},
+        {"es", Tokens::ES},
+        {"fs", Tokens::FS},
+        {"gs", Tokens::GS},
+        {"ss", Tokens::SS},
+        {"rip", Tokens::RIP},
+        {"eip", Tokens::EIP},
+        {"ip", Tokens::IP},
+        {"rflags", Tokens::RFLAGS},
+        {"eflags", Tokens::EFLAGS},
+        {"flags", Tokens::FLAGS},
+        {"r0", Tokens::R0},
+        {"r1", Tokens::R1},
+        {"r2", Tokens::R2},
+        {"r3", Tokens::R3},
+        {"r4", Tokens::R4},
+        {"r5", Tokens::R5},
+        {"r6", Tokens::R6},
+        {"r7", Tokens::R7},
+        {"x0", Tokens::X0},
+        {"x1", Tokens::X1},
+        {"x2", Tokens::X2},
+        {"x3", Tokens::X3},
+        {"x4", Tokens::X4},
+        {"x5", Tokens::X5},
+        {"x6", Tokens::X6},
+        {"x7", Tokens::X7},
+        {"x8", Tokens::X8},
+        {"x9", Tokens::X9},
+        {"x10", Tokens::X10},
+        {"x11", Tokens::X11},
+        {"x12", Tokens::X12},
+        {"x13", Tokens::X13},
+        {"x14", Tokens::X14},
+        {"x15", Tokens::X15},
+        {"x16", Tokens::X16},
+        {"x17", Tokens::X17},
+        {"x18", Tokens::X18},
+        {"x19", Tokens::X19},
+        {"x20", Tokens::X20},
+        {"x21", Tokens::X21},
+        {"x22", Tokens::X22},
+        {"x23", Tokens::X23},
+        {"x24", Tokens::X24},
+        {"x25", Tokens::X25},
+        {"x26", Tokens::X26},
+        {"x27", Tokens::X27},
+        {"x28", Tokens::X28},
+        {"x29", Tokens::X29},
+        {"x30", Tokens::X30},
+        {"w0", Tokens::W0},
+        {"w1", Tokens::W1},
+        {"w2", Tokens::W2},
+        {"w3", Tokens::W3},
+        {"w4", Tokens::W4},
+        {"w5", Tokens::W5},
+        {"w6", Tokens::W6},
+        {"w7", Tokens::W7},
+        {"w8", Tokens::W8},
+        {"w9", Tokens::W9},
+        {"w10", Tokens::W10},
+        {"w11", Tokens::W11},
+        {"w12", Tokens::W12},
+        {"w13", Tokens::W13},
+        {"w14", Tokens::W14},
+        {"w15", Tokens::W15},
+        {"w16", Tokens::W16},
+        {"w17", Tokens::W17},
+        {"w18", Tokens::W18},
+        {"w19", Tokens::W19},
+        {"w20", Tokens::W20},
+        {"w21", Tokens::W21},
+        {"w22", Tokens::W22},
+        {"w23", Tokens::W23},
+        {"w24", Tokens::W24},
+        {"w25", Tokens::W25},
+        {"w26", Tokens::W26},
+        {"w27", Tokens::W27},
+        {"w28", Tokens::W28},
+        {"w29", Tokens::W29},
+        {"w30", Tokens::W30},
+        {"out", Tokens::OUT},
+        {"in", Tokens::IN},
+        {"cli", Tokens::CLI},
+        {"sti", Tokens::STI},
+        {"hlt", Tokens::HLT},
+        {"lidt", Tokens::LIDT},
+        {"lgdt", Tokens::LGDT},
+        {"smsw", Tokens::SMSW},
+        {"lmsw", Tokens::LMSW},
+        {"invlpg", Tokens::INVLPG},
+        {"wbinvd", Tokens::WBINVD},
+        {"rdmsr", Tokens::RDMSR},
+        {"wrmsr", Tokens::WRMSR},
+        {"rdtsc", Tokens::RDTSC},
+        {"cpuid", Tokens::CPUID},
+        {"iret", Tokens::IRET},
+        {"pushfd", Tokens::PUSHFD},
+        {"popfd", Tokens::POPFD},
+        {"lahf", Tokens::LAHF},
+        {"sahf", Tokens::SAHF},
+        {"stall", Tokens::STALL},
+        {"reset", Tokens::RESET},
+        {"allocate_pages", Tokens::ALLOCATE_PAGES},
+        {"free_pages", Tokens::FREE_PAGES},
+        {"get_memory_map", Tokens::GET_MEMORY_MAP},
+        {"allocate_pool", Tokens::ALLOCATE_POOL},
+        {"free_pool", Tokens::FREE_POOL},
+        {"set_watchdog_timer", Tokens::SET_WATCHDOG_TIMER},
+        {"connect_controller", Tokens::CONNECT_CONTROLLER},
+        {"disconnect_controller", Tokens::DISCONNECT_CONTROLLER},
+        {"open_protocol", Tokens::OPEN_PROTOCOL},
+        {"close_protocol", Tokens::CLOSE_PROTOCOL},
+        {"locate_handle", Tokens::LOCATE_HANDLE},
+        {"locate_device_path", Tokens::LOCATE_DEVICE_PATH},
+        {"install_protocol_interface", Tokens::INSTALL_PROTOCOL_INTERFACE},
+        {"reinstall_protocol_interface", Tokens::REINSTALL_PROTOCOL_INTERFACE},
+        {"uninstall_protocol_interface", Tokens::UNINSTALL_PROTOCOL_INTERFACE},
+        {"handle_protocol", Tokens::HANDLE_PROTOCOL},
+        {"register_protocol_notify", Tokens::REGISTER_PROTOCOL_NOTIFY},
+        {"locate_handle_buffer", Tokens::LOCATE_HANDLE_BUFFER},
+        {"print", Tokens::PRINT},
+        {"call", Tokens::CALL},
+    };
+    return kTokens;
+}
+
+static Tokens::Token classifyToken(const string& token) {
+    if (token.size() >= 2 && token.front() == '"' && token.back() == '"') {
+        return Tokens::STRING;
+    }
+    if (isNumberToken(token)) {
+        return Tokens::NUMBER;
+    }
+
+    if (token == ":") {
+        return Tokens::COLON;
+    }
+    if (token == ";") {
+        return Tokens::SEMICOLON;
+    }
+    if (token == ",") {
+        return Tokens::COMMA;
+    }
+    if (token == "=") {
+        return Tokens::ASSIGN;
+    }
+    if (token == "(") {
+        return Tokens::LPAREN;
+    }
+    if (token == ")") {
+        return Tokens::RPAREN;
+    }
+    if (token == "{") {
+        return Tokens::LBRACE;
+    }
+    if (token == "}") {
+        return Tokens::RBRACE;
+    }
+    if (token == "[") {
+        return Tokens::LBRACKET;
+    }
+    if (token == "]") {
+        return Tokens::RBRACKET;
+    }
+    if (token == "<") {
+        return Tokens::LESS;
+    }
+    if (token == ">") {
+        return Tokens::GREATER;
+    }
+
+    const auto& tokensMap = keywordTokens();
+    auto it = tokensMap.find(token);
+    if (it != tokensMap.end()) {
+        return it->second;
+    }
+
+    if (isIdentifierStart(token)) {
+        return Tokens::IDENTIFIER;
+    }
+
+    return Tokens::ERROR;
+}
+
+static vector<TokenString> lex(istream& code) {
+    vector<TokenString> tokens;
+    string line;
+    size_t lineNumber = 0;
+
+    while (getline(code, line)) {
+        ++lineNumber;
+        string current;
+        bool inString = false;
+
+        for (char ch : line) {
+            if (inString) {
+                current += ch;
+                if (ch == '"') {
+                    tokens.push_back({current, lineNumber});
+                    current.clear();
+                    inString = false;
+                }
+                continue;
+            }
+
+            if (ch == '"') {
+                if (!current.empty()) {
+                    tokens.push_back({current, lineNumber});
+                    current.clear();
+                }
+                current += ch;
+                inString = true;
+                continue;
+            }
+
+            if (ch == '#') {
+                if (!current.empty()) {
+                    tokens.push_back({current, lineNumber});
+                    current.clear();
+                }
+                break;
+            }
+
+            if (isspace(static_cast<unsigned char>(ch))) {
+                if (!current.empty()) {
+                    tokens.push_back({current, lineNumber});
+                    current.clear();
+                }
+            } else if (ch == ':' || ch == ';' || ch == ',' || ch == '=' || ch == '<' || ch == '>' || ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}') {
+                if (!current.empty()) {
+                    tokens.push_back({current, lineNumber});
+                    current.clear();
+                }
+                tokens.push_back({string(1, ch), lineNumber});
+            } else {
+                current += ch;
+            }
+        }
+
+        if (!current.empty()) {
+            if (inString) {
+                cerr << "Unterminated string literal: " << current << endl;
+                return {};
+            }
+            tokens.push_back({current, lineNumber});
+        }
+
+        if (inString) {
+            cerr << "Unterminated string literal" << endl;
+            return {};
+        }
+    }
+
+    return tokens;
+}
+
+static vector<Token> parse(const vector<TokenString>& rawTokens) {
+    vector<Token> parsed;
+    parsed.reserve(rawTokens.size());
+
+    for (const auto& raw : rawTokens) {
+        Tokens::Token type = classifyToken(raw.text);
+        string lexeme = raw.text;
+        if (type == Tokens::STRING && raw.text.size() >= 2) {
+            lexeme = raw.text.substr(1, raw.text.size() - 2);
+        }
+        parsed.push_back({type, lexeme, raw.line});
+    }
+
+    return parsed;
+}
+
+static vector<IRNode> buildIR(const vector<Token>& tokens, SymbolTable& symbolTable) {
+    vector<IRNode> ir;
+    ir.reserve(tokens.size());
+
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        const auto& token = tokens[i];
+        ir.push_back({token.type, token.lexeme, token.line});
+
+        if (token.type == Tokens::ENTRY && i + 1 < tokens.size() && tokens[i + 1].type == Tokens::IDENTIFIER) {
+            symbolTable.entryLabel = tokens[i + 1].lexeme;
+        }
+
+        if (token.type == Tokens::IDENTIFIER && i + 1 < tokens.size() && tokens[i + 1].type == Tokens::COLON) {
+            symbolTable.labels[token.lexeme] = static_cast<int>(token.line);
+        }
+    }
+
+    return ir;
+}
+
+static string displayName(const Token& token) {
+    switch (token.type) {
+        case Tokens::STRING:
+            return "STRING";
+        case Tokens::NUMBER:
+            return "NUMBER";
+        case Tokens::IDENTIFIER:
+            return "IDENTIFIER";
+        case Tokens::COLON:
+            return "COLON";
+        case Tokens::SEMICOLON:
+            return "SEMICOLON";
+        case Tokens::COMMA:
+            return "COMMA";
+        case Tokens::ASSIGN:
+            return "ASSIGN";
+        case Tokens::LPAREN:
+            return "PARENTHESE";
+        case Tokens::RPAREN:
+            return "RIGHTHESE";
+        case Tokens::LBRACE:
+            return "LEFTHESE";
+        case Tokens::RBRACE:
+            return "RIGHTHESE";
+        case Tokens::LBRACKET:
+            return "LEFTHESE";
+        case Tokens::RBRACKET:
+            return "RIGHTHESE";
+        case Tokens::LESS:
+            return "LESS";
+        case Tokens::GREATER:
+            return "GREATER";
+        case Tokens::BL_OP:
+            return "BL_OP";
+        case Tokens::BX_OP:
+            return "BX_OP";
+        case Tokens::ERROR:
+            return "ERROR";
+        default:
+            return toUpper(token.lexeme);
+    }
+}
+
+static void printTokens(const vector<Token>& tokens) {
+    size_t currentLine = 0;
+    for (const auto& token : tokens) {
+        if (currentLine != 0 && token.line != currentLine) {
+            cout << endl;
+        }
+        currentLine = token.line;
+        cout << displayName(token) << "(" << token.lexeme << ") ";
+    }
+    if (!tokens.empty()) {
+        cout << endl;
+    }
+}
+
 int main() {
     SymbolTable symbolTable;
 
@@ -350,595 +921,27 @@ int main() {
         return 1;
     }
 
-    string line;
-    vector<vector<string>> tokens;
-
-    /**
-     * PHASE 1: Lexical Analysis (Tokenization)
-     * Scans the input text and breaks it down into individual strings (tokens).
-     */
-    while (getline(code, line)) {
-        vector<string> lineTokens;
-        string current;
-        bool inString = false;
-
-        for (char ch : line) {
-            // Handle string literals parsing
-            if (inString) {
-                current += ch;
-                if (ch == '"') {
-                    lineTokens.push_back(current);
-                    current.clear();
-                    inString = false;
-                }
-                continue;
-            }
-
-            if (ch == '"') {
-                if (!current.empty()) {
-                    lineTokens.push_back(current);
-                    current.clear();
-                }
-                current += ch;
-                inString = true;
-                continue;
-            }
-
-            // Handle comments (ignore everything after '#')
-            if (ch == '#') {
-                if (!current.empty()) {
-                    lineTokens.push_back(current);
-                    current.clear();
-                }
-                break;
-            }
-
-            // Splitting by whitespace or special syntax characters
-            if (isspace(static_cast<unsigned char>(ch))) {
-                if (!current.empty()) {
-                    lineTokens.push_back(current);
-                    current.clear();
-                }
-            } else if (ch == ':' || ch == ';' || ch == ',' || ch == '=' || ch == '<' || ch == '>' || ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}') {
-                if (!current.empty()) {
-                    lineTokens.push_back(current);
-                    current.clear();
-                }
-                lineTokens.emplace_back(1, ch);
-            } else {
-                current += ch;
-            }
-        }
-
-        // Error checking for unterminated literals
-        if (!current.empty()) {
-            if (inString) {
-                cerr << "Unterminated string literal: " << current << endl;
-                return 1;
-            }
-            lineTokens.push_back(current);
-        }
-
-        if (inString) {
-            cerr << "Unterminated string literal" << endl;
-            return 1;
-        }
-
-        tokens.push_back(lineTokens);
+    // Phase 1: Lexer
+    vector<TokenString> rawTokens = lex(code);
+    if (rawTokens.empty()) {
+        return 1;
     }
 
-    /**
-     * PHASE 2: Semantic Analysis & Symbol Resolution
-     * Iterates through tokens to identify directives, instructions, and labels.
-     */
-    for (size_t i = 0; i < tokens.size(); ++i) {
-        const auto& lineTokens = tokens[i];
-        for (size_t j = 0; j < lineTokens.size(); ++j) {
-            const auto& token = lineTokens[j];
+    // Phase 2: Parser
+    vector<Token> parsedTokens = parse(rawTokens);
 
-            // Type Identification
-            if (token.front() == '"' && token.back() == '"') {
-                cout << "STRING(" << token.substr(1, token.size() - 2) << ") ";
-            } else if (isdigit(static_cast<unsigned char>(token.front())) || (token.front() == '-' && token.size() > 1 && isdigit(static_cast<unsigned char>(token[1])))) {
-                cout << "NUMBER(" << token << ") ";
-            }  else if (token.front() == '(') {
-                cout << "PARENTHESE(" << token << ") ";
-            } else if (token.front() == ')') {
-                cout << "RIGHTHESE(" << token << ") ";
-            } else if (token.front() == '{') {
-                cout << "LEFTHESE(" << token << ") ";
-            } else if (token.front() == '}') {
-                cout << "RIGHTHESE(" << token << ") ";
-            } else if (token.front() == '[') {
-                cout << "LEFTHESE(" << token << ") ";
-            } else if (token.front() == ']') {
-                cout << "RIGHTHESE(" << token << ") ";
-            } else if (token.front() == ':') {
-                cout << "COLON(" << token << ") ";
-            } else if (token.front() == ';') {
-                cout << "SEMICOLON(" << token << ") ";
-            } else if (token.front() == ',') {
-                cout << "COMMA(" << token << ") ";
-            } else if (token.front() == '=') {
-                cout << "ASSIGN(" << token << ") ";
-            } else if (token.front() == '<') {
-                cout << "LESS(" << token << ") ";
-            } else if (token.front() == '>') {
-                cout << "GREATER(" << token << ") ";
-            } else if (token == "format") {
-                cout << "FORMAT(" << token << ") ";
-            } else if (token == "print") {
-                cout << "PRINT(" << token << ") ";
-            } else if (token == "win32") {
-                cout << "WIN32(" << token << ") ";
-            } else if (token == "win64") {
-                cout << "WIN64(" << token << ") ";
-            } else if (token == "elf32") {
-                cout << "ELF32(" << token << ") ";
-            } else if (token == "elf64") {
-                cout << "ELF64(" << token << ") ";
-            } else if (token == "bin") {
-                cout << "BIN(" << token << ") ";
-            } else if (token == "efi") {
-                cout << "EFI(" << token << ") ";
-            } else if (token == "arch") {
-                cout << "ARCH(" << token << ") ";
-            } else if (token == "x86") {
-                cout << "X86(" << token << ") ";
-            } else if (token == "aarch64") {
-                cout << "AARCH64(" << token << ") ";
-            } else if (token == "entry") {
-                // Capturing the application entry point
-                cout << "ENTRY(" << token << ") ";
-                if (j + 1 < lineTokens.size()) {
-                    symbolTable.entryLabel = lineTokens[j + 1];
-                }
-            } else if (token == "declare") {
-                cout << "DECLARE(" << token << ") ";
-            } else if (token == "rax") {
-                cout << "RAX(" << token << ") ";
-            } else if (token == "rbx") {
-                cout << "RBX(" << token << ") ";
-            } else if (token == "rcx") {
-                cout << "RCX(" << token << ") ";
-            } else if (token == "rdx") {
-                cout << "RDX(" << token << ") ";
-            } else if (token == "rsp") {
-                cout << "RSP(" << token << ") ";
-            } else if (token == "rbp") {
-                cout << "RBP(" << token << ") ";
-            } else if (token == "rsi") {
-                cout << "RSI(" << token << ") ";
-            } else if (token == "rdi") {
-                cout << "RDI(" << token << ") ";
-            } else if (token == "r8") {
-                cout << "R8(" << token << ") ";
-            } else if (token == "r9") {
-                cout << "R9(" << token << ") ";
-            } else if (token == "r10") {
-                cout << "R10(" << token << ") ";
-            } else if (token == "r11") {
-                cout << "R11(" << token << ") ";
-            } else if (token == "r12") {
-                cout << "R12(" << token << ") ";
-            } else if (token == "r13") {
-                cout << "R13(" << token << ") ";
-            } else if (token == "r14") {
-                cout << "R14(" << token << ") ";
-            } else if (token == "r15") {
-                cout << "R15(" << token << ") ";
-            } else if (token == "rip") {
-                cout << "RIP(" << token << ") ";
-            } else if (token == "rflags") {
-                cout << "RFLAGS(" << token << ") ";
-            } else if (token == "eflags") {
-                cout << "EFLAGS(" << token << ") ";
-            } else if (token == "flags") {
-                cout << "FLAGS(" << token << ") ";
-            } else if (token  == "mov") {
-                cout << "MOV(" << token << ") ";
-            } else if (token == "add") {
-                cout << "ADD(" << token << ") ";
-            } else if (token == "sub") {
-                cout << "SUB(" << token << ") ";
-            } else if (token == "mul") {
-                cout << "MUL(" << token << ") ";
-            } else if (token == "div") {
-                cout << "DIV(" << token << ") ";
-            } else if (token == "sqr") {
-                cout << "SQR(" << token << ") ";
-            } else if (token == "pow") {
-                cout << "POW(" << token << ") ";
-            } else if (token == "cmp") {
-                cout << "CMP(" << token << ") ";
-            } else if (token == "jmp") {
-                cout << "JMP(" << token << ") ";
-            } else if (token == "jnz") {
-                cout << "JNZ(" << token << ") ";
-            } else if (token == "inc") {
-                cout << "INC(" << token << ") ";
-            } else if (token == "dec") {
-                cout << "DEC(" << token << ") ";
-            } else if (token == "xor") {
-                cout << "XOR(" << token << ") ";
-            } else if (token == "and") {
-                cout << "AND(" << token << ") ";
-            } else if (token == "or") {
-                cout << "OR(" << token << ") ";
-            } else if (token == "not") {
-                cout << "NOT(" << token << ") ";
-            } else if (token == "shl") {
-                cout << "SHL(" << token << ") ";
-            } else if (token == "shr") {
-                cout << "SHR(" << token << ") ";
-            } else if (token == "sar") {
-                cout << "SAR(" << token << ") ";
-            } else if (token == "rol") {
-                cout << "ROL(" << token << ") ";
-            } else if (token == "ror") {
-                cout << "ROR(" << token << ") ";
-            } else if (token == "ret") {
-                cout << "RET(" << token << ") ";
-            } else if (token == "int") {
-                cout << "INT(" << token << ") ";
-            } else if (token == "syscall") {
-                cout << "SYSCALL(" << token << ") ";
-            } else if (token == "ldr") {
-                cout << "LDR(" << token << ") ";
-            } else if (token == "str") {
-                cout << "STR(" << token << ") ";
-            } else if (token == "orr") {
-                cout << "ORR(" << token << ") ";
-            } else if (token == "eor") {
-                cout << "EOR(" << token << ") ";
-            } else if (token == "bic") {
-                cout << "BIC(" << token << ") ";
-            } else if (token == "lsl") {
-                cout << "LSL(" << token << ") ";
-            } else if (token == "lsr") {
-                cout << "LSR(" << token << ") ";
-            } else if (token == "asr") {
-                cout << "ASR(" << token << ") ";
-            } else if (token == "tst") {
-                cout << "TST(" << token << ") ";
-            } else if (token == "b") {
-                cout << "B(" << token << ") ";
-            } else if (token == "bl") {
-                cout << "BL_OP(" << token << ") ";
-            } else if (token == "bx") {
-                cout << "BX_OP(" << token << ") ";
-            } else if (token == "adr") {
-                cout << "ADR(" << token << ") ";
-            } else if (token == "sdiv") {
-                cout << "SDIV(" << token << ") ";
-            } else if (token == "udiv") {
-                cout << "UDIV(" << token << ") ";
-            } else if (token == "bfi") {
-                cout << "BFI(" << token << ") ";
-            } else if (token == "ubfx") {
-                cout << "UBFX(" << token << ") ";
-            } else if (token == "cbz") {
-                cout << "CBZ(" << token << ") ";
-            } else if (token == "cbnz") {
-                cout << "CBNZ(" << token << ") ";
-            } else if (token == "lui") {
-                cout << "LUI(" << token << ") ";
-            } else if (token == "auipc") {
-                cout << "AUIPC(" << token << ") ";
-            } else if (token == "lw") {
-                cout << "LW(" << token << ") ";
-            } else if (token == "sw") {
-                cout << "SW(" << token << ") ";
-            } else if (token == "ld") {
-                cout << "LD(" << token << ") ";
-            } else if (token == "sd") {
-                cout << "SD(" << token << ") ";
-            } else if (token == "addi") {
-                cout << "ADDI(" << token << ") ";
-            } else if (token == "slt") {
-                cout << "SLT(" << token << ") ";
-            } else if (token == "slti") {
-                cout << "SLTI(" << token << ") ";
-            } else if (token == "jal") {
-                cout << "JAL(" << token << ") ";
-            } else if (token == "jalr") {
-                cout << "JALR(" << token << ") ";
-            } else if (token == "beq") {
-                cout << "BEQ(" << token << ") ";
-            } else if (token == "bne") {
-                cout << "BNE(" << token << ") ";
-            } else if (token == "blt") {
-                cout << "BLT(" << token << ") ";
-            } else if (token == "bge") {
-                cout << "BGE(" << token << ") ";
-            } else if (token == "call") {
-                cout << "CALL(" << token << ") ";
-            } else if (token == "else") {
-                cout << "ELSE(" << token << ") ";
-            } else if (token == "if") {
-                cout << "IF(" << token << ") ";
-            } else if (token == "macro") {
-                cout << "MACRO(" << token << ") ";
-            } else if (token == "endmacro") {
-                cout << "ENDMACRO(" << token << ") ";
-            } else if (token == "struct") {
-                cout << "STRUCT(" << token << ") ";
-            } else if (token == "endstruct") {
-                cout << "ENDSTRUCT(" << token << ") ";
-            } else if (token == "db") {
-                cout << "DB(" << token << ") ";
-            } else if (token == "dw") {
-                cout << "DW(" << token << ") ";
-            } else if (token == "dd") {
-                cout << "DD(" << token << ") ";
-            } else if (token == "dq") {
-                cout << "DQ(" << token << ") ";
-            } else if (token == "int8") {
-                cout << "INT8(" << token << ") ";
-            } else if (token == "int16") {
-                cout << "INT16(" << token << ") ";
-            } else if (token == "int32") {
-                cout << "INT32(" << token << ") ";
-            } else if (token == "int64") {
-                cout << "INT64(" << token << ") ";
-            } else if (token == "uint8") {
-                cout << "UINT8(" << token << ") ";
-            } else if (token == "uint16") {
-                cout << "UINT16(" << token << ") ";
-            } else if (token == "uint32") {
-                cout << "UINT32(" << token << ") ";
-            } else if (token == "uint64") {
-                cout << "UINT64(" << token << ") ";
-            } else if (token == "float") {
-                cout << "FLOAT(" << token << ") ";
-            } else if (token == "double") {
-                cout << "DOUBLE(" << token << ") ";
-            } else if (token == "char") {
-                cout << "CHAR(" << token << ") ";
-            } else if (token == "w0") {
-                cout << "W0(" << token << ") ";
-            } else if (token == "w1") {
-                cout << "W1(" << token << ") ";
-            } else if (token == "w2") {
-                cout << "W2(" << token << ") ";
-            } else if (token == "w3") {
-                cout << "W3(" << token << ") ";
-            } else if (token == "w4") {
-                cout << "W4(" << token << ") ";
-            } else if (token == "w5") {
-                cout << "W5(" << token << ") ";
-            } else if (token == "w6") {
-                cout << "W6(" << token << ") ";
-            } else if (token == "w7") {
-                cout << "W7(" << token << ") ";
-            } else if (token == "w8") {
-                cout << "W8(" << token << ") ";
-            } else if (token == "w9") {
-                cout << "W9(" << token << ") ";
-            } else if (token == "w10") {
-                cout << "W10(" << token << ") ";
-            } else if (token == "w11") {
-                cout << "W11(" << token << ") ";
-            } else if (token == "w12") {
-                cout << "W12(" << token << ") ";
-            } else if (token == "w13") {
-                cout << "W13(" << token << ") ";
-            } else if (token == "w14") {
-                cout << "W14(" << token << ") ";
-            } else if (token == "w15") {
-                cout << "W15(" << token << ") ";
-            } else if (token == "w16") {
-                cout << "W16(" << token << ") ";
-            } else if (token == "w17") {
-                cout << "W17(" << token << ") ";
-            } else if (token == "w18") {
-                cout << "W18(" << token << ") ";
-            } else if (token == "w19") {
-                cout << "W19(" << token << ") ";
-            } else if (token == "w20") {
-                cout << "W20(" << token << ") ";
-            } else if (token == "w21") {
-                cout << "W21(" << token << ") ";
-            } else if (token == "w22") {
-                cout << "W22(" << token << ") ";
-            } else if (token == "w23") {
-                cout << "W23(" << token << ") ";
-            } else if (token == "w24") {
-                cout << "W24(" << token << ") ";
-            } else if (token == "w25") {
-                cout << "W25(" << token << ") ";
-            } else if (token == "w26") {
-                cout << "W26(" << token << ") ";
-            } else if (token == "w27") {
-                cout << "W27(" << token << ") ";
-            } else if (token == "w28") {
-                cout << "W28(" << token << ") ";
-            } else if (token == "w29") {
-                cout << "W29(" << token << ") ";
-            } else if (token == "w30") {
-                cout << "W30(" << token << ") ";
-            } else if (token == "x0") {
-                cout << "X0(" << token << ") ";
-            } else if (token == "x1") {
-                cout << "X1(" << token << ") ";
-            } else if (token == "x2") {
-                cout << "X2(" << token << ") ";
-            } else if (token == "x3") {
-                cout << "X3(" << token << ") ";
-            } else if (token == "x4") {
-                cout << "X4(" << token << ") ";
-            } else if (token == "x5") {
-                cout << "X5(" << token << ") ";
-            } else if (token == "x6") {
-                cout << "X6(" << token << ") ";
-            } else if (token == "x7") {
-                cout << "X7(" << token << ") ";
-            } else if (token == "x8") {
-                cout << "X8(" << token << ") ";
-            } else if (token == "x9") {
-                cout << "X9(" << token << ") ";
-            } else if (token == "x10") {
-                cout << "X10(" << token << ") ";
-            } else if (token == "x11") {
-                cout << "X11(" << token << ") ";
-            } else if (token == "x12") {
-                cout << "X12(" << token << ") ";
-            } else if (token == "x13") {
-                cout << "X13(" << token << ") ";
-            } else if (token == "x14") {
-                cout << "X14(" << token << ") ";
-            } else if (token == "x15") {
-                cout << "X15(" << token << ") ";
-            } else if (token == "x16") {
-                cout << "X16(" << token << ") ";
-            } else if (token == "x17") {
-                cout << "X17(" << token << ") ";
-            } else if (token == "x18") {
-                cout << "X18(" << token << ") ";
-            } else if (token == "x19") {
-                cout << "X19(" << token << ") ";
-            } else if (token == "x20") {
-                cout << "X20(" << token << ") ";
-            } else if (token == "x21") {
-                cout << "X21(" << token << ") ";
-            } else if (token == "x22") {
-                cout << "X22(" << token << ") ";
-            } else if (token == "x23") {
-                cout << "X23(" << token << ") ";
-            } else if (token == "x24") {
-                cout << "X24(" << token << ") ";
-            } else if (token == "x25") {
-                cout << "X25(" << token << ") ";
-            } else if (token == "x26") {
-                cout << "X26(" << token << ") ";
-            } else if (token == "x27") {
-                cout << "X27(" << token << ") ";
-            } else if (token == "x28") {
-                cout << "X28(" << token << ") ";
-            } else if (token == "x29") {
-                cout << "X29(" << token << ") ";
-            } else if (token == "x30") {
-                cout << "X30(" << token << ") ";
-            } else if (token == "r0") {
-                cout << "R0(" << token << ") ";
-            } else if (token == "r1") {
-                cout << "R1(" << token << ") ";
-            } else if (token == "r2") {
-                cout << "R2(" << token << ") ";
-            } else if (token == "r3") {
-                cout << "R3(" << token << ") ";
-            } else if (token == "r4") {
-                cout << "R4(" << token << ") ";
-            } else if (token == "r5") {
-                cout << "R5(" << token << ") ";
-            } else if (token == "r6") {
-                cout << "R6(" << token << ") ";
-            } else if (token == "r7") {
-                cout << "R7(" << token << ") ";
-            } else if (token == "out") {
-                cout << "OUT(" << token << ") ";
-            } else if (token == "in") {
-                cout << "IN(" << token << ") ";
-            } else if (token == "cli") {
-                cout << "CLI(" << token << ") ";
-            } else if (token == "sti") {
-                cout << "STI(" << token << ") ";
-            } else if (token == "hlt") {
-                cout << "HLT(" << token << ") ";
-            } else if (token == "lidt") {
-                cout << "LIDT(" << token << ") ";
-            } else if (token == "lgdt") {
-                cout << "LGDT(" << token << ") ";
-            } else if (token == "smsw") {
-                cout << "SMSW(" << token << ") ";
-            } else if (token == "lmsw") {
-                cout << "LMSW(" << token << ") ";
-            } else if (token == "invlpg") {
-                cout << "INVLPG(" << token << ") ";
-            } else if (token == "wbinvd") {
-                cout << "WBINVD(" << token << ") ";
-            } else if (token == "rdmsr") {
-                cout << "RDMSR(" << token << ") ";
-            } else if (token == "wrmsr") {
-                cout << "WRMSR(" << token << ") ";
-            } else if (token == "rdtsc") {
-                cout << "RDTSC(" << token << ") ";
-            } else if (token == "cpuid") {
-                cout << "CPUID(" << token << ") ";
-            } else if (token == "iret") {
-                cout << "IRET(" << token << ") ";
-            } else if (token == "pushfd") {
-                cout << "PUSHFD(" << token << ") ";
-            } else if (token == "popfd") {
-                cout << "POPFD(" << token << ") ";
-            } else if (token == "lahf") {
-                cout << "LAHF(" << token << ") ";
-            } else if (token == "sahf") {
-                cout << "SAHF(" << token << ") ";
-            } else if (token == "stall") {
-                cout << "STALL(" << token << ") ";
-            } else if (token == "reset") {
-                cout << "RESET(" << token << ") ";
-            } else if (token == "allocate_pages") {
-                cout << "ALLOCATE_PAGES(" << token << ") ";
-            } else if (token == "free_pages") {
-                cout << "FREE_PAGES(" << token << ") ";
-            } else if (token == "get_memory_map") {
-                cout << "GET_MEMORY_MAP(" << token << ") ";
-            } else if (token == "allocate_pool") {
-                cout << "ALLOCATE_POOL(" << token << ") ";
-            } else if (token == "free_pool") {
-                cout << "FREE_POOL(" << token << ") ";
-            } else if (token == "set_watchdog_timer") {
-                cout << "SET_WATCHDOG_TIMER(" << token << ") ";
-            } else if (token == "connect_controller") {
-                cout << "CONNECT_CONTROLLER(" << token << ") ";
-            } else if (token == "disconnect_controller") {
-                cout << "DISCONNECT_CONTROLLER(" << token << ") ";
-            } else if (token == "open_protocol") {
-                cout << "OPEN_PROTOCOL(" << token << ") ";
-            } else if (token == "close_protocol") {
-                cout << "CLOSE_PROTOCOL(" << token << ") ";
-            } else if (token == "locate_handle") {
-                cout << "LOCATE_HANDLE(" << token << ") ";
-            } else if (token == "locate_device_path") {
-                cout << "LOCATE_DEVICE_PATH(" << token << ") ";
-            } else if (token == "install_protocol_interface") {
-                cout << "INSTALL_PROTOCOL_INTERFACE(" << token << ") ";
-            } else if (token == "reinstall_protocol_interface") {
-                cout << "REINSTALL_PROTOCOL_INTERFACE(" << token << ") ";
-            } else if (token == "uninstall_protocol_interface") {
-                cout << "UNINSTALL_PROTOCOL_INTERFACE(" << token << ") ";
-            } else if (token == "handle_protocol") {
-                cout << "HANDLE_PROTOCOL(" << token << ") ";
-            } else if (token == "register_protocol_notify") {
-                cout << "REGISTER_PROTOCOL_NOTIFY(" << token << ") ";
-            } else if (token == "locate_handle_buffer") {
-                cout << "LOCATE_HANDLE_BUFFER(" << token << ") ";
-            } else if (isalpha(static_cast<unsigned char>(token.front())) || token.front() == '_') {
-                // If identifier is followed by ':', treat it as a label definition
-                if (j + 1 < lineTokens.size() && lineTokens[j + 1] == ":") {
-                    symbolTable.labels[token] = i; // Store reference line for assembly pass
-                    cout << "LABEL_DEFINITION(" << token << ") ";
-                } else {
-                    cout << "IDENTIFIER(" << token << ") ";
-                }
-            } else {
-                cout << "ERROR(" << token << ") ";
-            }
-        }
-        cout << endl;
-    }
+    // Phase 3: IR
+    vector<IRNode> ir = buildIR(parsedTokens, symbolTable);
+    (void)ir;
 
-    /**
-     * PHASE 3: Validation & Reporting
-     * Verifies that the entry point exists and provides feedback.
-     */
+    printTokens(parsedTokens);
+
     if (!symbolTable.entryLabel.empty()) {
         cout << "\nEntry point resolution:" << endl;
         cout << "Target: " << symbolTable.entryLabel << endl;
-        if (symbolTable.labels.count(symbolTable.entryLabel)) {
-            cout << "Status: RESOLVED at line " << symbolTable.labels[symbolTable.entryLabel] + 1 << endl;
+        auto entryIt = symbolTable.labels.find(symbolTable.entryLabel);
+        if (entryIt != symbolTable.labels.end()) {
+            cout << "Status: RESOLVED at line " << entryIt->second << endl;
         } else {
             cout << "Status: UNRESOLVED (Error: Label not found)" << endl;
         }
@@ -946,4 +949,3 @@ int main() {
 
     return 0;
 }
-
