@@ -137,6 +137,76 @@ struct Tokens {
         RFLAGS,
         EFLAGS,
         FLAGS,
+        R0,
+        R1,
+        R2,
+        R3,
+        R4,
+        R5,
+        R6,
+        R7,
+        X0,
+        X1,
+        X2,
+        X3,
+        X4,
+        X5,
+        X6,
+        X7,
+        X8,
+        X9,
+        X10,
+        X11,
+        X12,
+        X13,
+        X14,
+        X15,
+        X16,
+        X17,
+        X18,
+        X19,
+        X20,
+        X21,
+        X22,
+        X23,
+        X24,
+        X25,
+        X26,
+        X27,
+        X28,
+        X29,
+        X30,
+        W0,
+        W1,
+        W2,
+        W3,
+        W4,
+        W5,
+        W6,
+        W7,
+        W8,
+        W9,
+        W10,
+        W11,
+        W12,
+        W13,
+        W14,
+        W15,
+        W16,
+        W17,
+        W18,
+        W19,
+        W20,
+        W21,
+        W22,
+        W23,
+        W24,
+        W25,
+        W26,
+        W27,
+        W28,
+        W29,
+        W30,
         PRINT,
         CALL,
     };
@@ -382,6 +452,146 @@ int main() {
                 cout << "DOUBLE(" << token << ") ";
             } else if (token == "char") {
                 cout << "CHAR(" << token << ") ";
+            } else if (token == "w0") {
+                cout << "W0(" << token << ") ";
+            } else if (token == "w1") {
+                cout << "W1(" << token << ") ";
+            } else if (token == "w2") {
+                cout << "W2(" << token << ") ";
+            } else if (token == "w3") {
+                cout << "W3(" << token << ") ";
+            } else if (token == "w4") {
+                cout << "W4(" << token << ") ";
+            } else if (token == "w5") {
+                cout << "W5(" << token << ") ";
+            } else if (token == "w6") {
+                cout << "W6(" << token << ") ";
+            } else if (token == "w7") {
+                cout << "W7(" << token << ") ";
+            } else if (token == "w8") {
+                cout << "W8(" << token << ") ";
+            } else if (token == "w9") {
+                cout << "W9(" << token << ") ";
+            } else if (token == "w10") {
+                cout << "W10(" << token << ") ";
+            } else if (token == "w11") {
+                cout << "W11(" << token << ") ";
+            } else if (token == "w12") {
+                cout << "W12(" << token << ") ";
+            } else if (token == "w13") {
+                cout << "W13(" << token << ") ";
+            } else if (token == "w14") {
+                cout << "W14(" << token << ") ";
+            } else if (token == "w15") {
+                cout << "W15(" << token << ") ";
+            } else if (token == "w16") {
+                cout << "W16(" << token << ") ";
+            } else if (token == "w17") {
+                cout << "W17(" << token << ") ";
+            } else if (token == "w18") {
+                cout << "W18(" << token << ") ";
+            } else if (token == "w19") {
+                cout << "W19(" << token << ") ";
+            } else if (token == "w20") {
+                cout << "W20(" << token << ") ";
+            } else if (token == "w21") {
+                cout << "W21(" << token << ") ";
+            } else if (token == "w22") {
+                cout << "W22(" << token << ") ";
+            } else if (token == "w23") {
+                cout << "W23(" << token << ") ";
+            } else if (token == "w24") {
+                cout << "W24(" << token << ") ";
+            } else if (token == "w25") {
+                cout << "W25(" << token << ") ";
+            } else if (token == "w26") {
+                cout << "W26(" << token << ") ";
+            } else if (token == "w27") {
+                cout << "W27(" << token << ") ";
+            } else if (token == "w28") {
+                cout << "W28(" << token << ") ";
+            } else if (token == "w29") {
+                cout << "W29(" << token << ") ";
+            } else if (token == "w30") {
+                cout << "W30(" << token << ") ";
+            } else if (token == "x0") {
+                cout << "X0(" << token << ") ";
+            } else if (token == "x1") {
+                cout << "X1(" << token << ") ";
+            } else if (token == "x2") {
+                cout << "X2(" << token << ") ";
+            } else if (token == "x3") {
+                cout << "X3(" << token << ") ";
+            } else if (token == "x4") {
+                cout << "X4(" << token << ") ";
+            } else if (token == "x5") {
+                cout << "X5(" << token << ") ";
+            } else if (token == "x6") {
+                cout << "X6(" << token << ") ";
+            } else if (token == "x7") {
+                cout << "X7(" << token << ") ";
+            } else if (token == "x8") {
+                cout << "X8(" << token << ") ";
+            } else if (token == "x9") {
+                cout << "X9(" << token << ") ";
+            } else if (token == "x10") {
+                cout << "X10(" << token << ") ";
+            } else if (token == "x11") {
+                cout << "X11(" << token << ") ";
+            } else if (token == "x12") {
+                cout << "X12(" << token << ") ";
+            } else if (token == "x13") {
+                cout << "X13(" << token << ") ";
+            } else if (token == "x14") {
+                cout << "X14(" << token << ") ";
+            } else if (token == "x15") {
+                cout << "X15(" << token << ") ";
+            } else if (token == "x16") {
+                cout << "X16(" << token << ") ";
+            } else if (token == "x17") {
+                cout << "X17(" << token << ") ";
+            } else if (token == "x18") {
+                cout << "X18(" << token << ") ";
+            } else if (token == "x19") {
+                cout << "X19(" << token << ") ";
+            } else if (token == "x20") {
+                cout << "X20(" << token << ") ";
+            } else if (token == "x21") {
+                cout << "X21(" << token << ") ";
+            } else if (token == "x22") {
+                cout << "X22(" << token << ") ";
+            } else if (token == "x23") {
+                cout << "X23(" << token << ") ";
+            } else if (token == "x24") {
+                cout << "X24(" << token << ") ";
+            } else if (token == "x25") {
+                cout << "X25(" << token << ") ";
+            } else if (token == "x26") {
+                cout << "X26(" << token << ") ";
+            } else if (token == "x27") {
+                cout << "X27(" << token << ") ";
+            } else if (token == "x28") {
+                cout << "X28(" << token << ") ";
+            } else if (token == "x29") {
+                cout << "X29(" << token << ") ";
+            } else if (token == "x30") {
+                cout << "X30(" << token << ") ";
+            } else if (token == "r0") {
+                cout << "R0(" << token << ") ";
+            } else if (token == "r1") {
+                cout << "R1(" << token << ") ";
+            } else if (token == "r2") {
+                cout << "R2(" << token << ") ";
+            } else if (token == "r3") {
+                cout << "R3(" << token << ") ";
+            } else if (token == "r4") {
+                cout << "R4(" << token << ") ";
+            } else if (token == "r5") {
+                cout << "R5(" << token << ") ";
+            } else if (token == "r6") {
+                cout << "R6(" << token << ") ";
+            } else if (token == "r7") {
+                cout << "R7(" << token << ") ";
             } else if (isalpha(static_cast<unsigned char>(token.front())) || token.front() == '_') {
                 cout << "IDENTIFIER(" << token << ") ";
             } else {
