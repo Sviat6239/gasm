@@ -14,7 +14,7 @@ Current state:
 - String literals inside `"..."` are kept as a single `STRING(...)` token.
 - `#` starts a comment and ignores the rest of the line.
 - Tokens are stored as `vector<vector<string>>` (per-line token list) and printed as `TOKEN(value)`.
-- Token classification, parser, and code generation are not implemented yet.
+- Token classification is nearly complete for core instructions and registers across x86, ARM64, and RISC-V.
 
 ## Example Input
 
@@ -39,6 +39,9 @@ _start:
     } else {
         print msg2;
     }
+    xor rbx, rbx;    # x86 specific
+    ldr x0, [sp];   # arm64 specific
+    beq a0, a1, label; # risc-v specific
     print rax;
 ```
 
@@ -56,29 +59,27 @@ Example output shape:
 ARCH(arch) X86(x86) SEMICOLON(;)
 FORMAT(format) ELF64(elf64) SEMICOLON(;)
 DECLARE(declare) IDENTIFIER(number) DW(dw) ASSIGN(=) NUMBER(84) SEMICOLON(;)
-DECLARE(declare) IDENTIFIER(msg1) CHAR(char) LEFTHESE([) RIGHTHESE(]) ASSIGN(=) STRING(Grether than 150) SEMICOLON(;)
-DECLARE(declare) IDENTIFIER(msg2) CHAR(char) LEFTHESE([) RIGHTHESE(]) ASSIGN(=) STRING(Less than 150) SEMICOLON(;)
-ENTRY(entry) IDENTIFIER(_start) SEMICOLON(;)
-IDENTIFIER(_start) COLON(:)
-... 
+MOV(mov) RAX(rax) COMMA(,) NUMBER(84) SEMICOLON(;)
+XOR(xor) RBX(rbx) COMMA(,) RBX(rbx) SEMICOLON(;)
+LDR(ldr) X0(x0) COMMA(,) LEFTHESE([) SP(sp) RIGHTHESE(]) SEMICOLON(;)
+...
 ```
 
 ## Token Vocabulary
 
-`Tokens::Token` currently includes the following tokens:
+`Tokens::Token` currently includes a wide range of tokens for multi-architecture support:
 
-- Output formats: `format`, `win32`, `win64`, `elf32`, `elf64`
-- Architecture tags: `arch`, `x86`, `aarch`, `aarch64`, `rv32`, `rv64`
-- Declarations and structure keywords: `entry`, `declare`, `struct`, `endstruct`, `macro`, `endmacro`, `if`, `else`
-- Data directives and types: `db`, `dw`, `dd`, `dq`, `int8`, `int16`, `int32`, `int64`, `uint8`, `uint16`, `uint32`, `uint64`, `float`, `double`, `char`
-- Statements and punctuation: `=`, `:`, `;`, `,`, `(`, `)`, `[`, `]`, `{`, `}`, `<`, `>`, `string`, `number`
-- Instructions: `mov`, `add`, `sub`, `mul`, `div`, `sqr`, `pow`, `cmp`, `jmp`, `jnz`, `inc`, `dec`, `print`, `call`
-- Registers:
-  - x86 (64/32/16/8-bit): `rax`-`r15`, `eax`-`r15d`, `ax`-`r15w`, `al`-`r15b`, `rip`, `flags`, segments.
-  - AArch64: `x0`-`x30`, `w0`-`w30`.
-  - ARM: `r0`-`r7`.
-
-Token classification is partial: keywords, registers, and punctuation are mapped to tokens; unknown words become `IDENTIFIER(...)`.
+- **Output formats & Arch**: `format`, `win32`, `win64`, `elf32`, `elf64`, `arch`, `x86`, `aarch64`, `rv32`, `rv64`.
+- **Keywords**: `entry`, `declare`, `struct`, `endstruct`, `macro`, `endmacro`, `if`, `else`, `print`, `call`.
+- **Data Types**: `db`, `dw`, `dd`, `dq`, `int8`-`int64`, `uint8`-`uint64`, `float`, `double`, `char`.
+- **Instructions (Multi-Arch)**:
+  - **x86/General**: `mov`, `add`, `sub`, `mul`, `div`, `sqr`, `pow`, `cmp`, `jmp`, `jnz`, `inc`, `dec`, `xor`, `and`, `or`, `not`, `shl`, `shr`, `sar`, `rol`, `ror`, `ret`, `int`, `syscall`.
+  - **AArch64/ARM**: `ldr`, `str`, `orr`, `eor`, `bic`, `lsl`, `lsr`, `asr`, `tst`, `b`, `bl`, `bx`, `adr`, `sdiv`, `udiv`, `bfi`, `ubfx`, `cbz`, `cbnz`.
+  - **RISC-V**: `lui`, `auipc`, `lw`, `sw`, `ld`, `sd`, `addi`, `slt`, `slti`, `jal`, `jalr`, `beq`, `bne`, `blt`, `bge`.
+- **Registers**:
+  - **x86**: `rax`-`r15`, `eax`-`r15d`, `ax`-`r15w`, `al`-`r15b`, `rip`, `flags`, segments.
+  - **AArch64**: `x0`-`x30`, `w0`-`w30`.
+  - **ARM**: `r0`-`r7`.
 
 ## Notes
 

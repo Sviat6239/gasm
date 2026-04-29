@@ -57,6 +57,52 @@ struct Tokens {
         JNZ,
         INC,
         DEC,
+        XOR,
+        AND,
+        OR,
+        NOT,
+        SHL,
+        SHR,
+        SAR,
+        ROL,
+        ROR,
+        RET,
+        INT,
+        SYSCALL,
+        LDR,
+        STR,
+        ORR,
+        EOR,
+        BIC,
+        LSL,
+        LSR,
+        ASR,
+        TST,
+        B,
+        BL_OP,
+        BX_OP,
+        ADR,
+        SDIV,
+        UDIV,
+        BFI,
+        UBFX,
+        CBZ,
+        CBNZ,
+        LUI,
+        AUIPC,
+        LW,
+        SW,
+        LD,
+        SD,
+        ADDI,
+        SLT,
+        SLTI,
+        JAL,
+        JALR,
+        BEQ,
+        BNE,
+        BLT,
+        BGE,
         RAX,
         RBX,
         RCX,
@@ -408,6 +454,98 @@ int main() {
                 cout << "INC(" << token << ") ";
             } else if (token == "dec") {
                 cout << "DEC(" << token << ") ";
+            } else if (token == "xor") {
+                cout << "XOR(" << token << ") ";
+            } else if (token == "and") {
+                cout << "AND(" << token << ") ";
+            } else if (token == "or") {
+                cout << "OR(" << token << ") ";
+            } else if (token == "not") {
+                cout << "NOT(" << token << ") ";
+            } else if (token == "shl") {
+                cout << "SHL(" << token << ") ";
+            } else if (token == "shr") {
+                cout << "SHR(" << token << ") ";
+            } else if (token == "sar") {
+                cout << "SAR(" << token << ") ";
+            } else if (token == "rol") {
+                cout << "ROL(" << token << ") ";
+            } else if (token == "ror") {
+                cout << "ROR(" << token << ") ";
+            } else if (token == "ret") {
+                cout << "RET(" << token << ") ";
+            } else if (token == "int") {
+                cout << "INT(" << token << ") ";
+            } else if (token == "syscall") {
+                cout << "SYSCALL(" << token << ") ";
+            } else if (token == "ldr") {
+                cout << "LDR(" << token << ") ";
+            } else if (token == "str") {
+                cout << "STR(" << token << ") ";
+            } else if (token == "orr") {
+                cout << "ORR(" << token << ") ";
+            } else if (token == "eor") {
+                cout << "EOR(" << token << ") ";
+            } else if (token == "bic") {
+                cout << "BIC(" << token << ") ";
+            } else if (token == "lsl") {
+                cout << "LSL(" << token << ") ";
+            } else if (token == "lsr") {
+                cout << "LSR(" << token << ") ";
+            } else if (token == "asr") {
+                cout << "ASR(" << token << ") ";
+            } else if (token == "tst") {
+                cout << "TST(" << token << ") ";
+            } else if (token == "b") {
+                cout << "B(" << token << ") ";
+            } else if (token == "bl") {
+                cout << "BL_OP(" << token << ") ";
+            } else if (token == "bx") {
+                cout << "BX_OP(" << token << ") ";
+            } else if (token == "adr") {
+                cout << "ADR(" << token << ") ";
+            } else if (token == "sdiv") {
+                cout << "SDIV(" << token << ") ";
+            } else if (token == "udiv") {
+                cout << "UDIV(" << token << ") ";
+            } else if (token == "bfi") {
+                cout << "BFI(" << token << ") ";
+            } else if (token == "ubfx") {
+                cout << "UBFX(" << token << ") ";
+            } else if (token == "cbz") {
+                cout << "CBZ(" << token << ") ";
+            } else if (token == "cbnz") {
+                cout << "CBNZ(" << token << ") ";
+            } else if (token == "lui") {
+                cout << "LUI(" << token << ") ";
+            } else if (token == "auipc") {
+                cout << "AUIPC(" << token << ") ";
+            } else if (token == "lw") {
+                cout << "LW(" << token << ") ";
+            } else if (token == "sw") {
+                cout << "SW(" << token << ") ";
+            } else if (token == "ld") {
+                cout << "LD(" << token << ") ";
+            } else if (token == "sd") {
+                cout << "SD(" << token << ") ";
+            } else if (token == "addi") {
+                cout << "ADDI(" << token << ") ";
+            } else if (token == "slt") {
+                cout << "SLT(" << token << ") ";
+            } else if (token == "slti") {
+                cout << "SLTI(" << token << ") ";
+            } else if (token == "jal") {
+                cout << "JAL(" << token << ") ";
+            } else if (token == "jalr") {
+                cout << "JALR(" << token << ") ";
+            } else if (token == "beq") {
+                cout << "BEQ(" << token << ") ";
+            } else if (token == "bne") {
+                cout << "BNE(" << token << ") ";
+            } else if (token == "blt") {
+                cout << "BLT(" << token << ") ";
+            } else if (token == "bge") {
+                cout << "BGE(" << token << ") ";
             } else if (token == "call") {
                 cout << "CALL(" << token << ") ";
             } else if (token == "else") {
