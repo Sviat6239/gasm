@@ -8,34 +8,38 @@ Right now, the project focuses on the very first front-end step: splitting sourc
 This project is in an early prototype stage.
 
 Current state:
-- A `Tokens::Token` enum is defined for the language vocabulary.
-- `main.cpp` reads `index.asm` line by line.
-- A basic tokenizer splits tokens by whitespace and punctuation: `:`, `;`, `,`, `=`, `"`, `<`, `>`, `(`, `)`, `[`, `]`, `{`, `}`.
+- **Doxygen-style Documentation**: Core logic is fully commented to industry standards.
+- **Symbol Management**: `SymbolTable` tracks user-defined labels and validates the application entry point.
+- **Entry Point Resolution**: Correctly identifies the address of the label specified by the `entry` directive.
+- **Bare Metal & OS Support**: Includes a comprehensive set of tokens for BIOS (Legacy) and UEFI (modern) development.
+- **Instruction Classification**: Tokens are clearly categorized into architecture-specific sets (x86, ARM, RISC-V).
 - String literals inside `"..."` are kept as a single `STRING(...)` token.
 - `#` starts a comment and ignores the rest of the line.
 - Tokens are stored as `vector<vector<string>>` (per-line token list) and printed as `TOKEN(value)`.
-- Token classification is nearly complete for core instructions and registers across x86, ARM64, and RISC-V.
-- Support for multi-platform examples including Linux (Direct Syscalls), Windows (Win64 ABI), and Bare Metal.
 
 ## Platform & Architecture Support
 
 `gasm` targets three major architectures with specific platform support:
-- **x86 (64-bit)**: Windows (Win64 ABI), Linux (System V ABI).
+- **x86 (64-bit)**: Windows (Win64 ABI), Linux (System V ABI), **Legacy BIOS (Real/Protected Mode)**.
 - **AArch64**: Linux (SVC), Windows on ARM (bl/adr).
 - **RISC-V (32/64-bit)**: Linux (ecall), Bare Metal/Embedded.
+- **Firmware**: **UEFI (EFI format)** support via dedicated protocol tokens.
 
 ## Examples
 
-The project now includes **60+ examples** (20 per architecture) demonstrating various features:
+The project now includes **100+ examples** demonstrating various features:
 - Linux Syscalls (`syscall`, `svc`, `ecall`)
 - Windows API calls (`MessageBox`, shadow space)
+- **Legacy BIOS**: Keyboard I/O, VGA, GDT/IDT management (`cli`, `lgdt`, `out`).
+- **UEFI**: Boot services, protocol handling, memory map resolution (`stall`, `allocate_pool`).
 - High-level constructs (`if`, `else`, `while`, `struct`, `macro`)
-- Architecture-specific logic (Bitfields on ARM, Upper Immediates on RISC-V)
 
 You can find them in:
 - `examples/x86/`
 - `examples/aarch64/`
 - `examples/riscv/`
+- `examples/bios/`
+- `examples/uefi/`
 
 ## Example Input
 
@@ -88,11 +92,13 @@ LDR(ldr) X0(x0) COMMA(,) LEFTHESE([) SP(sp) RIGHTHESE(]) SEMICOLON(;)
 
 ## Token Vocabulary
 
-`Tokens::Token` currently includes a wide range of tokens for multi-architecture support:
+`Tokens::Token` currently includes a wide range of tokens for multi-architecture and low-level support:
 
-- **Output formats & Arch**: `format`, `win32`, `win64`, `elf32`, `elf64`, `arch`, `x86`, `aarch64`, `rv32`, `rv64`.
+- **Output formats & Arch**: `format`, `win32`, `win64`, `elf32`, `elf64`, `bin` (Legacy), `efi` (UEFI), `arch`, `x86`, `aarch64`, `rv32`, `rv64`.
 - **Keywords**: `entry`, `declare`, `struct`, `endstruct`, `macro`, `endmacro`, `if`, `else`, `print`, `call`.
 - **Data Types**: `db`, `dw`, `dd`, `dq`, `int8`-`int64`, `uint8`-`uint64`, `float`, `double`, `char`.
+- **BIOS / Low-Level**: `out`, `in`, `cli`, `sti`, `hlt`, `lidt`, `lgdt`, `smsw`, `lmsw`, `invlpg`, `wbinvd`, `rdmsr`, `wrmsr`, `rdtsc`, `cpuid`, `iret`.
+- **UEFI Protocols**: `stall`, `reset`, `allocate_pages`, `get_memory_map`, `allocate_pool`, `open_protocol`, `locate_handle`.
 - **Instructions (Multi-Arch)**:
   - **x86/General**: `mov`, `add`, `sub`, `mul`, `div`, `sqr`, `pow`, `cmp`, `jmp`, `jnz`, `inc`, `dec`, `xor`, `and`, `or`, `not`, `shl`, `shr`, `sar`, `rol`, `ror`, `ret`, `int`, `syscall`.
   - **AArch64/ARM**: `ldr`, `str`, `orr`, `eor`, `bic`, `lsl`, `lsr`, `asr`, `tst`, `b`, `bl`, `bx`, `adr`, `sdiv`, `udiv`, `bfi`, `ubfx`, `cbz`, `cbnz`.
@@ -101,6 +107,13 @@ LDR(ldr) X0(x0) COMMA(,) LEFTHESE([) SP(sp) RIGHTHESE(]) SEMICOLON(;)
   - **x86**: `rax`-`r15`, `eax`-`r15d`, `ax`-`r15w`, `al`-`r15b`, `rip`, `flags`, segments.
   - **AArch64/ARM**: `x0`-`x30`, `w0`-`w30`, `v0`-`v31`, `r0`-`r7`, `cpsr`, `spsr`.
   - **RISC-V**: ABI aliases (`zero`, `ra`, `sp`, `gp`, `tp`, `t0-t6`, `s0-s11`, `a0-a7`) and numeric `x0-x31`.
+
+## Semantic Verification
+
+Each time you run the compiler, it performs a basic **Symbol Resolution** pass:
+- Resolves labels to their respective line numbers.
+- Validates that the entry point specified by `entry <label>` exists in the symbol table.
+- Reports resolution status (e.g., `Status: RESOLVED at line X`).
 
 ## Notes
 

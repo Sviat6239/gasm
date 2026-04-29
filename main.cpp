@@ -3,20 +3,33 @@
 #include <vector>
 #include <string>
 #include <cctype>
+#include <map>
+
 using namespace std;
 
+/**
+ * Tokens structure defines the set of all possible signals the lexer can emit.
+ */
 struct Tokens {
+    /**
+     * Token enumeration represents the language's grammar elements.
+     */
     enum Token {
+        // Directives and configuration
         FORMAT,
         WIN32,
         WIN64,
         ELF32,
         ELF64,
+        BIN,        // Pure binary format
+        EFI,        // UEFI executable format
         ARCH,
         X86,
         AARCH64,
         ENTRY,
         DECLARE,
+
+        // Identifiers and literals
         IDENTIFIER,
         DB,
         DW,
@@ -33,18 +46,26 @@ struct Tokens {
         FLOAT,
         DOUBLE,
         CHAR,
+
+        // Structural directives
         STRUCT,
         ENDSTRUCT,
         MACRO,
         ENDMACRO,
+
+        // Control flow
         IF,
         ELSE,
+
+        // Operators and punctuation
         ASSIGN,
         COLON,
         SEMICOLON,
         COMMA,
         STRING,
         NUMBER,
+
+        // x86-64 / ARM64 instructions
         MOV,
         ADD,
         SUB,
@@ -103,6 +124,8 @@ struct Tokens {
         BNE,
         BLT,
         BGE,
+
+        // Register names (x86-64 / ARM64)
         RAX,
         RBX,
         RCX,
@@ -183,6 +206,8 @@ struct Tokens {
         RFLAGS,
         EFLAGS,
         FLAGS,
+
+        // RISC-V registers
         R0,
         R1,
         R2,
@@ -222,6 +247,8 @@ struct Tokens {
         X28,
         X29,
         X30,
+
+        // Pseudo-instructions for RISC-V
         W0,
         W1,
         W2,
@@ -253,14 +280,69 @@ struct Tokens {
         W28,
         W29,
         W30,
+
+        // Low-level / BIOS / UEFI specific operations
+        OUT,
+        IN,
+        CLI,
+        STI,
+        HLT,
+        LIDT,
+        LGDT,
+        SMSW,
+        LMSW,
+        INVLPG,
+        WBINVD,
+        RDMSR,
+        WRMSR,
+        RDTSC,
+        CPUID,
+        IRET,
+        PUSHFD,
+        POPFD,
+        LAHF,
+        SAHF,
+
+        // UEFI / Protocol helpers
+        STALL,
+        RESET,
+        ALLOCATE_PAGES,
+        FREE_PAGES,
+        GET_MEMORY_MAP,
+        ALLOCATE_POOL,
+        FREE_POOL,
+        SET_WATCHDOG_TIMER,
+        CONNECT_CONTROLLER,
+        DISCONNECT_CONTROLLER,
+        OPEN_PROTOCOL,
+        CLOSE_PROTOCOL,
+        LOCATE_HANDLE,
+        LOCATE_DEVICE_PATH,
+        INSTALL_PROTOCOL_INTERFACE,
+        REINSTALL_PROTOCOL_INTERFACE,
+        UNINSTALL_PROTOCOL_INTERFACE,
+        HANDLE_PROTOCOL,
+        REGISTER_PROTOCOL_NOTIFY,
+        LOCATE_HANDLE_BUFFER,
+
+        // Additional operations
         PRINT,
         CALL,
     };
 };
 
+/**
+ * SymbolTable manages user-defined labels and global assembly metadata.
+ */
+struct SymbolTable {
+    map<string, int> labels;    // Map of label names to their line locations
+    string entryLabel;          // The name of the defined entry point (e.g., "_start")
+};
 
 int main() {
+    SymbolTable symbolTable;
 
+    // Load source code from file
     ifstream code("index.asm");
 
     if (!code.is_open()) {
@@ -271,12 +353,17 @@ int main() {
     string line;
     vector<vector<string>> tokens;
 
+    /**
+     * PHASE 1: Lexical Analysis (Tokenization)
+     * Scans the input text and breaks it down into individual strings (tokens).
+     */
     while (getline(code, line)) {
         vector<string> lineTokens;
         string current;
         bool inString = false;
 
         for (char ch : line) {
+            // Handle string literals parsing
             if (inString) {
                 current += ch;
                 if (ch == '"') {
@@ -297,6 +384,7 @@ int main() {
                 continue;
             }
 
+            // Handle comments (ignore everything after '#')
             if (ch == '#') {
                 if (!current.empty()) {
                     lineTokens.push_back(current);
@@ -305,6 +393,7 @@ int main() {
                 break;
             }
 
+            // Splitting by whitespace or special syntax characters
             if (isspace(static_cast<unsigned char>(ch))) {
                 if (!current.empty()) {
                     lineTokens.push_back(current);
@@ -321,12 +410,12 @@ int main() {
             }
         }
 
+        // Error checking for unterminated literals
         if (!current.empty()) {
             if (inString) {
                 cerr << "Unterminated string literal: " << current << endl;
                 return 1;
             }
-
             lineTokens.push_back(current);
         }
 
@@ -338,8 +427,16 @@ int main() {
         tokens.push_back(lineTokens);
     }
 
-    for (const auto& lineTokens : tokens) {
-        for (const auto& token : lineTokens) {
+    /**
+     * PHASE 2: Semantic Analysis & Symbol Resolution
+     * Iterates through tokens to identify directives, instructions, and labels.
+     */
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        const auto& lineTokens = tokens[i];
+        for (size_t j = 0; j < lineTokens.size(); ++j) {
+            const auto& token = lineTokens[j];
+
+            // Type Identification
             if (token.front() == '"' && token.back() == '"') {
                 cout << "STRING(" << token.substr(1, token.size() - 2) << ") ";
             } else if (isdigit(static_cast<unsigned char>(token.front())) || (token.front() == '-' && token.size() > 1 && isdigit(static_cast<unsigned char>(token[1])))) {
@@ -380,6 +477,10 @@ int main() {
                 cout << "ELF32(" << token << ") ";
             } else if (token == "elf64") {
                 cout << "ELF64(" << token << ") ";
+            } else if (token == "bin") {
+                cout << "BIN(" << token << ") ";
+            } else if (token == "efi") {
+                cout << "EFI(" << token << ") ";
             } else if (token == "arch") {
                 cout << "ARCH(" << token << ") ";
             } else if (token == "x86") {
@@ -387,7 +488,11 @@ int main() {
             } else if (token == "aarch64") {
                 cout << "AARCH64(" << token << ") ";
             } else if (token == "entry") {
+                // Capturing the application entry point
                 cout << "ENTRY(" << token << ") ";
+                if (j + 1 < lineTokens.size()) {
+                    symbolTable.entryLabel = lineTokens[j + 1];
+                }
             } else if (token == "declare") {
                 cout << "DECLARE(" << token << ") ";
             } else if (token == "rax") {
@@ -730,8 +835,94 @@ int main() {
                 cout << "R6(" << token << ") ";
             } else if (token == "r7") {
                 cout << "R7(" << token << ") ";
+            } else if (token == "out") {
+                cout << "OUT(" << token << ") ";
+            } else if (token == "in") {
+                cout << "IN(" << token << ") ";
+            } else if (token == "cli") {
+                cout << "CLI(" << token << ") ";
+            } else if (token == "sti") {
+                cout << "STI(" << token << ") ";
+            } else if (token == "hlt") {
+                cout << "HLT(" << token << ") ";
+            } else if (token == "lidt") {
+                cout << "LIDT(" << token << ") ";
+            } else if (token == "lgdt") {
+                cout << "LGDT(" << token << ") ";
+            } else if (token == "smsw") {
+                cout << "SMSW(" << token << ") ";
+            } else if (token == "lmsw") {
+                cout << "LMSW(" << token << ") ";
+            } else if (token == "invlpg") {
+                cout << "INVLPG(" << token << ") ";
+            } else if (token == "wbinvd") {
+                cout << "WBINVD(" << token << ") ";
+            } else if (token == "rdmsr") {
+                cout << "RDMSR(" << token << ") ";
+            } else if (token == "wrmsr") {
+                cout << "WRMSR(" << token << ") ";
+            } else if (token == "rdtsc") {
+                cout << "RDTSC(" << token << ") ";
+            } else if (token == "cpuid") {
+                cout << "CPUID(" << token << ") ";
+            } else if (token == "iret") {
+                cout << "IRET(" << token << ") ";
+            } else if (token == "pushfd") {
+                cout << "PUSHFD(" << token << ") ";
+            } else if (token == "popfd") {
+                cout << "POPFD(" << token << ") ";
+            } else if (token == "lahf") {
+                cout << "LAHF(" << token << ") ";
+            } else if (token == "sahf") {
+                cout << "SAHF(" << token << ") ";
+            } else if (token == "stall") {
+                cout << "STALL(" << token << ") ";
+            } else if (token == "reset") {
+                cout << "RESET(" << token << ") ";
+            } else if (token == "allocate_pages") {
+                cout << "ALLOCATE_PAGES(" << token << ") ";
+            } else if (token == "free_pages") {
+                cout << "FREE_PAGES(" << token << ") ";
+            } else if (token == "get_memory_map") {
+                cout << "GET_MEMORY_MAP(" << token << ") ";
+            } else if (token == "allocate_pool") {
+                cout << "ALLOCATE_POOL(" << token << ") ";
+            } else if (token == "free_pool") {
+                cout << "FREE_POOL(" << token << ") ";
+            } else if (token == "set_watchdog_timer") {
+                cout << "SET_WATCHDOG_TIMER(" << token << ") ";
+            } else if (token == "connect_controller") {
+                cout << "CONNECT_CONTROLLER(" << token << ") ";
+            } else if (token == "disconnect_controller") {
+                cout << "DISCONNECT_CONTROLLER(" << token << ") ";
+            } else if (token == "open_protocol") {
+                cout << "OPEN_PROTOCOL(" << token << ") ";
+            } else if (token == "close_protocol") {
+                cout << "CLOSE_PROTOCOL(" << token << ") ";
+            } else if (token == "locate_handle") {
+                cout << "LOCATE_HANDLE(" << token << ") ";
+            } else if (token == "locate_device_path") {
+                cout << "LOCATE_DEVICE_PATH(" << token << ") ";
+            } else if (token == "install_protocol_interface") {
+                cout << "INSTALL_PROTOCOL_INTERFACE(" << token << ") ";
+            } else if (token == "reinstall_protocol_interface") {
+                cout << "REINSTALL_PROTOCOL_INTERFACE(" << token << ") ";
+            } else if (token == "uninstall_protocol_interface") {
+                cout << "UNINSTALL_PROTOCOL_INTERFACE(" << token << ") ";
+            } else if (token == "handle_protocol") {
+                cout << "HANDLE_PROTOCOL(" << token << ") ";
+            } else if (token == "register_protocol_notify") {
+                cout << "REGISTER_PROTOCOL_NOTIFY(" << token << ") ";
+            } else if (token == "locate_handle_buffer") {
+                cout << "LOCATE_HANDLE_BUFFER(" << token << ") ";
             } else if (isalpha(static_cast<unsigned char>(token.front())) || token.front() == '_') {
-                cout << "IDENTIFIER(" << token << ") ";
+                // If identifier is followed by ':', treat it as a label definition
+                if (j + 1 < lineTokens.size() && lineTokens[j + 1] == ":") {
+                    symbolTable.labels[token] = i; // Store reference line for assembly pass
+                    cout << "LABEL_DEFINITION(" << token << ") ";
+                } else {
+                    cout << "IDENTIFIER(" << token << ") ";
+                }
             } else {
                 cout << "ERROR(" << token << ") ";
             }
@@ -739,5 +930,20 @@ int main() {
         cout << endl;
     }
 
+    /**
+     * PHASE 3: Validation & Reporting
+     * Verifies that the entry point exists and provides feedback.
+     */
+    if (!symbolTable.entryLabel.empty()) {
+        cout << "\nEntry point resolution:" << endl;
+        cout << "Target: " << symbolTable.entryLabel << endl;
+        if (symbolTable.labels.count(symbolTable.entryLabel)) {
+            cout << "Status: RESOLVED at line " << symbolTable.labels[symbolTable.entryLabel] + 1 << endl;
+        } else {
+            cout << "Status: UNRESOLVED (Error: Label not found)" << endl;
+        }
+    }
+
     return 0;
 }
+
