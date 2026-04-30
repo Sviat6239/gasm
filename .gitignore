@@ -21,3 +21,8 @@ build/
 *.sln
 *.vcxproj
 *.vcxproj.filters
+.vscode/
+.vs/
+.build/
+.cmake-build-debug/
+.out/

@@ -5,4 +5,4 @@
 
 using namespace std;
 
-static vector<IRNode> buildIR(const vector<Token>& tokens, SymbolTable& symbolTable);
+vector<IRNode> buildIR(const vector<Token>& tokens, SymbolTable& symbolTable);

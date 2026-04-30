@@ -2,10 +2,11 @@
 #include "symbols.h"
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 using namespace std;
 
-static bool writeTextIr(const string& outputPath, const vector<Token>& tokens, const vector<IRNode>& ir, const SymbolTable& symbolTable) {
+bool writeTextIr(const string& outputPath, const vector<Token>& tokens, const vector<IRNode>& ir, const SymbolTable& symbolTable) {
     ofstream out(outputPath);
     if (!out.is_open()) {
         cerr << "Failed to open output file: " << outputPath << endl;
@@ -37,16 +38,17 @@ static bool writeTextIr(const string& outputPath, const vector<Token>& tokens, c
     return true;
 }
 
-static void writeUint32(ostream& out, uint32_t value) {
+void writeUint32(ostream& out, uint32_t value) {
     out.write(reinterpret_cast<const char*>(&value), sizeof(value));
 }
 
-static void writeString(ostream& out, const string& value) {
-    writeUint32(out, static_cast<uint32_t>(value.size()));
-    out.write(value.data(), static_cast<streamsize>(value.size()));
+void writeString(ostream& out, const string& value) {
+    uint32_t length = value.length();
+    writeUint32(out, length);
+    out.write(value.c_str(), length);
 }
 
-static bool writeBinaryIrArtifact(const string& outputPath, const vector<IRNode>& ir, const SymbolTable& symbolTable) {
+bool writeBinaryIrArtifact(const string& outputPath, const vector<IRNode>& ir, const SymbolTable& symbolTable) {
     ofstream out(outputPath, ios::binary);
     if (!out.is_open()) {
         cerr << "Failed to open output file: " << outputPath << endl;

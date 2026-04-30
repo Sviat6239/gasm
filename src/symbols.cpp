@@ -1,10 +1,11 @@
 #include "symbols.h"
 #include "utils.h"
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 
-static string displayName(const Token& token) {
+string displayName(const Token& token) {
     switch (token.type) {
         case Tokens::STRING:
             return "STRING";
@@ -47,7 +48,7 @@ static string displayName(const Token& token) {
     }
 }
 
-static void printEntryResolution(const SymbolTable& symbolTable) {
+void printEntryResolution(const SymbolTable& symbolTable) {
     if (symbolTable.entryLabel.empty()) {
         return;
     }

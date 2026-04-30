@@ -1,12 +1,12 @@
 #include "lexer.h"
 #include "utils.h"
 #include <iostream>
-#include <cctype>
+#include <sstream>
 
 using namespace std;
 
-static const unordered_map<string, Tokens::Token>& keywordTokens() {
-    static const unordered_map<string, Tokens::Token> kTokens = {
+const unordered_map<string, Tokens::Token>& keywordTokens() {
+    static const unordered_map<string, Tokens::Token> keywords = {
         {"format", Tokens::FORMAT},
         {"win32", Tokens::WIN_32},
         {"win64", Tokens::WIN_64},
@@ -292,10 +292,11 @@ static const unordered_map<string, Tokens::Token>& keywordTokens() {
         {"print", Tokens::PRINT},
         {"call", Tokens::CALL},
     };
-    return kTokens;
+    return keywords;
 }
 
-static Tokens::Token classifyToken(const string& token) {
+Tokens::Token classifyToken(const string& token) {
+    if (token.empty()) return Tokens::Token(-1);
     if (token.size() >= 2 && token.front() == '"' && token.back() == '"') {
         return Tokens::STRING;
     }
@@ -350,10 +351,10 @@ static Tokens::Token classifyToken(const string& token) {
         return Tokens::IDENTIFIER;
     }
 
-    return Tokens::ERROR;
+    return Tokens::Token::IDENTIFIER;
 }
 
-static vector<TokenString> lex(istream& code) {
+vector<TokenString> lex(istream& code) {
     vector<TokenString> tokens;
     string line;
     size_t lineNumber = 0;

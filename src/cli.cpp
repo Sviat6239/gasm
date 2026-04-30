@@ -1,13 +1,12 @@
 #include "cli.h"
 #include "utils.h"
 #include <iostream>
-#include <algorithm>
 #include <filesystem>
-#include <system_error>
+#include <algorithm>
 
 using namespace std;
 
-static string emitModeName(EmitMode mode) {
+string emitModeName(EmitMode mode) {
     return mode == EmitMode::Ir ? "ir" : "bin";
 }
 
@@ -24,21 +23,21 @@ static bool parseEmitMode(const string& value, EmitMode& mode) {
     return false;
 }
 
-static filesystem::path projectRoot() {
-    filesystem::path current = filesystem::current_path();
+filesystem::path projectRoot() {
+    filesystem::path currentDir = filesystem::current_path();
     for (int depth = 0; depth < 6; ++depth) {
-        if (filesystem::exists(current / "index.asm") || filesystem::exists(current / "examples")) {
-            return current;
+        if (filesystem::exists(currentDir / "index.asm") || filesystem::exists(currentDir / "examples")) {
+            return currentDir;
         }
-        if (!current.has_parent_path()) {
+        if (!currentDir.has_parent_path()) {
             break;
         }
-        current = current.parent_path();
+        currentDir = currentDir.parent_path();
     }
     return filesystem::current_path();
 }
 
-static vector<filesystem::path> discoverInputs(const filesystem::path& root) {
+vector<filesystem::path> discoverInputs(const filesystem::path& root) {
     vector<filesystem::path> inputs;
     if (filesystem::exists(root / "index.asm")) {
         inputs.push_back(root / "index.asm");
@@ -60,7 +59,8 @@ static vector<filesystem::path> discoverInputs(const filesystem::path& root) {
     return inputs;
 }
 
-static void printUsage(const string& exeName, const filesystem::path& root) {
+void printUsage(const string& exeName, const filesystem::path& root) {
+    vector<filesystem::path> inputs = discoverInputs(root);
     cout << "Usage:\n"
          << "  " << exeName << " [input.asm] [--emit ir|bin] [--output FILE]\n"
          << "  " << exeName << " --input input.asm --emit ir|bin --output FILE\n"
@@ -80,19 +80,14 @@ static void printUsage(const string& exeName, const filesystem::path& root) {
          << "Detected project root: " << root.string() << endl;
 }
 
-static void printInputList(const vector<filesystem::path>& inputs) {
-    if (inputs.empty()) {
-        cout << "No .asm files found.\n";
-        return;
-    }
-
-    cout << "Available inputs:\n";
+void printInputList(const vector<filesystem::path>& inputs) {
+    cout << "Available inputs:" << endl;
     for (size_t i = 0; i < inputs.size(); ++i) {
-        cout << "  [" << (i + 1) << "] " << inputs[i].string() << '\n';
+        cout << "  [" << (i + 1) << "] " << inputs[i].string() << endl;
     }
 }
 
-static bool parseArguments(int argc, char* argv[], CliOptions& options, string& error) {
+bool parseArguments(int argc, char* argv[], CliOptions& options, string& error) {
     for (int i = 1; i < argc; ++i) {
         string arg = argv[i];
         if (arg == "-h" || arg == "--help") {
@@ -150,7 +145,7 @@ static bool parseArguments(int argc, char* argv[], CliOptions& options, string& 
     return true;
 }
 
-static bool resolveInput(const filesystem::path& root, const string& requested, string& resolved) {
+bool resolveInput(const filesystem::path& root, const string& requested, string& resolved) {
     filesystem::path direct(requested);
     if (filesystem::exists(direct)) {
         resolved = direct.string();
@@ -166,7 +161,7 @@ static bool resolveInput(const filesystem::path& root, const string& requested, 
     return false;
 }
 
-static bool chooseInputInteractively(const vector<filesystem::path>& inputs, string& chosen) {
+bool chooseInputInteractively(const vector<filesystem::path>& inputs, string& chosen) {
     if (inputs.empty()) {
         cout << "Enter path to an .asm file: ";
         getline(cin, chosen);
@@ -203,7 +198,7 @@ static bool chooseInputInteractively(const vector<filesystem::path>& inputs, str
     }
 }
 
-static string defaultOutputPath(const string& inputPath, EmitMode mode) {
+string defaultOutputPath(const string& inputPath, EmitMode mode) {
     filesystem::path output(inputPath);
     output.replace_extension(mode == EmitMode::Ir ? ".ir" : ".bin");
     return output.string();

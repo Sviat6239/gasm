@@ -7,6 +7,6 @@
 
 using namespace std;
 
-static const unordered_map<string, Tokens::Token>& keywordTokens();
-static Tokens::Token classifyToken(const string& token);
-static vector<TokenString> lex(istream& code);
+const unordered_map<string, Tokens::Token>& keywordTokens();
+Tokens::Token classifyToken(const string& token);
+vector<TokenString> lex(istream& code);

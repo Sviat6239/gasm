@@ -1,7 +1,13 @@
 #include "parser.h"
 #include "lexer.h"
 
-static vector<Token> parse(const vector<TokenString>& rawTokens) {
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+using namespace std;
+
+vector<Token> parse(const vector<TokenString>& rawTokens) {
     vector<Token> parsed;
     parsed.reserve(rawTokens.size());
 

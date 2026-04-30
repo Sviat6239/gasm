@@ -5,4 +5,4 @@
 
 using namespace std;
 
-static vector<Token> parse(const vector<TokenString>& rawTokens);
+vector<Token> parse(const vector<TokenString>& rawTokens);
