@@ -1,7 +1,7 @@
 # GASM - High-Level Assembler (HLA)
 
 `gasm` is an experimental high-level assembler written in C++.
-Right now, the project focuses on the front-end pipeline and a small command-line interface for choosing input files and output format.
+Right now, the project focuses on the front-end pipeline and a small command-line interface for selecting inputs and output format.
 
 ## Status
 
@@ -14,12 +14,18 @@ Current state:
   - **Phase 3 (IR)** → `vector<IRNode>` (IR-ready stream with symbol resolution)
 - **Symbol Management**: `SymbolTable` tracks user-defined labels and validates the application entry point.
 - **Entry Point Resolution**: Correctly identifies the address of the label specified by the `entry` directive.
-- **CLI Workflow**: You can now choose an input file, view help, list source files, and select the output format.
+- **CLI Workflow**: Choose inputs interactively, list available `.asm` files, or provide a direct path; select the output format.
 - **Output Modes**: `--emit ir` writes a textual `.ir` artifact; `--emit bin` writes a compact binary IR container.
 - **Bare Metal & OS Support**: Includes a comprehensive set of tokens for BIOS (Legacy) and UEFI (modern) development.
 - **Instruction Classification**: Tokens are clearly categorized into architecture-specific sets (x86, ARM, RISC-V).
 - String literals inside `"..."` are kept as a single `STRING(...)` token.
 - `#` starts a comment and ignores the rest of the line.
+
+## Requirements
+
+- C++26-compatible compiler
+- CMake 3.16+
+- Ninja (optional, preferred on Windows)
 
 ## Platform & Architecture Support
 
@@ -54,7 +60,7 @@ arch x86;
 format elf64;
 
 declare number dw = 84;
-declare msg1 char[] = "Grether than 150";
+declare msg1 char[] = "Greater than 150";
 declare msg2 char[] = "Less than 150";
 
 entry _start;
@@ -141,7 +147,7 @@ Each time you run the compiler, it performs a basic **Symbol Resolution** pass:
 
 ## Build and Run
 
-### Show help
+### Show help (Windows)
 
 ```powershell
 cmake -S . -B build
@@ -149,25 +155,25 @@ cmake --build build
 .\build\gasm.exe --help
 ```
 
-### Compile default `index.asm` to textual IR
+### Compile default `index.asm` to textual IR (Windows)
 
 ```powershell
 .\build\gasm.exe
 ```
 
-### Compile a specific file
+### Compile a specific file (Windows)
 
 ```powershell
 .\build\gasm.exe examples/x86/02_math.asm --emit ir
 ```
 
-### Write binary IR instead of `.ir`
+### Write binary IR instead of `.ir` (Windows)
 
 ```powershell
 .\build\gasm.exe examples/x86/02_math.asm --emit bin --output out.bin
 ```
 
-### List available source files
+### List available source files (Windows)
 
 ```powershell
 .\build\gasm.exe --list-inputs
