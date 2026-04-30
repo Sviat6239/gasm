@@ -6,7 +6,6 @@
 #include <vector>
 
 using namespace std;
-
 vector<Token> parse(const vector<TokenString>& rawTokens) {
     vector<Token> parsed;
     parsed.reserve(rawTokens.size());

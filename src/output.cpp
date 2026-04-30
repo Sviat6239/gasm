@@ -43,9 +43,8 @@ void writeUint32(ostream& out, uint32_t value) {
 }
 
 void writeString(ostream& out, const string& value) {
-    uint32_t length = value.length();
-    writeUint32(out, length);
-    out.write(value.c_str(), length);
+    writeUint32(out, static_cast<uint32_t>(value.size()));
+    out.write(value.data(), static_cast<streamsize>(value.size()));
 }
 
 bool writeBinaryIrArtifact(const string& outputPath, const vector<IRNode>& ir, const SymbolTable& symbolTable) {

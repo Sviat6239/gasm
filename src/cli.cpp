@@ -6,30 +6,38 @@
 
 using namespace std;
 
-string emitModeName(EmitMode mode) {
+string emitModeName(EmitMode mode)
+{
     return mode == EmitMode::Ir ? "ir" : "bin";
 }
 
-static bool parseEmitMode(const string& value, EmitMode& mode) {
+bool parseEmitMode(const string &value, EmitMode &mode)
+{
     string normalized = toLowerCopy(value);
-    if (normalized == "ir") {
+    if (normalized == "ir")
+    {
         mode = EmitMode::Ir;
         return true;
     }
-    if (normalized == "bin" || normalized == "binary") {
+    if (normalized == "bin" || normalized == "binary")
+    {
         mode = EmitMode::Binary;
-        return false;
+        return true;
     }
     return false;
 }
 
-filesystem::path projectRoot() {
+filesystem::path projectRoot()
+{
     filesystem::path currentDir = filesystem::current_path();
-    for (int depth = 0; depth < 6; ++depth) {
-        if (filesystem::exists(currentDir / "index.asm") || filesystem::exists(currentDir / "examples")) {
+    for (int depth = 0; depth < 6; ++depth)
+    {
+        if (filesystem::exists(currentDir / "index.asm") || filesystem::exists(currentDir / "examples"))
+        {
             return currentDir;
         }
-        if (!currentDir.has_parent_path()) {
+        if (!currentDir.has_parent_path())
+        {
             break;
         }
         currentDir = currentDir.parent_path();
@@ -37,20 +45,25 @@ filesystem::path projectRoot() {
     return filesystem::current_path();
 }
 
-vector<filesystem::path> discoverInputs(const filesystem::path& root) {
+vector<filesystem::path> discoverInputs(const filesystem::path &root)
+{
     vector<filesystem::path> inputs;
-    if (filesystem::exists(root / "index.asm")) {
+    if (filesystem::exists(root / "index.asm"))
+    {
         inputs.push_back(root / "index.asm");
     }
 
     filesystem::path examplesDir = root / "examples";
-    if (!filesystem::exists(examplesDir)) {
+    if (!filesystem::exists(examplesDir))
+    {
         return inputs;
     }
 
     error_code ec;
-    for (filesystem::recursive_directory_iterator it(examplesDir, ec), end; it != end && !ec; it.increment(ec)) {
-        if (it->is_regular_file() && toLowerCopy(it->path().extension().string()) == ".asm") {
+    for (filesystem::recursive_directory_iterator it(examplesDir, ec), end; it != end && !ec; it.increment(ec))
+    {
+        if (it->is_regular_file() && toLowerCopy(it->path().extension().string()) == ".asm")
+        {
             inputs.push_back(it->path());
         }
     }
@@ -59,8 +72,8 @@ vector<filesystem::path> discoverInputs(const filesystem::path& root) {
     return inputs;
 }
 
-void printUsage(const string& exeName, const filesystem::path& root) {
-    vector<filesystem::path> inputs = discoverInputs(root);
+void printUsage(const string &exeName, const filesystem::path &root)
+{
     cout << "Usage:\n"
          << "  " << exeName << " [input.asm] [--emit ir|bin] [--output FILE]\n"
          << "  " << exeName << " --input input.asm --emit ir|bin --output FILE\n"
@@ -80,57 +93,79 @@ void printUsage(const string& exeName, const filesystem::path& root) {
          << "Detected project root: " << root.string() << endl;
 }
 
-void printInputList(const vector<filesystem::path>& inputs) {
-    cout << "Available inputs:" << endl;
-    for (size_t i = 0; i < inputs.size(); ++i) {
+void printInputList(const vector<filesystem::path> &inputs)
+{
+    if (inputs.empty())
+    {
+        cout << "No .asm files found.\n";
+        return;
+    }
+
+    cout << "Available inputs:\n";
+    for (size_t i = 0; i < inputs.size(); ++i)
+    {
         cout << "  [" << (i + 1) << "] " << inputs[i].string() << endl;
     }
 }
 
-bool parseArguments(int argc, char* argv[], CliOptions& options, string& error) {
-    for (int i = 1; i < argc; ++i) {
+bool parseArguments(int argc, char *argv[], CliOptions &options, string &error)
+{
+    for (int i = 1; i < argc; ++i)
+    {
         string arg = argv[i];
-        if (arg == "-h" || arg == "--help") {
+        if (arg == "-h" || arg == "--help")
+        {
             options.showHelp = true;
             continue;
         }
-        if (arg == "-i" || arg == "--input") {
-            if (i + 1 >= argc) {
+        if (arg == "-i" || arg == "--input")
+        {
+            if (i + 1 >= argc)
+            {
                 error = "Missing value for --input";
                 return false;
             }
             options.inputPath = argv[++i];
             continue;
         }
-        if (arg == "-e" || arg == "--emit") {
-            if (i + 1 >= argc) {
+        if (arg == "-e" || arg == "--emit")
+        {
+            if (i + 1 >= argc)
+            {
                 error = "Missing value for --emit";
                 return false;
             }
-            if (!parseEmitMode(argv[++i], options.emitMode)) {
+            if (!parseEmitMode(argv[++i], options.emitMode))
+            {
                 error = "Unsupported --emit value. Use 'ir' or 'bin'.";
                 return false;
             }
             continue;
         }
-        if (arg == "-o" || arg == "--output") {
-            if (i + 1 >= argc) {
+        if (arg == "-o" || arg == "--output")
+        {
+            if (i + 1 >= argc)
+            {
                 error = "Missing value for --output";
                 return false;
             }
             options.outputPath = argv[++i];
             continue;
         }
-        if (arg == "--pick") {
+        if (arg == "--pick")
+        {
             options.pickInput = true;
             continue;
         }
-        if (arg == "--list-inputs") {
+        if (arg == "--list-inputs")
+        {
             options.listInputs = true;
             continue;
         }
-        if (!arg.empty() && arg.front() != '-') {
-            if (options.inputPath.empty()) {
+        if (!arg.empty() && arg.front() != '-')
+        {
+            if (options.inputPath.empty())
+            {
                 options.inputPath = arg;
                 continue;
             }
@@ -145,15 +180,18 @@ bool parseArguments(int argc, char* argv[], CliOptions& options, string& error) 
     return true;
 }
 
-bool resolveInput(const filesystem::path& root, const string& requested, string& resolved) {
+bool resolveInput(const filesystem::path &root, const string &requested, string &resolved)
+{
     filesystem::path direct(requested);
-    if (filesystem::exists(direct)) {
+    if (filesystem::exists(direct))
+    {
         resolved = direct.string();
         return true;
     }
 
     filesystem::path fromRoot = root / direct;
-    if (filesystem::exists(fromRoot)) {
+    if (filesystem::exists(fromRoot))
+    {
         resolved = fromRoot.string();
         return true;
     }
@@ -161,15 +199,18 @@ bool resolveInput(const filesystem::path& root, const string& requested, string&
     return false;
 }
 
-bool chooseInputInteractively(const vector<filesystem::path>& inputs, string& chosen) {
-    if (inputs.empty()) {
+bool chooseInputInteractively(const vector<filesystem::path> &inputs, string &chosen)
+{
+    if (inputs.empty())
+    {
         cout << "Enter path to an .asm file: ";
         getline(cin, chosen);
         return !chosen.empty();
     }
 
     cout << "Select input file:\n";
-    for (size_t i = 0; i < inputs.size(); ++i) {
+    for (size_t i = 0; i < inputs.size(); ++i)
+    {
         cout << "  [" << (i + 1) << "] " << inputs[i].string() << '\n';
     }
     cout << "  [0] Enter a custom path\n";
@@ -177,28 +218,35 @@ bool chooseInputInteractively(const vector<filesystem::path>& inputs, string& ch
 
     string choiceText;
     getline(cin, choiceText);
-    if (choiceText.empty()) {
+    if (choiceText.empty())
+    {
         return false;
     }
 
-    try {
+    try
+    {
         int choice = stoi(choiceText);
-        if (choice == 0) {
+        if (choice == 0)
+        {
             cout << "Path: ";
             getline(cin, chosen);
             return !chosen.empty();
         }
-        if (choice < 1 || static_cast<size_t>(choice) > inputs.size()) {
+        if (choice < 1 || static_cast<size_t>(choice) > inputs.size())
+        {
             return false;
         }
         chosen = inputs[static_cast<size_t>(choice - 1)].string();
         return true;
-    } catch (...) {
+    }
+    catch (...)
+    {
         return false;
     }
 }
 
-string defaultOutputPath(const string& inputPath, EmitMode mode) {
+string defaultOutputPath(const string &inputPath, EmitMode mode)
+{
     filesystem::path output(inputPath);
     output.replace_extension(mode == EmitMode::Ir ? ".ir" : ".bin");
     return output.string();
