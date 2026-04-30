@@ -1,3 +1,11 @@
+// lexer.cpp
+// Responsible for converting source text into lexical tokens.
+//
+// Key responsibilities:
+// - Provide a mapping of keyword/identifier strings to token kinds
+// - Classify raw token text into `Tokens::Token` kinds
+// - Tokenize input lines into `TokenString` items (text + source line)
+
 #include "lexer.h"
 #include "utils.h"
 #include <iostream>
@@ -5,7 +13,10 @@
 
 using namespace std;
 
-const unordered_map<string, Tokens::Token>& keywordTokens() {
+// Returns a static map of keyword strings -> token kinds. The map is
+// constructed once on first call and reused afterwards.
+const unordered_map<string, Tokens::Token> &keywordTokens()
+{
     static const unordered_map<string, Tokens::Token> keywords = {
         {"format", Tokens::FORMAT},
         {"win32", Tokens::WIN_32},
@@ -295,79 +306,120 @@ const unordered_map<string, Tokens::Token>& keywordTokens() {
     return keywords;
 }
 
-Tokens::Token classifyToken(const string& token) {
-    if (token.empty()) return Tokens::Token(-1);
-    if (token.size() >= 2 && token.front() == '"' && token.back() == '"') {
+// Classify a single token text into its `Tokens::Token` kind.
+// Handles string and number detection, single-character punctuation,
+// keyword lookup, and falls back to `IDENTIFIER` for names.
+Tokens::Token classifyToken(const string &token)
+{
+    if (token.empty())
+        return Tokens::Token(-1);
+    // Quoted string literal -> STRING
+    if (token.size() >= 2 && token.front() == '"' && token.back() == '"')
+    {
         return Tokens::STRING;
     }
-    if (isNumberToken(token)) {
+    // Numeric literal detection
+    if (isNumberToken(token))
+    {
         return Tokens::NUMBER;
     }
 
-    if (token == ":") {
+    // Single-character punctuation tokens
+    if (token == ":")
+    {
         return Tokens::COLON;
     }
-    if (token == ";") {
+    if (token == ";")
+    {
         return Tokens::SEMICOLON;
     }
-    if (token == ",") {
+    if (token == ",")
+    {
         return Tokens::COMMA;
     }
-    if (token == "=") {
+    if (token == "=")
+    {
         return Tokens::ASSIGN;
     }
-    if (token == "(") {
+    if (token == "(")
+    {
         return Tokens::LPAREN;
     }
-    if (token == ")") {
+    if (token == ")")
+    {
         return Tokens::RPAREN;
     }
-    if (token == "{") {
+    if (token == "{")
+    {
         return Tokens::LBRACE;
     }
-    if (token == "}") {
+    if (token == "}")
+    {
         return Tokens::RBRACE;
     }
-    if (token == "[") {
+    if (token == "[")
+    {
         return Tokens::LBRACKET;
     }
-    if (token == "]") {
+    if (token == "]")
+    {
         return Tokens::RBRACKET;
     }
-    if (token == "<") {
+    if (token == "<")
+    {
         return Tokens::LESS;
     }
-    if (token == ">") {
+    if (token == ">")
+    {
         return Tokens::GREATER;
     }
 
-    const auto& tokensMap = keywordTokens();
+    // Keyword lookup
+    const auto &tokensMap = keywordTokens();
     auto it = tokensMap.find(token);
-    if (it != tokensMap.end()) {
+    if (it != tokensMap.end())
+    {
         return it->second;
     }
 
-    if (isIdentifierStart(token)) {
+    // If the token starts like an identifier, classify as IDENTIFIER
+    if (isIdentifierStart(token))
+    {
         return Tokens::IDENTIFIER;
     }
 
+    // Default fallback
     return Tokens::Token::IDENTIFIER;
 }
 
-vector<TokenString> lex(istream& code) {
+// Tokenize an input stream into a sequence of `TokenString` entries.
+// Each `TokenString` contains the original lexeme text and its source line
+// number. This lexer is line-oriented and supports:
+// - Quoted string literals ("...") which may contain whitespace
+// - Hash (`#`) comments to end-of-line
+// - Single-character punctuation tokens (: ; , = < > ( ) [ ] { })
+vector<TokenString> lex(istream &code)
+{
     vector<TokenString> tokens;
     string line;
     size_t lineNumber = 0;
 
-    while (getline(code, line)) {
+    while (getline(code, line))
+    {
         ++lineNumber;
         string current;
         bool inString = false;
 
-        for (char ch : line) {
-            if (inString) {
+        for (char ch : line)
+        {
+            if (inString)
+            {
+                // While inside a quoted string, keep appending until we
+                // encounter the closing quote and then emit the whole
+                // quoted lexeme as a single token.
                 current += ch;
-                if (ch == '"') {
+                if (ch == '"')
+                {
                     tokens.push_back({current, lineNumber});
                     current.clear();
                     inString = false;
@@ -375,8 +427,12 @@ vector<TokenString> lex(istream& code) {
                 continue;
             }
 
-            if (ch == '"') {
-                if (!current.empty()) {
+            if (ch == '"')
+            {
+                // Start of a string literal. Emit any preceding token,
+                // then begin collecting the quoted lexeme.
+                if (!current.empty())
+                {
                     tokens.push_back({current, lineNumber});
                     current.clear();
                 }
@@ -385,39 +441,55 @@ vector<TokenString> lex(istream& code) {
                 continue;
             }
 
-            if (ch == '#') {
-                if (!current.empty()) {
+            if (ch == '#')
+            {
+                // Comment start: emit any pending token and skip remainder
+                if (!current.empty())
+                {
                     tokens.push_back({current, lineNumber});
                     current.clear();
                 }
                 break;
             }
 
-            if (isspace(static_cast<unsigned char>(ch))) {
-                if (!current.empty()) {
+            if (isspace(static_cast<unsigned char>(ch)))
+            {
+                if (!current.empty())
+                {
                     tokens.push_back({current, lineNumber});
                     current.clear();
                 }
-            } else if (ch == ':' || ch == ';' || ch == ',' || ch == '=' || ch == '<' || ch == '>' || ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}') {
-                if (!current.empty()) {
+            }
+            else if (ch == ':' || ch == ';' || ch == ',' || ch == '=' || ch == '<' || ch == '>' || ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}')
+            {
+                // Punctuation separators: flush current token then emit
+                // the punctuation as its own token.
+                if (!current.empty())
+                {
                     tokens.push_back({current, lineNumber});
                     current.clear();
                 }
                 tokens.push_back({string(1, ch), lineNumber});
-            } else {
+            }
+            else
+            {
+                // Part of a (potential) identifier/number/keyword
                 current += ch;
             }
         }
 
-        if (!current.empty()) {
-            if (inString) {
+        if (!current.empty())
+        {
+            if (inString)
+            {
                 cerr << "Unterminated string literal: " << current << endl;
                 return {};
             }
             tokens.push_back({current, lineNumber});
         }
 
-        if (inString) {
+        if (inString)
+        {
             cerr << "Unterminated string literal" << endl;
             return {};
         }

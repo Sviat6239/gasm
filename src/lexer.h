@@ -7,6 +7,10 @@
 
 using namespace std;
 
-const unordered_map<string, Tokens::Token>& keywordTokens();
-Tokens::Token classifyToken(const string& token);
-vector<TokenString> lex(istream& code);
+// Lexer public interface
+// - `keywordTokens()` returns the mapping of language keywords to token kinds
+// - `classifyToken()` maps a single lexeme string to a `Tokens::Token` enum
+// - `lex()` tokenizes an input stream into `TokenString` items
+const unordered_map<string, Tokens::Token> &keywordTokens();
+Tokens::Token classifyToken(const string &token);
+vector<TokenString> lex(istream &code);
