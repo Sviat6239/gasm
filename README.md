@@ -1,7 +1,7 @@
 # GASM - High-Level Assembler (HLA)
 
 `gasm` is an experimental high-level assembler written in C++.
-Right now, the project focuses on the front-end pipeline and a small command-line interface for selecting inputs and output format.
+The project focuses on a front-end pipeline (lexer → parser → IR) and a small command-line interface for selecting inputs and output format.
 
 ## Status
 
@@ -23,9 +23,9 @@ Current state:
 
 ## Requirements
 
-- C++26-compatible compiler
+- A C++ compiler with C++26 support
 - CMake 3.16+
-- Ninja (optional, preferred on Windows)
+- Ninja (optional; recommended for single-config builds)
 
 ## Platform & Architecture Support
 
@@ -46,62 +46,60 @@ The project now includes **100+ examples** demonstrating various features:
 
 You can find them in:
 - `examples/x86/`
-- `examples/aarch64/`
-- `examples/riscv/`
-- `examples/bios/`
-- `examples/uefi/`
 
-## Example Input
+## Build and Run
 
-Current sample input (`index.asm`):
+Note: depending on the CMake generator you use, the final executable may be located directly under `build/` (Ninja, Make) or under a configuration subfolder like `build/Debug/` or `build/Release/` (Visual Studio). When using the Visual Studio generator pass `--config <Config>` to `cmake --build`.
 
-```asm
-arch x86;
-format elf64;
+### Configure & build (cross-platform)
 
-declare number dw = 84;
-declare msg1 char[] = "Greater than 150";
-declare msg2 char[] = "Less than 150";
-
-entry _start;
-# simple comment
-
-_start:
-    mov rax, 84;
-    add rax, number;
-    if(rax >= 150){
-        print msg1;
-    } else {
-        print msg2;
-    }
-    xor rbx, rbx;    # x86 specific
-    ldr x0, [sp];   # arm64 specific
-    beq a0, a1, label; # risc-v specific
-    print rax;
+```bash
+cmake -S . -B build
+cmake --build build
+# For multi-config generators (Visual Studio):
+cmake --build build --config Release
 ```
 
-## Current Behavior
+### Show help / run (Ninja or single-config builds)
 
-The current prototype:
-- treats spaces/tabs/newlines as token boundaries,
-- emits punctuation as standalone tokens (`:`, `;`, `,`, `=`, `"`, `<`, `>`, `(`, `)`, `[`, `]`, `{`, `}`),
-- handles string literals and comments,
-- builds a token stream, a simple IR stream, and a symbol table,
-- writes output to a file instead of only printing to stdout,
-- supports either a textual `.ir` artifact or a binary IR artifact.
+Windows (PowerShell):
+```powershell
+.\build\gasm.exe --help
+# or simply run the default build which compiles `index.asm` if present:
+.\build\gasm.exe
+```
 
-Pipeline overview:
-- **Phase 1 (Lexer)**: `lex()` returns `vector<TokenString>`.
-- **Phase 2 (Parser)**: `parse()` returns `vector<Token>`.
-- **Phase 3 (IR)**: `buildIR()` returns `vector<IRNode>` and updates `SymbolTable`.
+Linux / macOS:
+```bash
+./build/gasm --help
+./build/gasm
+```
 
-Example output shape:
+### Common usage examples
 
-```text
-ARCH(arch) X86(x86) SEMICOLON(;)
-FORMAT(format) ELF64(elf64) SEMICOLON(;)
-DECLARE(declare) IDENTIFIER(number) DW(dw) ASSIGN(=) NUMBER(84) SEMICOLON(;)
-MOV(mov) RAX(rax) COMMA(,) NUMBER(84) SEMICOLON(;)
+Compile a specific file and emit textual IR (default):
+```bash
+./build/gasm examples/x86/02_math.asm --emit ir
+```
+
+Emit a binary IR artifact:
+```bash
+./build/gasm examples/x86/02_math.asm --emit bin --output out.bin
+```
+
+List discovered `.asm` files:
+```bash
+./build/gasm --list-inputs
+```
+
+Pick an input interactively:
+```bash
+./build/gasm --pick
+```
+
+You can also pass options using short flags: `-i/--input`, `-e/--emit`, `-o/--output`, `-h/--help`.
+
+Default behavior (when no `--input` is provided): `index.asm` is used if present in the project root. Default emit mode is `ir` and the default output path is the input path with `.ir` (or `.bin`) extension.
 XOR(xor) RBX(rbx) COMMA(,) RBX(rbx) SEMICOLON(;)
 LDR(ldr) X0(x0) COMMA(,) LEFTHESE([) SP(sp) RIGHTHESE(]) SEMICOLON(;)
 ...
