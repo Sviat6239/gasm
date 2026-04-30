@@ -4,7 +4,7 @@ project(gasm)
 set(CMAKE_CXX_STANDARD 26)
 
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
-add_executable(gasm main.cpp ${SRC_FILES})
+add_executable(gasm main.cpp ${SRC_FILES} "src/codegen.h" "src/codegen.cpp")
 
 # --- ARM64 FIX ---
 if (MSVC AND CMAKE_VS_PLATFORM_NAME STREQUAL "ARM64")
