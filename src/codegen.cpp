@@ -624,6 +624,23 @@ namespace
             break;
 
         case Tokens::ADD:
+            if (selection.dst.kind == X86OperandKind::Register && selection.src.kind == X86OperandKind::Register)
+            {
+                selection.kind = X86SelectionKind::RegReg;
+            }
+            else if (selection.dst.kind == X86OperandKind::Register && selection.src.kind == X86OperandKind::Immediate)
+            {
+                selection.kind = X86SelectionKind::RegImm32;
+            }
+            else if (selection.dst.kind == X86OperandKind::Register && selection.src.kind == X86OperandKind::Memory)
+            {
+                selection.kind = X86SelectionKind::RegMem;
+            }
+            else if (selection.dst.kind == X86OperandKind::Memory && selection.src.kind == X86OperandKind::Register)
+            {
+                selection.kind = X86SelectionKind::MemReg;
+            }
+            break;
         case Tokens::SUB:
             if (selection.dst.kind == X86OperandKind::Register && selection.src.kind == X86OperandKind::Register)
             {
@@ -765,6 +782,72 @@ Instructions generate_x86_64(const IRNode &ir)
             break;
         case Tokens::SUB:
             if (!encodeRegReg(out, 0x29, ir.dst, ir.src))
+            {
+                out.bytes.clear();
+            }
+            break;
+        case Tokens::MUL:
+            if (!encodeRegReg(out, 0x0F, ir.dst, ir.src))
+            {
+                out.bytes.clear();
+            }
+            break;
+        case Tokens::DIV:
+            if (!encodeRegReg(out, 0xF7, ir.dst, ir.src))
+            {
+                out.bytes.clear();
+            }
+            break;
+        case Tokens::AND:
+            if (!encodeRegReg(out, 0x21, ir.dst, ir.src))
+            {
+                out.bytes.clear();
+            }
+            break;
+        case Tokens::OR:
+            if (!encodeRegReg(out, 0x09, ir.dst, ir.src))
+            {
+                out.bytes.clear();
+            }
+            break;
+        case Tokens::XOR:
+            if (!encodeRegReg(out, 0x31, ir.dst, ir.src))
+            {
+                out.bytes.clear();
+            }
+            break;
+        case Tokens::SHL:
+            if (!encodeRegReg(out, 0xD3, ir.dst, ir.src))
+            {
+                out.bytes.clear();
+            }
+            break;
+        case Tokens::SHR:
+            if (!encodeRegReg(out, 0xD3, ir.dst, ir.src))
+            {
+                out.bytes.clear();
+            }
+            break;
+        case Tokens::SAR:
+            if (!encodeRegReg(out, 0xD3, ir.dst, ir.src))
+            {
+                out.bytes.clear();
+            }
+            break;
+        case Tokens::ROL:
+            if (!encodeRegReg(out, 0xD3, ir.dst, ir.src))
+            {
+                out.bytes.clear();
+            }
+            break;
+        case Tokens::ROR:
+            if (!encodeRegReg(out, 0xD3, ir.dst, ir.src))
+            {
+                out.bytes.clear();
+            }
+            break;
+        case Tokens::NOT:
+            if (!encodeRegReg(out, 0xF7, ir.dst, ir.src))
             {
                 out.bytes.clear();
             }
