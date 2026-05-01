@@ -1,21 +1,22 @@
 # GASM - High-Level Assembler (HLA)
 
 `gasm` is an experimental high-level assembler written in C++.
-The project focuses on a front-end pipeline (lexer → parser → IR) and a small command-line interface for selecting inputs and output format.
+The project focuses on a front-end pipeline (lexer → parser → AST → IR) and a small command-line interface for selecting inputs and output format.
 
 ## Status
 
 This project is in an early prototype stage.
 
 Current state:
-- **Three-phase Pipeline**:
+- **Four-phase Pipeline**:
   - **Phase 1 (Lexer)** → `vector<TokenString>` (raw lexemes with line info)
   - **Phase 2 (Parser)** → `vector<Token>` (classified tokens)
-  - **Phase 3 (IR)** → `vector<IRNode>` (IR-ready stream with symbol resolution)
+  - **Phase 3 (AST)** → `AstProgram` (structured statements, expressions, and blocks)
+  - **Phase 4 (IR)** → `vector<IRNode>` (IR-ready stream with symbol resolution)
 - **Symbol Management**: `SymbolTable` tracks user-defined labels and validates the application entry point.
 - **Entry Point Resolution**: Correctly identifies the address of the label specified by the `entry` directive.
 - **CLI Workflow**: Choose inputs interactively, list available `.asm` files, or provide a direct path; select the output format.
-- **Output Modes**: `--emit ir` writes a textual `.ir` artifact; `--emit bin` writes a compact binary IR container.
+- **Output Modes**: `--emit ir` writes a textual `.ir` artifact with tokens, AST, and IR sections; `--emit bin` writes a compact binary IR container.
 - **Bare Metal & OS Support**: Includes a comprehensive set of tokens for BIOS (Legacy) and UEFI (modern) development.
 - **Instruction Classification**: Tokens are clearly categorized into architecture-specific sets (x86, ARM, RISC-V).
 - String literals inside `"..."` are kept as a single `STRING(...)` token.
@@ -138,7 +139,7 @@ Each time you run the compiler, it performs a basic **Symbol Resolution** pass:
 
 ## Project Structure
 
-- `main.cpp` - prototype front-end (lexer → parser → IR, CLI, symbol resolution)
+- `main.cpp` - prototype front-end (lexer → parser → AST → IR, CLI, symbol resolution)
 - `index.asm` - sample HLA source file
 - `examples/` - categorized multi-platform code snippets
 - `CMakeLists.txt` - CMake build configuration (target: `gasm`)

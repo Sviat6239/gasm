@@ -13,6 +13,7 @@
 #include "src/utils.h"
 #include "src/lexer.h"
 #include "src/parser.h"
+#include "src/ast.h"
 #include "src/ir.h"
 #include "src/symbols.h"
 #include "src/cli.h"
@@ -20,13 +21,14 @@
 
 using namespace std;
 
-
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
     SymbolTable symbolTable;
 
     CliOptions options;
     string cliError;
-    if (!parseArguments(argc, argv, options, cliError)) {
+    if (!parseArguments(argc, argv, options, cliError))
+    {
         cerr << cliError << endl;
         printUsage(argc > 0 ? argv[0] : "gasm", projectRoot());
         return 1;
@@ -35,61 +37,76 @@ int main(int argc, char* argv[]) {
     filesystem::path root = projectRoot();
     vector<filesystem::path> inputs = discoverInputs(root);
 
-    if (options.showHelp) {
+    if (options.showHelp)
+    {
         printUsage(argc > 0 ? argv[0] : "gasm", root);
-        if (!inputs.empty()) {
+        if (!inputs.empty())
+        {
             cout << '\n';
             printInputList(inputs);
         }
         return 0;
     }
 
-    if (options.listInputs) {
+    if (options.listInputs)
+    {
         printInputList(inputs);
         return 0;
     }
 
-    if (options.pickInput || options.inputPath.empty()) {
-        if (!chooseInputInteractively(inputs, options.inputPath)) {
+    if (options.pickInput || options.inputPath.empty())
+    {
+        if (!chooseInputInteractively(inputs, options.inputPath))
+        {
             cerr << "No input file selected." << endl;
             return 1;
         }
     }
 
     string resolvedInput;
-    if (!resolveInput(root, options.inputPath, resolvedInput)) {
+    if (!resolveInput(root, options.inputPath, resolvedInput))
+    {
         cerr << "Failed to open source file: " << options.inputPath << endl;
         return 1;
     }
 
     ifstream code(resolvedInput);
 
-    if (!code.is_open()) {
+    if (!code.is_open())
+    {
         cerr << "Failed to open source file: " << resolvedInput << endl;
         return 1;
     }
 
     // Phase 1: Lexer
     vector<TokenString> rawTokens = lex(code);
-    if (rawTokens.empty()) {
+    if (rawTokens.empty())
+    {
         return 1;
     }
 
     // Phase 2: Parser
     vector<Token> parsedTokens = parse(rawTokens);
 
-    // Phase 3: IR
-    vector<IRNode> ir = buildIR(parsedTokens, symbolTable);
+    // Phase 3: AST
+    AstProgram ast = buildAst(parsedTokens);
+
+    // Phase 4: IR
+    vector<IRNode> ir = buildIR(ast, symbolTable);
 
     string outputPath = options.outputPath.empty() ? defaultOutputPath(resolvedInput, options.emitMode) : options.outputPath;
     bool writeOk = false;
-    if (options.emitMode == EmitMode::Ir) {
-        writeOk = writeTextIr(outputPath, parsedTokens, ir, symbolTable);
-    } else {
+    if (options.emitMode == EmitMode::Ir)
+    {
+        writeOk = writeTextIr(outputPath, parsedTokens, ast, ir, symbolTable);
+    }
+    else
+    {
         writeOk = writeBinaryIrArtifact(outputPath, ir, symbolTable);
     }
 
-    if (!writeOk) {
+    if (!writeOk)
+    {
         return 1;
     }
 

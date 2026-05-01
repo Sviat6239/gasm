@@ -16,19 +16,21 @@ using namespace std;
 /**
  * Tokens structure defines the set of all possible signals the lexer can emit.
  */
-struct Tokens {
+struct Tokens
+{
     /**
      * Token enumeration represents the language's grammar elements.
      */
-    enum Token {
+    enum Token
+    {
         // Directives and configuration
         FORMAT,
         WIN_32,
         WIN_64,
         ELF32,
         ELF64,
-        BIN,        // Pure binary format
-        EFI,        // UEFI executable format
+        BIN, // Pure binary format
+        EFI, // UEFI executable format
         ARCH,
         X86,
         AARCH64,
@@ -349,34 +351,69 @@ struct Tokens {
 /**
  * SymbolTable manages user-defined labels and global assembly metadata.
  */
-struct SymbolTable {
-    map<string, int> labels;    // Map of label names to their line locations
-    string entryLabel;          // The name of the defined entry point (e.g., "_start")
+struct SymbolTable
+{
+    map<string, int> labels; // Map of label names to their line locations
+    string entryLabel;       // The name of the defined entry point (e.g., "_start")
 };
 
-struct TokenString {
+struct TokenString
+{
     string text;
     size_t line;
 };
 
-struct Token {
+struct Token
+{
     Tokens::Token type;
     string lexeme;
     size_t line;
 };
 
-struct IRNode {
+struct IRNode
+{
     Tokens::Token type;
     string lexeme;
     size_t line;
 };
 
-enum class EmitMode {
+enum class AstKind
+{
+    Empty,
+    Program,
+    Directive,
+    Declaration,
+    Label,
+    Instruction,
+    IfStatement,
+    Block,
+    Operand,
+    Expression,
+    TokenLeaf,
+};
+
+struct AstNode
+{
+    AstKind kind = AstKind::Empty;
+    Tokens::Token token = Tokens::ERROR;
+    string text;
+    size_t line = 0;
+    vector<AstNode> children;
+};
+
+struct AstProgram
+{
+    vector<AstNode> statements;
+};
+
+enum class EmitMode
+{
     Ir,
     Binary,
 };
 
-struct CliOptions {
+struct CliOptions
+{
     string inputPath;
     string outputPath;
     EmitMode emitMode = EmitMode::Ir;

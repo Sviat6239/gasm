@@ -1,35 +1,130 @@
 #include "ir.h"
 
-// Build a simple linear IR from the token stream. The IR in this project
-// is a lightweight sequence of `IRNode` entries mirroring tokens with
-// preserved lexemes and source lines. This function also extracts a few
-// global symbols while scanning:
-// - `entryLabel` when an `ENTRY` directive is followed by an identifier
-// - label definitions: `identifier:` entries are recorded in `SymbolTable`
-vector<IRNode> buildIR(const vector<Token> &tokens, SymbolTable &symbolTable)
+#include <vector>
+
+using namespace std;
+
+namespace
+{
+
+    string joinChildTexts(const AstNode &node)
+    {
+        string result;
+        for (const auto &child : node.children)
+        {
+            if (child.text.empty())
+            {
+                continue;
+            }
+
+            if (!result.empty())
+            {
+                result += ", ";
+            }
+            result += child.text;
+        }
+
+        return result;
+    }
+
+    string renderStatementValue(const AstNode &node)
+    {
+        if (node.kind == AstKind::Declaration)
+        {
+            if (node.children.size() >= 2)
+            {
+                return node.children[0].text + " = " + node.children[1].text;
+            }
+
+            if (!node.children.empty())
+            {
+                return node.children.front().text;
+            }
+
+            return node.text;
+        }
+
+        if (node.kind == AstKind::Directive)
+        {
+            if (!node.children.empty())
+            {
+                return node.children.front().text;
+            }
+
+            return node.text;
+        }
+
+        if (node.kind == AstKind::IfStatement)
+        {
+            if (!node.children.empty())
+            {
+                return node.children.front().text;
+            }
+
+            return node.text;
+        }
+
+        return node.text;
+    }
+
+    void collectIR(const AstNode &node, vector<IRNode> &ir, SymbolTable &symbolTable)
+    {
+        if (node.kind == AstKind::Label)
+        {
+            symbolTable.labels[node.text] = static_cast<int>(node.line);
+            return;
+        }
+
+        if (node.kind == AstKind::Declaration || node.kind == AstKind::Directive)
+        {
+            if (node.kind == AstKind::Directive && node.token == Tokens::ENTRY && !node.children.empty())
+            {
+                symbolTable.entryLabel = node.children.front().text;
+            }
+
+            ir.push_back({node.token, renderStatementValue(node), node.line});
+            return;
+        }
+
+        if (node.kind == AstKind::Instruction)
+        {
+            ir.push_back({node.token, joinChildTexts(node), node.line});
+            return;
+        }
+
+        if (node.kind == AstKind::IfStatement)
+        {
+            string condition = !node.children.empty() ? node.children.front().text : node.text;
+            ir.push_back({Tokens::IF, condition, node.line});
+
+            if (node.children.size() > 1)
+            {
+                collectIR(node.children[1], ir, symbolTable);
+            }
+
+            if (node.children.size() > 2)
+            {
+                ir.push_back({Tokens::ELSE, string(), node.children[2].line != 0 ? node.children[2].line : node.line});
+                collectIR(node.children[2], ir, symbolTable);
+            }
+
+            return;
+        }
+
+        for (const auto &child : node.children)
+        {
+            collectIR(child, ir, symbolTable);
+        }
+    }
+
+} // namespace
+
+vector<IRNode> buildIR(const AstProgram &program, SymbolTable &symbolTable)
 {
     vector<IRNode> ir;
-    ir.reserve(tokens.size());
-
-    for (size_t i = 0; i < tokens.size(); ++i)
+    for (const auto &statement : program.statements)
     {
-        const auto &token = tokens[i];
-        // Mirror the token into an IR node (no transformation here)
-        ir.push_back({token.type, token.lexeme, token.line});
-
-        // If we see an `ENTRY` directive followed by an identifier,
-        // record the entry point name in the symbol table.
-        if (token.type == Tokens::ENTRY && i + 1 < tokens.size() && tokens[i + 1].type == Tokens::IDENTIFIER)
-        {
-            symbolTable.entryLabel = tokens[i + 1].lexeme;
-        }
-
-        // If we encounter a label definition (`IDENTIFIER :`), store the
-        // label name and its source line for later resolution.
-        if (token.type == Tokens::IDENTIFIER && i + 1 < tokens.size() && tokens[i + 1].type == Tokens::COLON)
-        {
-            symbolTable.labels[token.lexeme] = static_cast<int>(token.line);
-        }
+        collectIR(statement, ir, symbolTable);
     }
 
     return ir;
