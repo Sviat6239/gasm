@@ -63,7 +63,13 @@ namespace
             return false;
         }
 
-        uint8_t rex = 0x48; // 0100 W R X B (W=1 for 64-bit)
+        uint8_t opWidth = 64;
+
+        uint8_t rex = 0x40; // 0100 W R X B
+        if (opWidth == 64)
+        {
+            rex |= 0x08;
+        }
         if (src->rex)
         {
             rex |= 0x04;
