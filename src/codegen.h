@@ -7,7 +7,8 @@
 
 using namespace std;
 
-enum class Architecture {
+enum class Architecture
+{
 	X86,
 	X86_64,
 	ARM32,
@@ -16,8 +17,15 @@ enum class Architecture {
 	RISC_V64,
 };
 
-struct Instructions {
+// Small machine-code container returned by backend encoders.
+// The `bytes` payload is written in little-endian order.
+struct Instructions
+{
 	Architecture arch;
 	vector<uint8_t> bytes;
 	string mnemonic;
 };
+
+// Encode one IR node into x86-64 machine code.
+// Unsupported forms return an empty `bytes` vector.
+Instructions generate_x86_64(const IRNode &ir);

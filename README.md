@@ -1,7 +1,7 @@
 # GASM - High-Level Assembler (HLA)
 
 `gasm` is an experimental high-level assembler written in C++.
-The project focuses on a front-end pipeline (lexer → parser → AST → IR) and a small command-line interface for selecting inputs and output format.
+The project focuses on a front-end pipeline (lexer → parser → AST → IR) and a small command-line interface for selecting inputs and output format. The current x86-64 backend is intentionally small, but it already includes instruction selection, register decoding, ModRM/SIB emission, and immediate/memory operand handling for the core forms used by the compiler.
 
 ## Status
 
@@ -19,6 +19,7 @@ Current state:
 - **Output Modes**: `--emit ir` writes a textual `.ir` artifact with tokens, AST, and IR sections; `--emit bin` writes a compact binary IR container.
 - **Bare Metal & OS Support**: Includes a comprehensive set of tokens for BIOS (Legacy) and UEFI (modern) development.
 - **Instruction Classification**: Tokens are clearly categorized into architecture-specific sets (x86, ARM, RISC-V).
+- **Backend Selection**: The x86-64 emitter selects an encoding form from IR text and operand hints instead of hardcoding a single register pair.
 - String literals inside `"..."` are kept as a single `STRING(...)` token.
 - `#` starts a comment and ignores the rest of the line.
 
@@ -105,6 +106,37 @@ XOR(xor) RBX(rbx) COMMA(,) RBX(rbx) SEMICOLON(;)
 LDR(ldr) X0(x0) COMMA(,) LEFTHESE([) SP(sp) RIGHTHESE(]) SEMICOLON(;)
 ...
 ```
+
+## x86-64 Backend
+
+The current x86-64 code generator is a minimal backend with a small instruction-selection layer. It keeps the public IR structure unchanged, but it reconstructs concrete operands from the compact IR text when encoding machine code.
+
+Supported forms today:
+- `MOV reg, reg`
+- `MOV reg, imm64`
+- `ADD reg, reg`
+- `SUB reg, reg`
+- `ADD reg, imm32`
+- `SUB reg, imm32`
+- `MOV reg, [mem]`
+- `MOV [mem], reg`
+- `ADD reg, [mem]`
+- `SUB reg, [mem]`
+- `ADD [mem], reg`
+- `SUB [mem], reg`
+
+Memory operands currently accept simple forms such as:
+- `[rbp-8]`
+- `[rsp+16]`
+- `[rdi+rsi*4]`
+- `[r8+r9*8-32]`
+
+Implementation notes:
+- REX is always emitted in x86-64 mode.
+- ModRM stays in register-direct mode for reg/reg forms.
+- SIB is emitted when the address form requires it.
+- Unsupported operand forms return an empty byte vector instead of producing partial code.
+- The backend still expects the IR to keep readable operand text, because selection is done at the codegen layer.
 
 ## Token Vocabulary
 
@@ -206,17 +238,16 @@ You can also run `./build/gasm --pick` to choose a source file interactively.
 After running `gasm`, check that:
 - punctuation appears as separate tokens (`SEMICOLON(;)`, `COLON(:)`, `ASSIGN(=)`),
 - the selected output file is created,
-- labels like `_start:` become `IDENTIFIER(_start) COLON(:)` in the generated IR.
+- labels like `_start:` become `IDENTIFIER(_start) COLON(:)` in the generated IR,
+- the textual `.ir` output includes `[tokens]`, `[ast]`, `[ir]`, and `[symbols]` sections.
 
 ## Roadmap
 
-- Enrich IR nodes with instruction/operand structure
-- Implement parser for directives, labels, and instructions
-- Add semantic analysis (symbol table, type checks)
-- Implement backend/code generation
+- Enrich IR nodes with a fully structured operand model
+- Add more x86-64 encodings for memory and immediate forms
 - Add diagnostics with line/column information
-- Add tests for tokenizer/parser behavior
-- Replace the temporary binary IR container with a real code-generation backend
+- Add tests for tokenizer/parser/backend behavior
+- Extend code generation to more architectures beyond the current x86-64 slice
 
 ## Motivation
 
