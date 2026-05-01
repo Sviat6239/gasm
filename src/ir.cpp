@@ -67,6 +67,25 @@ namespace
         return node.text;
     }
 
+    Tokens::Token operandToken(const AstNode &operand)
+    {
+        if (!operand.children.empty())
+        {
+            const auto &firstChild = operand.children.front();
+            if (firstChild.kind == AstKind::TokenLeaf)
+            {
+                return firstChild.token;
+            }
+        }
+
+        if (operand.token != Tokens::ERROR)
+        {
+            return operand.token;
+        }
+
+        return Tokens::ERROR;
+    }
+
     void collectIR(const AstNode &node, vector<IRNode> &ir, SymbolTable &symbolTable)
     {
         if (node.kind == AstKind::Label)
@@ -88,7 +107,18 @@ namespace
 
         if (node.kind == AstKind::Instruction)
         {
-            ir.push_back({node.token, joinChildTexts(node), node.line});
+            Tokens::Token dst = Tokens::ERROR;
+            Tokens::Token src = Tokens::ERROR;
+            if (!node.children.empty())
+            {
+                dst = operandToken(node.children[0]);
+            }
+            if (node.children.size() > 1)
+            {
+                src = operandToken(node.children[1]);
+            }
+
+            ir.push_back({node.token, joinChildTexts(node), node.line, dst, src});
             return;
         }
 

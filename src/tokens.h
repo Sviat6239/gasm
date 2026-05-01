@@ -375,6 +375,8 @@ struct IRNode
     Tokens::Token type;
     string lexeme;
     size_t line;
+    Tokens::Token dst = Tokens::ERROR;
+    Tokens::Token src = Tokens::ERROR;
 };
 
 enum class AstKind
