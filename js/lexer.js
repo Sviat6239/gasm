@@ -46,7 +46,7 @@ export function tokenizer(input) {
                 value += char;
                 char = input[++current];
             }
-
+            //Directives and configuration
             if (value === 'format') {
                 tokens.push({ type: 'format', value: value });
             } else if (value === 'win_32') {
@@ -75,6 +75,46 @@ export function tokenizer(input) {
                 tokens.push({ type: 'entry', value: value });
             } else if (value === 'declare') {
                 tokens.push({ type: 'declare', value: value });
+            }
+            //Identifier and literals
+            else if (value === 'db') {
+                tokens.push({ type: 'db', value: value });
+            } else if (value === 'dw') {
+                tokens.push({ type: 'dw', value: value });
+            } else if (value === 'dd') {
+                tokens.push({ type: 'dd', value: value });
+            } else if (value === 'dq') {
+                tokens.push({ type: 'dq', value: value });
+            } else if (value === 'rb') {
+                tokens.push({ type: 'rb', value: value });
+            } else if (value === 'rw') {
+                tokens.push({ type: 'rw', value: value });
+            } else if (value === 'rd') {
+                tokens.push({ type: 'rd', value: value });
+            } else if (value === 'rq') {
+                tokens.push({ type: 'rq', value: value });
+            } else if (value === 'int8') {
+                tokens.push({ type: 'int8', value: value });
+            } else if (value === 'int16') {
+                tokens.push({ type: 'int16', value: value });
+            } else if (value === 'int32') {
+                tokens.push({ type: 'int32', value: value });
+            } else if (value === 'int64') {
+                tokens.push({ type: 'int64', value: value });
+            } else if (value === 'uint8') {
+                tokens.push({ type: 'uint8', value: value });
+            } else if (value === 'uint16') {
+                tokens.push({ type: 'uint16', value: value });
+            } else if (value === 'uint32') {
+                tokens.push({ type: 'uint32', value: value });
+            } else if (value === 'uint64') {
+                tokens.push({ type: 'int64', value: value });
+            } else if (value === 'float') {
+                tokens.push({ type: 'float', value: value });
+            } else if (value === 'double') {
+                tokens.push({ type: 'double', value: value });
+            } else if (value === 'char') {
+                tokens.push({ type: 'char', value: value });
             }
             else {
                 tokens.push({ type: 'name', value });
