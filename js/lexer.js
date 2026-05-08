@@ -207,6 +207,34 @@ export function tokenizer(input) {
                 tokens.push({ type: 'ror', value: value });
             } else if (value === 'ret') {
                 tokens.push({ type: 'ret', value: value });
+            } else if (value === 'int') {
+                tokens.push({ type: 'int', value: value });
+            } else if (value === 'syscall') {
+                tokens.push({ type: 'syscall', value: value });
+            } else if (value === 'ldr') {
+                tokens.push({ type: 'ldr', value: value });
+            } else if (value === 'str') {
+                tokens.push({ type: 'str', value: value });
+            } else if (value === 'orr') {
+                tokens.push({ type: 'orr', value: value });
+            } else if (value === 'eor') {
+                tokens.push({ type: 'eor', value: value });
+            } else if (value === 'bic') {
+                tokens.push({ type: 'bic', value: value });
+            } else if (value === 'lsl') {
+                tokens.push({ type: 'lsl', value: value });
+            } else if (value === 'lsr') {
+                tokens.push({ type: 'lsr', value: value });
+            } else if (value === 'asr') {
+                tokens.push({ type: 'asr', value: value });
+            } else if (value === 'tst') {
+                tokens.push({ type: 'tst', value: value });
+            } else if (value === 'b') {
+                tokens.push({ type: 'b', value: value });
+            } else if (value === 'bl_op') {
+                tokens.push({ type: 'bl_op', value: value });
+            } else if (value === 'bx_op') {
+                tokens.push({ type: 'bx_op', value: value });
             }
             else {
                 tokens.push({ type: 'name', value });
