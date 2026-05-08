@@ -162,6 +162,52 @@ export function tokenizer(input) {
             } else if (value === '>=') {
                 tokens.push({ type: 'greaterOrEqual', value: value });
             }
+            // x86 and ARM instructions
+            else if (value === 'mov') {
+                tokens.push({ type: 'mov', value: value });
+            } else if (value === 'add') {
+                tokens.push({ type: 'add', value: value });
+            } else if (value === 'sub') {
+                tokens.push({ type: 'sub', value: value });
+            } else if (value === 'mul') {
+                tokens.push({ type: 'mul', value: value });
+            } else if (value === 'div') {
+                tokens.push({ type: 'div', value: value });
+            } else if (value === 'sqr') {
+                tokens.push({ type: 'sqr', value: value });
+            } else if (value === 'pow') {
+                tokens.push({ type: 'pow', value: value });
+            } else if (value === 'cmp') {
+                tokens.push({ type: 'cmp', value: value });
+            } else if (value === 'jmp') {
+                tokens.push({ type: 'jmp', value: value });
+            } else if (value === 'jnz') {
+                tokens.push({ type: 'jnz', value: value });
+            } else if (value === 'inc') {
+                tokens.push({ type: 'inc', value: value });
+            } else if (value === 'dec') {
+                tokens.push({ type: 'dec', value: value });
+            } else if (value === 'xor') {
+                tokens.push({ type: 'xor', value: value });
+            } else if (value === 'and') {
+                tokens.push({ type: 'and', value: value });
+            } else if (value === 'or') {
+                tokens.push({ type: 'or', value: value });
+            } else if (value === 'not') {
+                tokens.push({ type: 'not', value: value });
+            } else if (value === 'shl') {
+                tokens.push({ type: 'shl', value: value });
+            } else if (value === 'shr') {
+                tokens.push({ type: 'shr', value: value });
+            } else if (value === 'sar') {
+                tokens.push({ type: 'sar', value: value });
+            } else if (value === 'rol') {
+                tokens.push({ type: 'rol', value: value });
+            } else if (value === 'ror') {
+                tokens.push({ type: 'ror', value: value });
+            } else if (value === 'ret') {
+                tokens.push({ type: 'ret', value: value });
+            }
             else {
                 tokens.push({ type: 'name', value });
             }
