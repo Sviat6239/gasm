@@ -116,6 +116,26 @@ export function tokenizer(input) {
             } else if (value === 'char') {
                 tokens.push({ type: 'char', value: value });
             }
+            //Structural directives
+            else if (value === 'struct') {
+                tokens.push({ type: 'struct', value: value });
+            } else if (value === 'ends') {
+                tokens.push({ type: 'ends', value: value });
+            } else if (value === 'macro') {
+                tokens.push({ type: 'macro', value: value });
+            } else if (value === 'endm') {
+                tokens.push({ type: 'endm', value: value });
+            }
+            //Control flow
+            else if (value === 'if') {
+                tokens.push({ type: 'if', value: value });
+            } else if (value === 'else') {
+                tokens.push({ type: 'else', value: value });
+            } else if (value === 'switch') {
+                tokens.push({ type: 'switch', value: value });
+            } else if (value === 'case') {
+                tokens.push({ type: 'case', value: value });
+            }
             else {
                 tokens.push({ type: 'name', value });
             }
