@@ -4,23 +4,6 @@ export function tokenizer(input) {
 
     while (current < input.length) {
         let char = input[current];
-        if (char === '(') {
-            tokens.push({
-                type: 'leftParent',
-                value: '(',
-            })
-            current++;
-            continue
-        }
-
-        if (char === ')') {
-            tokens.push({
-                type: 'rightParent',
-                value: ')',
-            })
-            current++;
-            continue;
-        }
 
         let NUMBERS = /[0-9]/;
         if (NUMBERS.test(char)) {
@@ -153,6 +136,10 @@ export function tokenizer(input) {
                 tokens.push({ type: 'lbracket', value: value });
             } else if (value === ']') {
                 tokens.push({ type: 'rbracket', value: value });
+            } else if (value === '(') {
+                tokens.push({ type: 'lparent', value: value });
+            } else if (value === ')') {
+                tokens.push({ type: 'rparent', value: value });
             } else if (value === '<') {
                 tokens.push({ type: 'less', value: value });
             } else if (value === '>') {
