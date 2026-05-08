@@ -136,6 +136,32 @@ export function tokenizer(input) {
             } else if (value === 'case') {
                 tokens.push({ type: 'case', value: value });
             }
+            //Operators and punctuation
+            else if (value === '=') {
+                tokens.push({ type: 'assign', value: value });
+            } else if (value === ':') {
+                tokens.push({ type: ':', value: value });
+            } else if (value === ';') {
+                tokens.push({ type: 'semicolon', value: value });
+            } else if (value === ',') {
+                tokens.push({ type: 'comma', value: value });
+            } else if (value === '{') {
+                tokens.push({ type: 'lbrace', value: value });
+            } else if (value === '}') {
+                tokens.push({ type: 'rbrace', value: value });
+            } else if (value === '[') {
+                tokens.push({ type: 'lbracket', value: value });
+            } else if (value === ']') {
+                tokens.push({ type: 'rbracket', value: value });
+            } else if (value === '<') {
+                tokens.push({ type: 'less', value: value });
+            } else if (value === '>') {
+                tokens.push({ type: 'greater', value: value });
+            } else if (value === '<=') {
+                tokens.push({ type: 'lessOrEqual', value: value });
+            } else if (value === '>=') {
+                tokens.push({ type: 'greaterOrEqual', value: value });
+            }
             else {
                 tokens.push({ type: 'name', value });
             }
