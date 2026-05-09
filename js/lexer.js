@@ -222,6 +222,50 @@ export function tokenizer(input) {
                 tokens.push({ type: 'bl_op', value: value });
             } else if (value === 'bx_op') {
                 tokens.push({ type: 'bx_op', value: value });
+            } else if (value === 'adr') {
+                tokens.push({ type: 'adr', value: value });
+            } else if (value === 'sdiv') {
+                tokens.push({ type: 'sdiv', value: value });
+            } else if (value === 'udiv') {
+                tokens.push({ type: 'udiv', value: value });
+            } else if (value === 'bfi') {
+                tokens.push({ type: 'bfi', value: value });
+            } else if (value === 'ubfx') {
+                tokens.push({ type: 'ubfx', value: value });
+            } else if (value === 'cbz') {
+                tokens.push({ type: 'cbz', value: value });
+            } else if (value === 'cbnz') {
+                tokens.push({ type: 'cbnz', value: value });
+            } else if (value === 'lui') {
+                tokens.push({ type: 'lui', value: value });
+            } else if (value === 'auipc') {
+                tokens.push({ type: 'auipc', value: value });
+            } else if (value === 'lw') {
+                tokens.push({ type: 'lw', value: value });
+            } else if (value === 'sw') {
+                tokens.push({ type: 'sw', value: value });
+            } else if (value === 'ld') {
+                tokens.push({ type: 'ld', value: value });
+            } else if (value === 'sd') {
+                tokens.push({ type: 'sd', value: value });
+            } else if (value === 'addi') {
+                tokens.push({ type: 'addi', value: value });
+            } else if (value === 'slt') {
+                tokens.push({ type: 'slt', value: value });
+            } else if (value === 'slti') {
+                tokens.push({ type: 'slti', value: value });
+            } else if (value === 'jal') {
+                tokens.push({ type: 'jal', value: value });
+            } else if (value === 'jalr') {
+                tokens.push({ type: 'jalr', value: value });
+            } else if (value === 'beq') {
+                tokens.push({ type: 'beq', value: value });
+            } else if (value === 'bne') {
+                tokens.push({ type: 'bne', value: value });
+            } else if (value === 'blt') {
+                tokens.push({ type: 'blt', value: value });
+            } else if (value === 'bge') {
+                tokens.push({ type: 'bge', value: value });
             }
             else {
                 tokens.push({ type: 'name', value });
