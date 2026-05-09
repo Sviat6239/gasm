@@ -633,6 +633,28 @@ export function tokenizer(input) {
             } else if (value === 'locate_handle_buffer') {
                 tokens.push({ type: 'locate_handle_buffer', value: value });
             }
+            // high-lvl operations
+            else if (value === 'print') {
+                tokens.push({ type: 'print', value: value });
+            } else if (value === 'call') {
+                tokens.push({ type: 'call', value: value });
+            } else if (value === 'import') {
+                tokens.push({ type: 'import', value: value });
+            } else if (value === 'export') {
+                tokens.push({ type: 'export', value: value });
+            } else if (value === 'return') {
+                tokens.push({ type: 'return', value: value });
+            } else if (value === 'break') {
+                tokens.push({ type: 'break', value: value });
+            } else if (value === 'continue') {
+                tokens.push({ type: 'continue', value: value });
+            } else if (value === 'while') {
+                tokens.push({ type: 'while', value: value });
+            } else if (value === 'do') {
+                tokens.push({ type: 'do', value: value });
+            } else if (value === 'for') {
+                tokens.push({ type: 'for', value: value });
+            }
             else {
                 tokens.push({ type: 'name', value });
             }
