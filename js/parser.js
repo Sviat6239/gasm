@@ -1150,6 +1150,176 @@ export function parser(tokens) {
         }
 
         ///
+        if (token.type === 'out') {
+            current++;
+
+            return {
+                type: 'OUT',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'in') {
+            current++;
+
+            return {
+                type: 'IN',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'cli') {
+            current++;
+
+            return {
+                type: 'CLI',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'sti') {
+            current++;
+
+            return {
+                type: 'STI',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'lidt') {
+            current++;
+
+            return {
+                type: 'LIDT',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'lgdt') {
+            current++;
+
+            return {
+                type: 'LGDT',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'smsw') {
+            current++;
+
+            return {
+                type: 'SMSW',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'lmsw') {
+            current++;
+
+            return {
+                type: 'LMSW',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'invlpg') {
+            current++;
+
+            return {
+                type: 'INVLPG',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'wbinvd') {
+            current++;
+
+            return {
+                type: 'WBINVD',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rdmsr') {
+            current++;
+
+            return {
+                type: 'RDMSR',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'wrmsr') {
+            current++;
+
+            return {
+                type: 'WRMSR',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rdtsr') {
+            current++;
+
+            return {
+                type: 'RDTSR',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'cpuid') {
+            current++;
+
+            return {
+                type: 'CPUID',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'iret') {
+            current++;
+
+            return {
+                type: 'IRET',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'pushfd') {
+            current++;
+
+            return {
+                type: 'PUSHFD',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'popfd') {
+            current++;
+
+            return {
+                type: 'POPFD',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'lahf') {
+            current++;
+
+            return {
+                type: 'LAHF',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'sahf') {
+            current++;
+
+            return {
+                type: 'SAHF',
+                value: token.value,
+            };
+        }
 
         if (token.type === 'stall') {
             current++;
