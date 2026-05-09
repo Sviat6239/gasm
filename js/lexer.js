@@ -270,8 +270,7 @@ export function tokenizer(input) {
             //x86 register names
             else if (value === 'rax') {
                 tokens.push({ type: 'rax', value: value });
-            }
-            else if (value === 'rbx') {
+            } else if (value === 'rbx') {
                 tokens.push({ type: 'rbx', value: value });
             } else if (value === 'rcx') {
                 tokens.push({ type: 'rcx', value: value });
@@ -427,6 +426,70 @@ export function tokenizer(input) {
                 tokens.push({ type: 'eflags', value: value });
             } else if (value === 'flags') {
                 tokens.push({ type: 'flags', value: value });
+            }
+            //ARM register names
+            else if (value === 'x0') {
+                tokens.push({ type: 'x0', value: value });
+            } else if (value === 'x1') {
+                tokens.push({ type: 'x1', value: value });
+            } else if (value === 'x2') {
+                tokens.push({ type: 'x2', value: value });
+            } else if (value === 'x3') {
+                tokens.push({ type: 'x3', value: value });
+            } else if (value === 'x4') {
+                tokens.push({ type: 'x4', value: value });
+            } else if (value === 'x5') {
+                tokens.push({ type: 'x5', value: value });
+            } else if (value === 'x6') {
+                tokens.push({ type: 'x6', value: value });
+            } else if (value === 'x7') {
+                tokens.push({ type: 'x7', value: value });
+            } else if (value === 'x8') {
+                tokens.push({ type: 'x8', value: value });
+            } else if (value === 'x9') {
+                tokens.push({ type: 'x9', value: value });
+            } else if (value === 'x10') {
+                tokens.push({ type: 'x10', value: value });
+            } else if (value === 'x11') {
+                tokens.push({ type: 'x11', value: value });
+            } else if (value === 'x12') {
+                tokens.push({ type: 'x12', value: value });
+            } else if (value === 'x13') {
+                tokens.push({ type: 'x13', value: value });
+            } else if (value === 'x14') {
+                tokens.push({ type: 'x14', value: value });
+            } else if (value === 'x15') {
+                tokens.push({ type: 'x15', value: value });
+            } else if (value === 'x16') {
+                tokens.push({ type: 'x16', value: value });
+            } else if (value === 'x17') {
+                tokens.push({ type: 'x17', value: value });
+            } else if (value === 'x18') {
+                tokens.push({ type: 'x18', value: value });
+            } else if (value === 'x19') {
+                tokens.push({ type: 'x19', value: value });
+            } else if (value === 'x20') {
+                tokens.push({ type: 'x20', value: value });
+            } else if (value === 'x21') {
+                tokens.push({ type: 'x21', value: value });
+            } else if (value === 'x22') {
+                tokens.push({ type: 'x22', value: value });
+            } else if (value === 'x23') {
+                tokens.push({ type: 'x23', value: value });
+            } else if (value === 'x24') {
+                tokens.push({ type: 'x24', value: value });
+            } else if (value === 'x25') {
+                tokens.push({ type: 'x25', value: value });
+            } else if (value === 'x26') {
+                tokens.push({ type: 'x26', value: value });
+            } else if (value === 'x27') {
+                tokens.push({ type: 'x27', value: value });
+            } else if (value === 'x28') {
+                tokens.push({ type: 'x28', value: value });
+            } else if (value === 'x29') {
+                tokens.push({ type: 'x29', value: value });
+            } else if (value === 'x30') {
+                tokens.push({ type: 'x30', value: value });
             }
             else {
                 tokens.push({ type: 'name', value });
