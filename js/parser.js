@@ -1148,5 +1148,97 @@ export function parser(tokens) {
                 value: token.value,
             };
         }
+
+        ///
+
+        if (token.type === 'print') {
+            current++;
+
+            return {
+                type: 'PRINT',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'call') {
+            current++;
+
+            return {
+                type: 'CALL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'import') {
+            current++;
+
+            return {
+                type: 'IMPORT',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'export') {
+            current++;
+
+            return {
+                type: 'EXPORT',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'return') {
+            current++;
+
+            return {
+                type: 'RETURN',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'break') {
+            current++;
+
+            return {
+                type: 'BREAK',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'continue') {
+            current++;
+
+            return {
+                type: 'CONTINUE',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'while') {
+            current++;
+
+            return {
+                type: 'WHILE',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'do') {
+            current++;
+
+            return {
+                type: 'DO',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'for') {
+            current++;
+
+            return {
+                type: 'FOR',
+                value: token.value,
+            };
+        }
     }
 }
