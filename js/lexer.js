@@ -148,6 +148,32 @@ export function tokenizer(input) {
                 tokens.push({ type: 'lessOrEqual', value: value });
             } else if (value === '>=') {
                 tokens.push({ type: 'greaterOrEqual', value: value });
+            } else if (value === '!=') {
+                tokens.push({ type: 'notEqual', value: value });
+            } else if (value === '==') {
+                tokens.push({ type: 'isEqual', value: value });
+            } else if (value === '.') {
+                tokens.push({ type: 'dot', value: value });
+            } else if (value === '*') {
+                tokens.push({ type: 'star', value: value });
+            } else if (value === '%') {
+                tokens.push({ type: 'module', value: value });
+            } else if (value === '&') {
+                tokens.push({ type: 'ampersand', value: value });
+            } else if (value === '&&') {
+                tokens.push({ type: 'logical_and', value: value });
+            } else if (value === '||') {
+                tokens.push({ type: 'logical_or', value: value });
+            } else if (value === '+') {
+                tokens.push({ type: 'plus', value: value });
+            } else if (value === '-') {
+                tokens.push({ type: 'minus', value: value });
+            } else if (value === '/') {
+                tokens.push({ type: 'divide', value: value });
+            } else if (value === '--') {
+                tokens.push({ type: 'incremental', value: value });
+            } else if (value === '>=') {
+                tokens.push({ type: 'decremental', value: value });
             }
             // x86 and ARM instructions
             else if (value === 'mov') {
