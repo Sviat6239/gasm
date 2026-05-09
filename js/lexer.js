@@ -267,6 +267,167 @@ export function tokenizer(input) {
             } else if (value === 'bge') {
                 tokens.push({ type: 'bge', value: value });
             }
+            //x86 register names
+            else if (value === 'rax') {
+                tokens.push({ type: 'rax', value: value });
+            }
+            else if (value === 'rbx') {
+                tokens.push({ type: 'rbx', value: value });
+            } else if (value === 'rcx') {
+                tokens.push({ type: 'rcx', value: value });
+            } else if (value === 'rdx') {
+                tokens.push({ type: 'rdx', value: value });
+            } else if (value === 'rsp') {
+                tokens.push({ type: 'rsp', value: value });
+            } else if (value === 'rbp') {
+                tokens.push({ type: 'rbp', value: value });
+            } else if (value === 'rsi') {
+                tokens.push({ type: 'rsi', value: value });
+            } else if (value === 'rdi') {
+                tokens.push({ type: 'rdi', value: value });
+            } else if (value === 'r8') {
+                tokens.push({ type: 'r8', value: value });
+            } else if (value === 'r9') {
+                tokens.push({ type: 'r9', value: value });
+            } else if (value === 'r10') {
+                tokens.push({ type: 'r10', value: value });
+            } else if (value === 'r11') {
+                tokens.push({ type: 'r11', value: value });
+            } else if (value === 'r12') {
+                tokens.push({ type: 'r12', value: value });
+            } else if (value === 'r13') {
+                tokens.push({ type: 'r13', value: value });
+            } else if (value === 'r14') {
+                tokens.push({ type: 'r14', value: value });
+            } else if (value === 'r15') {
+                tokens.push({ type: 'r15', value: value });
+            } else if (value === 'eax') {
+                tokens.push({ type: 'eax', value: value });
+            } else if (value === 'ebx') {
+                tokens.push({ type: 'ebx', value: value });
+            } else if (value === 'ecx') {
+                tokens.push({ type: 'ecx', value: value });
+            } else if (value === 'edx') {
+                tokens.push({ type: 'edx', value: value });
+            } else if (value === 'esp') {
+                tokens.push({ type: 'esp', value: value });
+            } else if (value === 'esi') {
+                tokens.push({ type: 'esi', value: value });
+            } else if (value === 'edi') {
+                tokens.push({ type: 'edi', value: value });
+            } else if (value === 'r8d') {
+                tokens.push({ type: 'r8d', value: value });
+            } else if (value === 'r9d') {
+                tokens.push({ type: 'r9d', value: value });
+            } else if (value === 'r10d') {
+                tokens.push({ type: 'r10d', value: value });
+            } else if (value === 'r11d') {
+                tokens.push({ type: 'r11d', value: value });
+            } else if (value === 'r12d') {
+                tokens.push({ type: 'r12d', value: value });
+            } else if (value === 'r13d') {
+                tokens.push({ type: 'r13d', value: value });
+            } else if (value === 'r14d') {
+                tokens.push({ type: 'r14d', value: value });
+            } else if (value === 'r15d') {
+                tokens.push({ type: 'r15d', value: value });
+            } else if (value === 'ax') {
+                tokens.push({ type: 'ax', value: value });
+            } else if (value === 'bx') {
+                tokens.push({ type: 'bx', value: value });
+            } else if (value === 'cx') {
+                tokens.push({ type: 'cx', value: value });
+            } else if (value === 'dx') {
+                tokens.push({ type: 'dx', value: value });
+            } else if (value === 'sp') {
+                tokens.push({ type: 'sp', value: value });
+            } else if (value === 'bp') {
+                tokens.push({ type: 'bp', value: value });
+            } else if (value === 'si') {
+                tokens.push({ type: 'si', value: value });
+            } else if (value === 'di') {
+                tokens.push({ type: 'di', value: value });
+            } else if (value === 'r8w') {
+                tokens.push({ type: 'r8w', value: value });
+            } else if (value === 'r9w') {
+                tokens.push({ type: 'r9w', value: value });
+            } else if (value === 'r10w') {
+                tokens.push({ type: 'r10w', value: value });
+            } else if (value === 'r11w') {
+                tokens.push({ type: 'r11w', value: value });
+            } else if (value === 'r12w') {
+                tokens.push({ type: 'r12w', value: value });
+            } else if (value === 'r13w') {
+                tokens.push({ type: 'r13w', value: value });
+            } else if (value === 'r14w') {
+                tokens.push({ type: 'r14w', value: value });
+            } else if (value === 'r15w') {
+                tokens.push({ type: 'r15w', value: value });
+            } else if (value === 'al') {
+                tokens.push({ type: 'al', value: value });
+            } else if (value === 'bl') {
+                tokens.push({ type: 'bl', value: value });
+            } else if (value === 'cl') {
+                tokens.push({ type: 'cl', value: value });
+            } else if (value === 'dl') {
+                tokens.push({ type: 'dl', value: value });
+            } else if (value === 'ah') {
+                tokens.push({ type: 'ah', value: value });
+            } else if (value === 'bh') {
+                tokens.push({ type: 'bh', value: value });
+            } else if (value === 'ch') {
+                tokens.push({ type: 'ch', value: value });
+            } else if (value === 'dh') {
+                tokens.push({ type: 'dh', value: value });
+            } else if (value === 'spl') {
+                tokens.push({ type: 'spl', value: value });
+            } else if (value === 'bpl') {
+                tokens.push({ type: 'bpl', value: value });
+            } else if (value === 'sil') {
+                tokens.push({ type: 'sil', value: value });
+            } else if (value === 'dil') {
+                tokens.push({ type: 'dil', value: value });
+            } else if (value === 'r8b') {
+                tokens.push({ type: 'r8b', value: value });
+            } else if (value === 'r9b') {
+                tokens.push({ type: 'r9b', value: value });
+            } else if (value === 'r10b') {
+                tokens.push({ type: 'r10b', value: value });
+            } else if (value === 'r11b') {
+                tokens.push({ type: 'r11b', value: value });
+            } else if (value === 'r12b') {
+                tokens.push({ type: 'r12b', value: value });
+            } else if (value === 'r13b') {
+                tokens.push({ type: 'r13b', value: value });
+            } else if (value === 'r14b') {
+                tokens.push({ type: 'r14b', value: value });
+            } else if (value === 'r15b') {
+                tokens.push({ type: 'r15b', value: value });
+            } else if (value === 'cs') {
+                tokens.push({ type: 'cs', value: value });
+            } else if (value === 'ds') {
+                tokens.push({ type: 'ds', value: value });
+            } else if (value === 'es') {
+                tokens.push({ type: 'es', value: value });
+            } else if (value === 'fs') {
+                tokens.push({ type: 'fs', value: value });
+            } else if (value === 'gs') {
+                tokens.push({ type: 'gs', value: value });
+            } else if (value === 'ss') {
+                tokens.push({ type: 'ss', value: value });
+            } else if (value === 'rip') {
+                tokens.push({ type: 'rip', value: value });
+            } else if (value === 'eip') {
+                tokens.push({ type: 'eip', value: value });
+            } else if (value === 'ip') {
+                tokens.push({ type: 'ip', value: value });
+            } else if (value === 'rflags') {
+                tokens.push({ type: 'rflags', value: value });
+            } else if (value === 'eflags') {
+                tokens.push({ type: 'eflags', value: value });
+            } else if (value === 'flags') {
+                tokens.push({ type: 'flags', value: value });
+            }
             else {
                 tokens.push({ type: 'name', value });
             }
