@@ -593,6 +593,46 @@ export function tokenizer(input) {
             } else if (value === 'sahf') {
                 tokens.push({ type: 'sahf', value: value });
             }
+            //UEFI / protocol helpers
+            else if (value === 'stall') {
+                tokens.push({ type: 'stall', value: value });
+            } else if (value === 'reset') {
+                tokens.push({ type: 'reset', value: value });
+            } else if (value === 'allocate_pages') {
+                tokens.push({ type: 'allocate_pages', value: value });
+            } else if (value === 'free_pages') {
+                tokens.push({ type: 'free_pages', value: value });
+            } else if (value === 'get_memory_map') {
+                tokens.push({ type: 'get_memory_map', value: value });
+            } else if (value === 'allocate_pool') {
+                tokens.push({ type: 'allocate_pool', value: value });
+            } else if (value === 'free_pool') {
+                tokens.push({ type: 'free_pool', value: value });
+            } else if (value === 'set_watchdog_timer') {
+                tokens.push({ type: 'set_watchdog_timer', value: value });
+            } else if (value === 'connect_controller') {
+                tokens.push({ type: 'connect_controller', value: value });
+            } else if (value === 'disconnect_controller') {
+                tokens.push({ type: 'disconnect_controller', value: value });
+            } else if (value === 'open_protocol') {
+                tokens.push({ type: 'close_protocol', value: value });
+            } else if (value === 'locate_handle') {
+                tokens.push({ type: 'locate_handle', value: value });
+            } else if (value === 'locate_device_path') {
+                tokens.push({ type: 'locate_device_path', value: value });
+            } else if (value === 'install_protocol_interface') {
+                tokens.push({ type: 'install_protocol_interface', value: value });
+            } else if (value === 'reinstall_protocol_interface') {
+                tokens.push({ type: 'reinstall_protocol_interface', value: value });
+            } else if (value === 'uninstall_protocol_interface') {
+                tokens.push({ type: 'uninstall_protocol_interface', value: value });
+            } else if (value === 'handle_protocol') {
+                tokens.push({ type: 'handle_protocol', value: value });
+            } else if (value === 'register_protocol_notify') {
+                tokens.push({ type: 'register_protocol_notify', value: value });
+            } else if (value === 'locate_handle_buffer') {
+                tokens.push({ type: 'locate_handle_buffer', value: value });
+            }
             else {
                 tokens.push({ type: 'name', value });
             }
