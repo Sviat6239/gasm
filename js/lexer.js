@@ -108,6 +108,8 @@ export function tokenizer(input) {
                 tokens.push({ type: 'macro', value: value });
             } else if (value === 'endm') {
                 tokens.push({ type: 'endm', value: value });
+            } else if (value === 'function') {
+                tokens.push({ type: 'endf', value: value });
             }
             //Control flow
             else if (value === 'if') {

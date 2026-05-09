@@ -311,5 +311,95 @@ export function parser(tokens) {
                 value: token.value,
             };
         }
+
+        if (token.type === 'struct') {
+            current++;
+
+            return {
+                type: 'STRUCT',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'ends') {
+            current++;
+
+            return {
+                type: 'ENDS',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'macro') {
+            current++;
+
+            return {
+                type: 'MACRO',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'endm') {
+            current++;
+
+            return {
+                type: 'ENDM',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'function') {
+            current++;
+
+            return {
+                type: 'FUNCTION',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'endf') {
+            current++;
+
+            return {
+                type: 'ENDF',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'if') {
+            current++;
+
+            return {
+                type: 'IF',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'else') {
+            current++;
+
+            return {
+                type: 'ELSE',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'switch') {
+            current++;
+
+            return {
+                type: 'SWITCH',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'case') {
+            current++;
+
+            return {
+                type: 'CASE',
+                value: token.value,
+            };
+        }
     }
 }
