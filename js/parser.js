@@ -1151,6 +1151,177 @@ export function parser(tokens) {
 
         ///
 
+        if (token.type === 'stall') {
+            current++;
+
+            return {
+                type: 'STALL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'reset') {
+            current++;
+
+            return {
+                type: 'RESET',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'allocate_pages') {
+            current++;
+
+            return {
+                type: 'ALOCATE_PAGES',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'free_pages') {
+            current++;
+
+            return {
+                type: 'FREE_PAGES',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'get_memory_map') {
+            current++;
+
+            return {
+                type: 'GET_MEMORY_MAP',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'allocate_pool') {
+            current++;
+
+            return {
+                type: 'ALOCATE_POOL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'free_pool') {
+            current++;
+
+            return {
+                type: 'FREE_POOL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'set_watchdog_timer') {
+            current++;
+
+            return {
+                type: 'SET_WATCHDOG_TIMER',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'connect_controller') {
+            current++;
+
+            return {
+                type: 'CONNECT_CONTROLLER',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'disconnect_controller') {
+            current++;
+
+            return {
+                type: 'DISCONNECT_CONTROLLER',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'open_protocol') {
+            current++;
+
+            return {
+                type: 'OPEN_PROTOCOL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'locate_handle') {
+            current++;
+
+            return {
+                type: 'LOCATE_HANDLE',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'locate_device_path') {
+            current++;
+
+            return {
+                type: 'LOCATE_DEVICE_PATH',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'install_protocol_interface') {
+            current++;
+
+            return {
+                type: 'INSTALL_PROTOCOL_INTERFACE',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'reinstall_protocol_interface') {
+            current++;
+
+            return {
+                type: 'REINSTALL_PROTOCOL_INTERFACE',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'uninstall_protocol_interface') {
+            current++;
+
+            return {
+                type: 'UNINSTALL_PROTOCOL_INTERFACE',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'handle_protocol') {
+            current++;
+
+            return {
+                type: 'HANDLE_PROTOCOL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'register_protocol_notify') {
+            current++;
+
+            return {
+                type: 'REGISTER_PROTOCOL_NOTIFY',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'locate_handle_buffer') {
+            current++;
+
+            return {
+                type: 'LOCATE_HANDLE_BUFFER',
+                value: token.value,
+            };
+        }
+
         if (token.type === 'print') {
             current++;
 
