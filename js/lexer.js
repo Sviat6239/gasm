@@ -172,9 +172,9 @@ export function tokenizer(input) {
                 tokens.push({ type: 'minus', value: value });
             } else if (value === '/') {
                 tokens.push({ type: 'divide', value: value });
-            } else if (value === '--') {
+            } else if (value === '++') {
                 tokens.push({ type: 'incremental', value: value });
-            } else if (value === '>=') {
+            } else if (value === '--') {
                 tokens.push({ type: 'decremental', value: value });
             }
             // x86 and ARM instructions

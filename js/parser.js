@@ -401,5 +401,239 @@ export function parser(tokens) {
                 value: token.value,
             };
         }
+
+        if (token.type === 'assign') {
+            current++;
+
+            return {
+                type: 'ASSIGN',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'semicolon') {
+            current++;
+
+            return {
+                type: 'SEMICOLON',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'comma') {
+            current++;
+
+            return {
+                type: 'COMMA',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'lbrace') {
+            current++;
+
+            return {
+                type: 'LBRACE',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rbrace') {
+            current++;
+
+            return {
+                type: 'RBRACE',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'lbracket') {
+            current++;
+
+            return {
+                type: 'LBRACKET',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rbracket') {
+            current++;
+
+            return {
+                type: 'RBRACKET',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'lparent') {
+            current++;
+
+            return {
+                type: 'LPARENT',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rparent') {
+            current++;
+
+            return {
+                type: 'RPARENT',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'less') {
+            current++;
+
+            return {
+                type: 'LESS',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'greater') {
+            current++;
+
+            return {
+                type: 'GREATER',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'lessOrEqual') {
+            current++;
+
+            return {
+                type: 'LESSOREQUAL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'greaterOrEqual') {
+            current++;
+
+            return {
+                type: 'GREATEROREQUAL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'notEqual') {
+            current++;
+
+            return {
+                type: 'NOTEQUAL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'isEqual') {
+            current++;
+
+            return {
+                type: 'ISEQUAL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'dot') {
+            current++;
+
+            return {
+                type: 'DOT',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'star') {
+            current++;
+
+            return {
+                type: 'STAR',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'module') {
+            current++;
+
+            return {
+                type: 'MODULE',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'ampersand') {
+            current++;
+
+            return {
+                type: 'AMPERSAND',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'logical_and') {
+            current++;
+
+            return {
+                type: 'LOGICAL_AND',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'logical_or') {
+            current++;
+
+            return {
+                type: 'LOGICAL_OR',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'plus') {
+            current++;
+
+            return {
+                type: 'PLUS',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'minus') {
+            current++;
+
+            return {
+                type: 'MINUS',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'divide') {
+            current++;
+
+            return {
+                type: 'DIVIDE',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'incremental') {
+            current++;
+
+            return {
+                type: 'INCREMENTAL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'decremental') {
+            current++;
+
+            return {
+                type: 'DECREMENTAL',
+                value: token.value,
+            };
+        }
     }
 }
