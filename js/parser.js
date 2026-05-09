@@ -1150,6 +1150,565 @@ export function parser(tokens) {
         }
 
         ///
+
+        if (token.type === 'x0') {
+            current++;
+
+            return {
+                type: 'X0',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x1') {
+            current++;
+
+            return {
+                type: 'X1',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x2') {
+            current++;
+
+            return {
+                type: 'X2',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x3') {
+            current++;
+
+            return {
+                type: 'X3',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x4') {
+            current++;
+
+            return {
+                type: 'X4',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x5') {
+            current++;
+
+            return {
+                type: 'X5',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x6') {
+            current++;
+
+            return {
+                type: 'X6',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x7') {
+            current++;
+
+            return {
+                type: 'X7',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x8') {
+            current++;
+
+            return {
+                type: 'X8',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x9') {
+            current++;
+
+            return {
+                type: 'X9',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x10') {
+            current++;
+
+            return {
+                type: 'X10',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x11') {
+            current++;
+
+            return {
+                type: 'x11',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x12') {
+            current++;
+
+            return {
+                type: 'X12',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x13') {
+            current++;
+
+            return {
+                type: 'X13',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x14') {
+            current++;
+
+            return {
+                type: 'X14',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x15') {
+            current++;
+
+            return {
+                type: 'X15',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x16') {
+            current++;
+
+            return {
+                type: 'X16',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x17') {
+            current++;
+
+            return {
+                type: 'X17',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x18') {
+            current++;
+
+            return {
+                type: 'X18',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x19') {
+            current++;
+
+            return {
+                type: 'X19',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x20') {
+            current++;
+
+            return {
+                type: 'X20',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x21') {
+            current++;
+
+            return {
+                type: 'X21',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x22') {
+            current++;
+
+            return {
+                type: 'X22',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x23') {
+            current++;
+
+            return {
+                type: 'X23',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x24') {
+            current++;
+
+            return {
+                type: 'X24',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x25') {
+            current++;
+
+            return {
+                type: 'X25',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x26') {
+            current++;
+
+            return {
+                type: 'X26',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x27') {
+            current++;
+
+            return {
+                type: 'X27',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x28') {
+            current++;
+
+            return {
+                type: 'X28',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x29') {
+            current++;
+
+            return {
+                type: 'X29',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'x30') {
+            current++;
+
+            return {
+                type: 'X30',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w0') {
+            current++;
+
+            return {
+                type: 'W0',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w1') {
+            current++;
+
+            return {
+                type: 'W1',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w2') {
+            current++;
+
+            return {
+                type: 'W2',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w3') {
+            current++;
+
+            return {
+                type: 'W3',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w4') {
+            current++;
+
+            return {
+                type: 'W4',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w5') {
+            current++;
+
+            return {
+                type: 'W5',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w6') {
+            current++;
+
+            return {
+                type: 'W6',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w7') {
+            current++;
+
+            return {
+                type: 'W7',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w8') {
+            current++;
+
+            return {
+                type: 'W8',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w9') {
+            current++;
+
+            return {
+                type: 'W9',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w10') {
+            current++;
+
+            return {
+                type: 'W10',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w11') {
+            current++;
+
+            return {
+                type: 'W11',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w12') {
+            current++;
+
+            return {
+                type: 'W12',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w13') {
+            current++;
+
+            return {
+                type: 'W13',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w14') {
+            current++;
+
+            return {
+                type: 'W14',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w15') {
+            current++;
+
+            return {
+                type: 'W15',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w16') {
+            current++;
+
+            return {
+                type: 'W16',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w17') {
+            current++;
+
+            return {
+                type: 'W17',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w18') {
+            current++;
+
+            return {
+                type: 'W18',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w19') {
+            current++;
+
+            return {
+                type: 'W19',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w20') {
+            current++;
+
+            return {
+                type: 'W20',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w21') {
+            current++;
+
+            return {
+                type: 'W21',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w22') {
+            current++;
+
+            return {
+                type: 'W22',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w23') {
+            current++;
+
+            return {
+                type: 'W23',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w24') {
+            current++;
+
+            return {
+                type: 'W24',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w25') {
+            current++;
+
+            return {
+                type: 'W25',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w26') {
+            current++;
+
+            return {
+                type: 'W26',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w27') {
+            current++;
+
+            return {
+                type: 'W27',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w28') {
+            current++;
+
+            return {
+                type: 'W28',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w29') {
+            current++;
+
+            return {
+                type: 'W29',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'w30') {
+            current++;
+
+            return {
+                type: 'W30',
+                value: token.value,
+            };
+        }
+
         if (token.type === 'out') {
             current++;
 
