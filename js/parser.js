@@ -1151,6 +1151,717 @@ export function parser(tokens) {
 
         ///
 
+        if (token.type === 'rax') {
+            current++;
+
+            return {
+                type: 'RAX',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rbx') {
+            current++;
+
+            return {
+                type: 'RBX',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rcx') {
+            current++;
+
+            return {
+                type: 'RCX',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rdx') {
+            current++;
+
+            return {
+                type: 'RDX',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rsp') {
+            current++;
+
+            return {
+                type: 'RSP',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rbp') {
+            current++;
+
+            return {
+                type: 'RBP',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rsi') {
+            current++;
+
+            return {
+                type: 'RSI',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rdi') {
+            current++;
+
+            return {
+                type: 'RDI',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r8') {
+            current++;
+
+            return {
+                type: 'R8',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r9') {
+            current++;
+
+            return {
+                type: 'R9',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r10') {
+            current++;
+
+            return {
+                type: 'R10',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r11') {
+            current++;
+
+            return {
+                type: 'R11',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r12') {
+            current++;
+
+            return {
+                type: 'R12',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r13') {
+            current++;
+
+            return {
+                type: 'R13',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r14') {
+            current++;
+
+            return {
+                type: 'R14',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r15') {
+            current++;
+
+            return {
+                type: 'R15',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'eax') {
+            current++;
+
+            return {
+                type: 'EAX',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'ebx') {
+            current++;
+
+            return {
+                type: 'EBX',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'ecx') {
+            current++;
+
+            return {
+                type: 'ECX',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'edx') {
+            current++;
+
+            return {
+                type: 'EDX',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'esp') {
+            current++;
+
+            return {
+                type: 'ESP',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'esi') {
+            current++;
+
+            return {
+                type: 'ESI',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'edi') {
+            current++;
+
+            return {
+                type: 'EDI',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r8d') {
+            current++;
+
+            return {
+                type: 'R8D',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r9d') {
+            current++;
+
+            return {
+                type: 'R9D',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r10d') {
+            current++;
+
+            return {
+                type: 'R10D',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r11d') {
+            current++;
+
+            return {
+                type: 'R11D',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r12d') {
+            current++;
+
+            return {
+                type: 'R12D',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r13d') {
+            current++;
+
+            return {
+                type: 'R13D',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r14d') {
+            current++;
+
+            return {
+                type: 'R14D',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r15d') {
+            current++;
+
+            return {
+                type: 'R15D',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'ax') {
+            current++;
+
+            return {
+                type: 'AX',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'bx') {
+            current++;
+
+            return {
+                type: 'BX',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'cx') {
+            current++;
+
+            return {
+                type: 'CX',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'dx') {
+            current++;
+
+            return {
+                type: 'DX',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'sp') {
+            current++;
+
+            return {
+                type: 'SP',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'bp') {
+            current++;
+
+            return {
+                type: 'BP',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'si') {
+            current++;
+
+            return {
+                type: 'SI',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'di') {
+            current++;
+
+            return {
+                type: 'DI',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r8w') {
+            current++;
+
+            return {
+                type: 'R8W',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r9w') {
+            current++;
+
+            return {
+                type: 'R9W',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r10w') {
+            current++;
+
+            return {
+                type: 'R10W',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r11w') {
+            current++;
+
+            return {
+                type: 'R11W',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r12w') {
+            current++;
+
+            return {
+                type: 'R12W',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r13w') {
+            current++;
+
+            return {
+                type: 'R13W',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r14w') {
+            current++;
+
+            return {
+                type: 'R14W',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r15w') {
+            current++;
+
+            return {
+                type: 'R15W',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'al') {
+            current++;
+
+            return {
+                type: 'AL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'bl') {
+            current++;
+
+            return {
+                type: 'BL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'cl') {
+            current++;
+
+            return {
+                type: 'CL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'dl') {
+            current++;
+
+            return {
+                type: 'DL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'ah') {
+            current++;
+
+            return {
+                type: 'AH',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'bh') {
+            current++;
+
+            return {
+                type: 'BH',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'ch') {
+            current++;
+
+            return {
+                type: 'CH',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'dh') {
+            current++;
+
+            return {
+                type: 'DH',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'spl') {
+            current++;
+
+            return {
+                type: 'SPL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'bpl') {
+            current++;
+
+            return {
+                type: 'BPL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'sil') {
+            current++;
+
+            return {
+                type: 'SIL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'dil') {
+            current++;
+
+            return {
+                type: 'DIL',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r8b') {
+            current++;
+
+            return {
+                type: 'R8B',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r9b') {
+            current++;
+
+            return {
+                type: 'R9B',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r10b') {
+            current++;
+
+            return {
+                type: 'R10B',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r11b') {
+            current++;
+
+            return {
+                type: 'R11B',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r12b') {
+            current++;
+
+            return {
+                type: 'R12B',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r13b') {
+            current++;
+
+            return {
+                type: 'R13B',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r14b') {
+            current++;
+
+            return {
+                type: 'R14B',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'r15b') {
+            current++;
+
+            return {
+                type: 'R15B',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'cs') {
+            current++;
+
+            return {
+                type: 'CS',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'ds') {
+            current++;
+
+            return {
+                type: 'DS',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'es') {
+            current++;
+
+            return {
+                type: 'ES',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'fs') {
+            current++;
+
+            return {
+                type: 'FS',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'gs') {
+            current++;
+
+            return {
+                type: 'GS',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'ss') {
+            current++;
+
+            return {
+                type: 'SS',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rip') {
+            current++;
+
+            return {
+                type: 'RIP',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'eip') {
+            current++;
+
+            return {
+                type: 'EIP',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'ip') {
+            current++;
+
+            return {
+                type: 'IP',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rflags') {
+            current++;
+
+            return {
+                type: 'RFLAGS',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'eflags') {
+            current++;
+
+            return {
+                type: 'EFLAGS',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'flags') {
+            current++;
+
+            return {
+                type: 'FLAGS',
+                value: token.value,
+            };
+        }
+
         if (token.type === 'x0') {
             current++;
 
