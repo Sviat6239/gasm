@@ -553,6 +553,46 @@ export function tokenizer(input) {
             } else if (value === 'w30') {
                 tokens.push({ type: 'w30', value: value });
             }
+            //Low-lvl and bios specific operations
+            else if (value === 'out') {
+                tokens.push({ type: 'out', value: value });
+            } else if (value === 'in') {
+                tokens.push({ type: 'in', value: value });
+            } else if (value === 'cli') {
+                tokens.push({ type: 'cli', value: value });
+            } else if (value === 'sti') {
+                tokens.push({ type: 'sti', value: value });
+            } else if (value === 'lidt') {
+                tokens.push({ type: 'lidt', value: value });
+            } else if (value === 'lgdt') {
+                tokens.push({ type: 'lgdt', value: value });
+            } else if (value === 'smsw') {
+                tokens.push({ type: 'smsw', value: value });
+            } else if (value === 'lmsw') {
+                tokens.push({ type: 'lmsw', value: value });
+            } else if (value === 'invlpg') {
+                tokens.push({ type: 'invlpg', value: value });
+            } else if (value === 'wbinvd') {
+                tokens.push({ type: 'wbinvd', value: value });
+            } else if (value === 'rdmsr') {
+                tokens.push({ type: 'rdmsr', value: value });
+            } else if (value === 'wrmsr') {
+                tokens.push({ type: 'wrmsr', value: value });
+            } else if (value === 'rdtsr') {
+                tokens.push({ type: 'rdtsr', value: value });
+            } else if (value === 'cpuid') {
+                tokens.push({ type: 'cpuid', value: value });
+            } else if (value === 'iret') {
+                tokens.push({ type: 'iret', value: value });
+            } else if (value === 'pushfd') {
+                tokens.push({ type: 'pushfd', value: value });
+            } else if (value === 'popfd') {
+                tokens.push({ type: 'popfd', value: value });
+            } else if (value === 'lahf') {
+                tokens.push({ type: 'lahf', value: value });
+            } else if (value === 'sahf') {
+                tokens.push({ type: 'sahf', value: value });
+            }
             else {
                 tokens.push({ type: 'name', value });
             }
