@@ -140,5 +140,176 @@ export function parser(tokens) {
                 value: token.value,
             };
         }
+
+        if (token.type === 'db') {
+            current++;
+
+            return {
+                type: 'DB',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'dw') {
+            current++;
+
+            return {
+                type: 'DW',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'dd') {
+            current++;
+
+            return {
+                type: 'DD',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'dq') {
+            current++;
+
+            return {
+                type: 'DQ',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rb') {
+            current++;
+
+            return {
+                type: 'RB',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rw') {
+            current++;
+
+            return {
+                type: 'RW',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rd') {
+            current++;
+
+            return {
+                type: 'RD',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'rq') {
+            current++;
+
+            return {
+                type: 'RQ',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'int8') {
+            current++;
+
+            return {
+                type: 'INT8',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'int16') {
+            current++;
+
+            return {
+                type: 'INT16',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'int32') {
+            current++;
+
+            return {
+                type: 'INT32',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'int64') {
+            current++;
+
+            return {
+                type: 'INT64',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'uint8') {
+            current++;
+
+            return {
+                type: 'UINT8',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'uint16') {
+            current++;
+
+            return {
+                type: 'UINT16',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'uint32') {
+            current++;
+
+            return {
+                type: 'UINT32',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'uint64') {
+            current++;
+
+            return {
+                type: 'UINT64',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'float') {
+            current++;
+
+            return {
+                type: 'FLOAT',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'double') {
+            current++;
+
+            return {
+                type: 'DOUBLE',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'char') {
+            current++;
+
+            return {
+                type: 'CHAR',
+                value: token.value,
+            };
+        }
     }
 }
