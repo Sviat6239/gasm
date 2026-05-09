@@ -490,6 +490,68 @@ export function tokenizer(input) {
                 tokens.push({ type: 'x29', value: value });
             } else if (value === 'x30') {
                 tokens.push({ type: 'x30', value: value });
+            } else if (value === 'w0') {
+                tokens.push({ type: 'w0', value: value });
+            } else if (value === 'w1') {
+                tokens.push({ type: 'w1', value: value });
+            } else if (value === 'w2') {
+                tokens.push({ type: 'w2', value: value });
+            } else if (value === 'w3') {
+                tokens.push({ type: 'w3', value: value });
+            } else if (value === 'w4') {
+                tokens.push({ type: 'w4', value: value });
+            } else if (value === 'w5') {
+                tokens.push({ type: 'w5', value: value });
+            } else if (value === 'w6') {
+                tokens.push({ type: 'w6', value: value });
+            } else if (value === 'w7') {
+                tokens.push({ type: 'x7', value: value });
+            } else if (value === 'w8') {
+                tokens.push({ type: 'w8', value: value });
+            } else if (value === 'w9') {
+                tokens.push({ type: 'w9', value: value });
+            } else if (value === 'w10') {
+                tokens.push({ type: 'w10', value: value });
+            } else if (value === 'w11') {
+                tokens.push({ type: 'w11', value: value });
+            } else if (value === 'w12') {
+                tokens.push({ type: 'w12', value: value });
+            } else if (value === 'w13') {
+                tokens.push({ type: 'w13', value: value });
+            } else if (value === 'w14') {
+                tokens.push({ type: 'w14', value: value });
+            } else if (value === 'w15') {
+                tokens.push({ type: 'w15', value: value });
+            } else if (value === 'w16') {
+                tokens.push({ type: 'w16', value: value });
+            } else if (value === 'w17') {
+                tokens.push({ type: 'w17', value: value });
+            } else if (value === 'w18') {
+                tokens.push({ type: 'w18', value: value });
+            } else if (value === 'w19') {
+                tokens.push({ type: 'w19', value: value });
+            } else if (value === 'w20') {
+                tokens.push({ type: 'w20', value: value });
+            } else if (value === 'w21') {
+                tokens.push({ type: 'w21', value: value });
+            } else if (value === 'w22') {
+                tokens.push({ type: 'w22', value: value });
+            } else if (value === 'w23') {
+                tokens.push({ type: 'w23', value: value });
+            } else if (value === 'w24') {
+                tokens.push({ type: 'w24', value: value });
+            } else if (value === 'w25') {
+                tokens.push({ type: 'w25', value: value });
+            } else if (value === 'w26') {
+                tokens.push({ type: 'w26', value: value });
+            } else if (value === 'w27') {
+                tokens.push({ type: 'w27', value: value });
+            } else if (value === 'w28') {
+                tokens.push({ type: 'w28', value: value });
+            } else if (value === 'w29') {
+                tokens.push({ type: 'w29', value: value });
+            } else if (value === 'w30') {
+                tokens.push({ type: 'w30', value: value });
             }
             else {
                 tokens.push({ type: 'name', value });
