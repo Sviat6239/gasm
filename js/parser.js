@@ -20,6 +20,9 @@ export function parser(tokens) {
         'handle_protocol', 'register_protocol_notify', 'locate_handle_buffer',
         'print', 'call', 'import', 'export', 'return', 'break', 'continue'
     ]);
+    const registerTokens = new Set([
+        'rax', 'rbx', 'rcx', 'rdx', 'rsp', 'sbp', 'rsi',
+    ])
 
     function peek(offset = 0) {
         return tokens[current + offset];
@@ -50,12 +53,14 @@ export function parser(tokens) {
             advance();
             return { type: 'StringLiteral', value: token.value };
         }
-        if (token.type === 'name') {
+        if (registerTokens.has(token.type) || token.type === 'name') {
             advance();
-            return { type: 'Identifier', name: token.value };
+            return {
+                type: registerTokens.has(token.type) ? 'Register' : 'Identifier',
+                name: token.value
+            }
         }
-        advance();
-        return { type: 'Identifier', name: token.value };
+        throw new TypeError(`Unexpected token in operand: ${token.type} (value: ${token.value})`);
     }
 
     function parseDirective() {
