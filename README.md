@@ -8,8 +8,8 @@ not implemented yet.
 ## Status
 
 - Tokenizer implemented in `js/lexer.js`.
-- Parser implemented in `js/parser.js` (maps a single token to a node; it does
-  not build a full Program AST yet).
+- Parser implemented in `js/parser.js` (builds a Program AST with directives,
+  declarations, labels, and instructions).
 - `js/ast.js`, `js/ir.js`, and `js/codegen.js` are placeholders.
 - `index.js` is empty (no CLI yet).
 
@@ -20,14 +20,13 @@ not implemented yet.
   a raw escaped character).
 - Identifiers and a large keyword list for directives, instructions, and
   registers.
+- Punctuation tokens: `;`, `:`, `,`, `{}`, `[]`, `()`, and common operators.
 - Tokens are returned as `{ type, value }` objects.
 
 ## Known limitations
 
-- Punctuation tokens (`;`, `:`, `,`, `[]`, `()`, operators) are not tokenized
-  yet.
 - Comments are not supported (`#` will throw an error).
-- The parser does not iterate over all tokens and does not return a Program AST.
+- The parser does not implement expression trees or block structures yet.
 - No runtime, CLI, or build system is included yet.
 
 ## Quick check (tokenizer only)

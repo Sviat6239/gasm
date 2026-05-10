@@ -22,6 +22,165 @@ export function tokenizer(input) {
             continue;
         }
 
+        if (char === '"' || char === "'") {
+            let quote = char;
+            let value = '';
+            char = input[++current];
+            while (current < input.length && char !== quote) {
+                if (char === '\\') {
+                    const next = input[++current];
+                    if (next === 'n') value += '\n';
+                    else if (next === 't') value += '\t';
+                    else value += next;
+                    char = input[++current];
+                    continue;
+                }
+                value += char;
+                char = input[++current];
+            }
+            current++;
+            tokens.push({ type: 'string', value });
+            continue;
+        }
+
+        let twoChar = input.slice(current, current + 2);
+        if (twoChar === '==') {
+            tokens.push({ type: 'isEqual', value: twoChar });
+            current += 2;
+            continue;
+        }
+        if (twoChar === '!=') {
+            tokens.push({ type: 'notEqual', value: twoChar });
+            current += 2;
+            continue;
+        }
+        if (twoChar === '<=') {
+            tokens.push({ type: 'lessOrEqual', value: twoChar });
+            current += 2;
+            continue;
+        }
+        if (twoChar === '>=') {
+            tokens.push({ type: 'greaterOrEqual', value: twoChar });
+            current += 2;
+            continue;
+        }
+        if (twoChar === '&&') {
+            tokens.push({ type: 'logical_and', value: twoChar });
+            current += 2;
+            continue;
+        }
+        if (twoChar === '||') {
+            tokens.push({ type: 'logical_or', value: twoChar });
+            current += 2;
+            continue;
+        }
+        if (twoChar === '++') {
+            tokens.push({ type: 'incremental', value: twoChar });
+            current += 2;
+            continue;
+        }
+        if (twoChar === '--') {
+            tokens.push({ type: 'decremental', value: twoChar });
+            current += 2;
+            continue;
+        }
+
+        if (char === '=') {
+            tokens.push({ type: 'assign', value: char });
+            current++;
+            continue;
+        }
+        if (char === ':') {
+            tokens.push({ type: 'colon', value: char });
+            current++;
+            continue;
+        }
+        if (char === ';') {
+            tokens.push({ type: 'semicolon', value: char });
+            current++;
+            continue;
+        }
+        if (char === ',') {
+            tokens.push({ type: 'comma', value: char });
+            current++;
+            continue;
+        }
+        if (char === '{') {
+            tokens.push({ type: 'lbrace', value: char });
+            current++;
+            continue;
+        }
+        if (char === '}') {
+            tokens.push({ type: 'rbrace', value: char });
+            current++;
+            continue;
+        }
+        if (char === '[') {
+            tokens.push({ type: 'lbracket', value: char });
+            current++;
+            continue;
+        }
+        if (char === ']') {
+            tokens.push({ type: 'rbracket', value: char });
+            current++;
+            continue;
+        }
+        if (char === '(') {
+            tokens.push({ type: 'lparent', value: char });
+            current++;
+            continue;
+        }
+        if (char === ')') {
+            tokens.push({ type: 'rparent', value: char });
+            current++;
+            continue;
+        }
+        if (char === '<') {
+            tokens.push({ type: 'less', value: char });
+            current++;
+            continue;
+        }
+        if (char === '>') {
+            tokens.push({ type: 'greater', value: char });
+            current++;
+            continue;
+        }
+        if (char === '.') {
+            tokens.push({ type: 'dot', value: char });
+            current++;
+            continue;
+        }
+        if (char === '*') {
+            tokens.push({ type: 'star', value: char });
+            current++;
+            continue;
+        }
+        if (char === '%') {
+            tokens.push({ type: 'module', value: char });
+            current++;
+            continue;
+        }
+        if (char === '&') {
+            tokens.push({ type: 'ampersand', value: char });
+            current++;
+            continue;
+        }
+        if (char === '+') {
+            tokens.push({ type: 'plus', value: char });
+            current++;
+            continue;
+        }
+        if (char === '-') {
+            tokens.push({ type: 'minus', value: char });
+            current++;
+            continue;
+        }
+        if (char === '/') {
+            tokens.push({ type: 'divide', value: char });
+            current++;
+            continue;
+        }
+
         let LETTERS = /[a-z0-9_]/i;
         if (/[a-z]/i.test(char)) {
             let value = '';
@@ -122,61 +281,6 @@ export function tokenizer(input) {
                 tokens.push({ type: 'case', value: value });
             }
             //Operators and punctuation
-            else if (value === '=') {
-                tokens.push({ type: 'assign', value: value });
-            } else if (value === ':') {
-                tokens.push({ type: ':', value: value });
-            } else if (value === ';') {
-                tokens.push({ type: 'semicolon', value: value });
-            } else if (value === ',') {
-                tokens.push({ type: 'comma', value: value });
-            } else if (value === '{') {
-                tokens.push({ type: 'lbrace', value: value });
-            } else if (value === '}') {
-                tokens.push({ type: 'rbrace', value: value });
-            } else if (value === '[') {
-                tokens.push({ type: 'lbracket', value: value });
-            } else if (value === ']') {
-                tokens.push({ type: 'rbracket', value: value });
-            } else if (value === '(') {
-                tokens.push({ type: 'lparent', value: value });
-            } else if (value === ')') {
-                tokens.push({ type: 'rparent', value: value });
-            } else if (value === '<') {
-                tokens.push({ type: 'less', value: value });
-            } else if (value === '>') {
-                tokens.push({ type: 'greater', value: value });
-            } else if (value === '<=') {
-                tokens.push({ type: 'lessOrEqual', value: value });
-            } else if (value === '>=') {
-                tokens.push({ type: 'greaterOrEqual', value: value });
-            } else if (value === '!=') {
-                tokens.push({ type: 'notEqual', value: value });
-            } else if (value === '==') {
-                tokens.push({ type: 'isEqual', value: value });
-            } else if (value === '.') {
-                tokens.push({ type: 'dot', value: value });
-            } else if (value === '*') {
-                tokens.push({ type: 'star', value: value });
-            } else if (value === '%') {
-                tokens.push({ type: 'module', value: value });
-            } else if (value === '&') {
-                tokens.push({ type: 'ampersand', value: value });
-            } else if (value === '&&') {
-                tokens.push({ type: 'logical_and', value: value });
-            } else if (value === '||') {
-                tokens.push({ type: 'logical_or', value: value });
-            } else if (value === '+') {
-                tokens.push({ type: 'plus', value: value });
-            } else if (value === '-') {
-                tokens.push({ type: 'minus', value: value });
-            } else if (value === '/') {
-                tokens.push({ type: 'divide', value: value });
-            } else if (value === '++') {
-                tokens.push({ type: 'incremental', value: value });
-            } else if (value === '--') {
-                tokens.push({ type: 'decremental', value: value });
-            }
             // x86 and ARM instructions
             else if (value === 'mov') {
                 tokens.push({ type: 'mov', value: value });
