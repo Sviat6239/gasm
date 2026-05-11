@@ -111,10 +111,16 @@ export function parser(tokens) {
             advance();
             return { type: 'StringLiteral', value: token.value };
         }
-        if (registerTokens.has(token.type) || token.type === 'name') {
+
+        if (registerTokens.has(token.type)) {
+            advanced();
+            return new RegisterNode(token.value);
+        }
+
+        if (token.type === 'name') {
             advance();
             return {
-                type: registerTokens.has(token.type) ? 'Register' : 'Identifier',
+                type: 'Identifier',
                 name: token.value
             }
         }
@@ -190,11 +196,7 @@ export function parser(tokens) {
             args.push(parseOperand());
         }
         match('semicolon');
-        return {
-            type: 'Instruction',
-            name: instr.value.toUpperCase(),
-            args,
-        };
+        return new InstructionNode(instr.value, args);
     }
 
     function walk() {
