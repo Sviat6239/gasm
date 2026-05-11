@@ -50,3 +50,31 @@ export class DirectiveNode extends ASTNode {
         this.value = value;
     }
 }
+
+export class ForNode extends ASTNode {
+    constructor(kind, condition, body) {
+        super('ForLoop');
+        this.kind = kind;
+        this.condition = condition;
+        this.body = body;
+    }
+}
+
+export class WhileNode extends ASTNode {
+    constructor(kind, condition, body) {
+        super('WhileLoop');
+        this.kind = kind;
+        this.condition = condition;
+        this.body = body;
+    }
+}
+
+
+export class DoWhileNode extends ASTNode {
+    constructor(kind, condition, body) {
+        super('DoWhileLoop');
+        this.kind = kind;
+        this.condition = condition;
+        this.body = body;
+    }
+}
