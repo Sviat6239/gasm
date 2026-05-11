@@ -685,6 +685,138 @@ export function tokenizer(input) {
             } else if (value === 'w30') {
                 tokens.push({ type: 'w30', value: value });
             }
+            //risc-v register names
+            else if (value === 'x31') {
+                tokens.push({ type: 'x31', value: value });
+            } else if (value === 'f0') {
+                tokens.push({ type: 'f0', value: value });
+            } else if (value === 'f1') {
+                tokens.push({ type: 'f1', value: value });
+            } else if (value === 'f2') {
+                tokens.push({ type: 'f2', value: value });
+            } else if (value === 'f3') {
+                tokens.push({ type: 'f3', value: value });
+            } else if (value === 'f4') {
+                tokens.push({ type: 'f4', value: value });
+            } else if (value === 'f5') {
+                tokens.push({ type: 'f5', value: value });
+            } else if (value === 'f6') {
+                tokens.push({ type: 'f6', value: value });
+            } else if (value === 'f7') {
+                tokens.push({ type: 'f7', value: value });
+            } else if (value === 'f8') {
+                tokens.push({ type: 'f8', value: value });
+            } else if (value === 'f9') {
+                tokens.push({ type: 'f9', value: value });
+            } else if (value === 'f10') {
+                tokens.push({ type: 'f10', value: value });
+            } else if (value === 'f11') {
+                tokens.push({ type: 'f11', value: value });
+            } else if (value === 'f12') {
+                tokens.push({ type: 'f12', value: value });
+            } else if (value === 'f13') {
+                tokens.push({ type: 'f13', value: value });
+            } else if (value === 'f14') {
+                tokens.push({ type: 'f14', value: value });
+            } else if (value === 'f15') {
+                tokens.push({ type: 'f15', value: value });
+            } else if (value === 'f16') {
+                tokens.push({ type: 'f16', value: value });
+            } else if (value === 'f17') {
+                tokens.push({ type: 'f17', value: value });
+            } else if (value === 'f18') {
+                tokens.push({ type: 'f18', value: value });
+            } else if (value === 'f19') {
+                tokens.push({ type: 'f19', value: value });
+            } else if (value === 'f20') {
+                tokens.push({ type: 'f20', value: value });
+            } else if (value === 'f21') {
+                tokens.push({ type: 'f21', value: value });
+            } else if (value === 'f22') {
+                tokens.push({ type: 'f22', value: value });
+            } else if (value === 'f23') {
+                tokens.push({ type: 'f23', value: value });
+            } else if (value === 'f24') {
+                tokens.push({ type: 'f24', value: value });
+            } else if (value === 'f25') {
+                tokens.push({ type: 'f25', value: value });
+            } else if (value === 'f26') {
+                tokens.push({ type: 'f26', value: value });
+            } else if (value === 'f27') {
+                tokens.push({ type: 'f27', value: value });
+            } else if (value === 'f28') {
+                tokens.push({ type: 'f28', value: value });
+            } else if (value === 'f29') {
+                tokens.push({ type: 'f29', value: value });
+            } else if (value === 'f30') {
+                tokens.push({ type: 'f30', value: value });
+            } else if (value === 'f31') {
+                tokens.push({ type: 'f31', value: value });
+            } else if (value === 'd0') {
+                tokens.push({ type: 'd0', value: value });
+            } else if (value === 'd1') {
+                tokens.push({ type: 'd1', value: value });
+            } else if (value === 'd2') {
+                tokens.push({ type: 'd2', value: value });
+            } else if (value === 'd3') {
+                tokens.push({ type: 'd3', value: value });
+            } else if (value === 'd4') {
+                tokens.push({ type: 'd4', value: value });
+            } else if (value === 'd5') {
+                tokens.push({ type: 'd5', value: value });
+            } else if (value === 'd6') {
+                tokens.push({ type: 'd6', value: value });
+            } else if (value === 'd7') {
+                tokens.push({ type: 'd7', value: value });
+            } else if (value === 'd8') {
+                tokens.push({ type: 'd8', value: value });
+            } else if (value === 'd9') {
+                tokens.push({ type: 'd9', value: value });
+            } else if (value === 'd10') {
+                tokens.push({ type: 'd10', value: value });
+            } else if (value === 'd11') {
+                tokens.push({ type: 'd11', value: value });
+            } else if (value === 'd12') {
+                tokens.push({ type: 'd12', value: value });
+            } else if (value === 'd13') {
+                tokens.push({ type: 'd13', value: value });
+            } else if (value === 'd14') {
+                tokens.push({ type: 'd14', value: value });
+            } else if (value === 'd15') {
+                tokens.push({ type: 'd15', value: value });
+            } else if (value === 'd16') {
+                tokens.push({ type: 'd16', value: value });
+            } else if (value === 'd17') {
+                tokens.push({ type: 'd17', value: value });
+            } else if (value === 'd18') {
+                tokens.push({ type: 'd18', value: value });
+            } else if (value === 'd19') {
+                tokens.push({ type: 'd19', value: value });
+            } else if (value === 'd20') {
+                tokens.push({ type: 'd20', value: value });
+            } else if (value === 'd21') {
+                tokens.push({ type: 'd21', value: value });
+            } else if (value === 'd22') {
+                tokens.push({ type: 'd22', value: value });
+            } else if (value === 'd23') {
+                tokens.push({ type: 'd23', value: value });
+            } else if (value === 'd24') {
+                tokens.push({ type: 'd24', value: value });
+            } else if (value === 'd25') {
+                tokens.push({ type: 'd25', value: value });
+            } else if (value === 'd26') {
+                tokens.push({ type: 'd26', value: value });
+            } else if (value === 'd27') {
+                tokens.push({ type: 'd27', value: value });
+            } else if (value === 'd28') {
+                tokens.push({ type: 'd28', value: value });
+            } else if (value === 'd29') {
+                tokens.push({ type: 'd29', value: value });
+            } else if (value === 'd30') {
+                tokens.push({ type: 'd30', value: value });
+            } else if (value === 'd31') {
+                tokens.push({ type: 'd31', value: value });
+            }
             //Low-lvl and bios specific operations
             else if (value === 'out') {
                 tokens.push({ type: 'out', value: value });
