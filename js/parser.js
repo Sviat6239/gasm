@@ -1,4 +1,4 @@
-import { InstructionNode, RegisterNode, ProgramNode } from "./ast";
+import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode } from "./ast";
 
 export function parser(tokens) {
     let current = 0;
@@ -105,11 +105,11 @@ export function parser(tokens) {
         }
         if (token.type === 'number') {
             advance();
-            return { type: 'NumberLiteral', value: token.value };
+            return new NumberNode(token.value);
         }
         if (token.type === 'string') {
             advance();
-            return { type: 'StringLiteral', value: token.value };
+            return new StringNode(token.value);
         }
 
         if (registerTokens.has(token.type)) {
@@ -198,6 +198,8 @@ export function parser(tokens) {
         match('semicolon');
         return new InstructionNode(instr.value, args);
     }
+
+
 
     function walk() {
         let token = tokens[current];

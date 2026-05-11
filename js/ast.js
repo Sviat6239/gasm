@@ -7,6 +7,20 @@ export class ASTNode {
     }
 }
 
+export class NumberNode extends ASTNode {
+    constructor(value) {
+        super('Number');
+        this.value = value;
+    }
+}
+
+export class StringNode extends ASTNode {
+    constructor(value) {
+        super('String');
+        this.value = this.value;
+    }
+}
+
 export class ProgramNode extends ASTNode {
     constructor(body) {
         super('Program');
