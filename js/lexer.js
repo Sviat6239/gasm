@@ -816,6 +816,72 @@ export function tokenizer(input) {
                 tokens.push({ type: 'd30', value: value });
             } else if (value === 'd31') {
                 tokens.push({ type: 'd31', value: value });
+            } if (value === 'zero') {
+                tokens.push({ type: 'zero', value: value });
+            } else if (value === 'ra') {
+                tokens.push({ type: 'ra', value: value });
+            } else if (value === 'sp') {
+                tokens.push({ type: 'sp', value: value });
+            } else if (value === 'gp') {
+                tokens.push({ type: 'gp', value: value });
+            } else if (value === 'tp') {
+                tokens.push({ type: 'tp', value: value });
+            } else if (value === 't0') {
+                tokens.push({ type: 't0', value: value });
+            } else if (value === 't1') {
+                tokens.push({ type: 't1', value: value });
+            } else if (value === 't2') {
+                tokens.push({ type: 't2', value: value });
+            } else if (value === 's0') {
+                tokens.push({ type: 's0', value: value });
+            } else if (value === 'fp') {
+                tokens.push({ type: 'fp', value: value });
+            } else if (value === 's1') {
+                tokens.push({ type: 's1', value: value });
+            } else if (value === 'a0') {
+                tokens.push({ type: 'a0', value: value });
+            } else if (value === 'a1') {
+                tokens.push({ type: 'a1', value: value });
+            } else if (value === 'a2') {
+                tokens.push({ type: 'a2', value: value });
+            } else if (value === 'a3') {
+                tokens.push({ type: 'a3', value: value });
+            } else if (value === 'a4') {
+                tokens.push({ type: 'a4', value: value });
+            } else if (value === 'a5') {
+                tokens.push({ type: 'a5', value: value });
+            } else if (value === 'a6') {
+                tokens.push({ type: 'a6', value: value });
+            } else if (value === 'a7') {
+                tokens.push({ type: 'a7', value: value });
+            } else if (value === 's2') {
+                tokens.push({ type: 's2', value: value });
+            } else if (value === 's3') {
+                tokens.push({ type: 's3', value: value });
+            } else if (value === 's4') {
+                tokens.push({ type: 's4', value: value });
+            } else if (value === 's5') {
+                tokens.push({ type: 's5', value: value });
+            } else if (value === 's6') {
+                tokens.push({ type: 's6', value: value });
+            } else if (value === 's7') {
+                tokens.push({ type: 's7', value: value });
+            } else if (value === 's8') {
+                tokens.push({ type: 's8', value: value });
+            } else if (value === 's9') {
+                tokens.push({ type: 's9', value: value });
+            } else if (value === 's10') {
+                tokens.push({ type: 's10', value: value });
+            } else if (value === 's11') {
+                tokens.push({ type: 's11', value: value });
+            } else if (value === 't3') {
+                tokens.push({ type: 't3', value: value });
+            } else if (value === 't4') {
+                tokens.push({ type: 't4', value: value });
+            } else if (value === 't5') {
+                tokens.push({ type: 't5', value: value });
+            } else if (value === 't6') {
+                tokens.push({ type: 't6', value: value });
             }
             //Low-lvl and bios specific operations
             else if (value === 'out') {
