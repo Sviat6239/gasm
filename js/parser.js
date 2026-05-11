@@ -1,3 +1,5 @@
+import { InstructionNode, RegisterNode, ProgramNode } from "./ast";
+
 export function parser(tokens) {
     let current = 0;
 
