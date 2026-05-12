@@ -132,3 +132,24 @@ export class InputNode extends ASTNode {
         this.promt = prompt;
     }
 }
+
+export class SemicolonNode extends ASTNode {
+    constructor() {
+        super('Semicolon');
+    }
+}
+
+export class ColonNode extends ASTNode {
+    constructor() {
+        super('Colon');
+    }
+}
+
+export class BinaryOperationNode extends ASTNode {
+    constructor(operator, leftNode, rightNode) {
+        super('BinaryOperationNode');
+        this.operator = operator;
+        this.leftNode = leftNode;
+        this.rightNode = rightNode;
+    }
+}
