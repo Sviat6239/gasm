@@ -20,7 +20,7 @@ export function parser(tokens) {
         'locate_device_path', 'install_protocol_interface',
         'reinstall_protocol_interface', 'uninstall_protocol_interface',
         'handle_protocol', 'register_protocol_notify', 'locate_handle_buffer',
-        'print', 'call', 'import', 'export', 'return', 'break', 'continue'
+        'print', 'call', 'import', 'export', 'return', 'break', 'continue', 'print',
     ]);
     const registerTokens = new Set([
         // x86-64 General Purpose (64-bit)

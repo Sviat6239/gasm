@@ -80,11 +80,10 @@ export class DoWhileNode extends ASTNode {
 
 export class IfNode extends ASTNode {
     constructor(condition, thenBranch, elseBranch) {
-        super('IfNode'){
-            this.condition = condition;
-            this.thenBranch = thenBranch;
-            this.elseBranch = elseBranch;
-        }
+        super('IfNode');
+        this.condition = condition;
+        this.thenBranch = thenBranch;
+        this.elseBranch = elseBranch;
     }
 }
 
@@ -101,6 +100,28 @@ export class CaseNode extends ASTNode {
     constructor(value, body) {
         super('CaseNode');
         this.value = value;
+        this.body = body;
+    }
+}
+
+export class IdentifierNode extends ASTNode {
+    constructor(name) {
+        super('IdentifierNode');
+        this.name = name;
+    }
+}
+
+export class PrintNode extends ASTNode {
+    constructor(value) {
+        super('PrintNode');
         this.value = value;
+    }
+}
+
+export class InputNode extends ASTNode {
+    constructor(token, promt) {
+        super('InputNode');
+        this.token = token;
+        this.promt = prompt;
     }
 }

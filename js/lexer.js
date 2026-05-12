@@ -984,6 +984,8 @@ export function tokenizer(input) {
                 tokens.push({ type: 'do', value: value });
             } else if (value === 'for') {
                 tokens.push({ type: 'for', value: value });
+            } else if (value === 'input') {
+                tokens.push({ type: 'input', value: value });
             }
             else {
                 tokens.push({ type: 'name', value });
