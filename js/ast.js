@@ -17,7 +17,7 @@ export class NumberNode extends ASTNode {
 export class StringNode extends ASTNode {
     constructor(value) {
         super('String');
-        this.value = this.value;
+        this.value = value;
     }
 }
 
