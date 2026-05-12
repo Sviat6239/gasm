@@ -34,7 +34,7 @@ not implemented yet.
 Use input without punctuation:
 
 ```bash
-node --input-type=module -e "import { tokenizer } from './js/lexer.js'; console.log(tokenizer('mov rax'))"
+node --input-type=module -e "import { tokenizer } from './js/lexer.js'; console.log(tokenizer('mov rax, 19;'))"
 ```
 
 ## Examples

@@ -1,4 +1,4 @@
-import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode } from "./ast";
+import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode, SemicolonNode, ColonNode } from "./ast";
 
 export function parser(tokens) {
     let current = 0;
@@ -135,11 +135,7 @@ export function parser(tokens) {
         }
         advance();
         match('semicolon');
-        return {
-            type: 'Directive',
-            name: directive.type.toUpperCase(),
-            value: valueToken.value,
-        };
+        return new SemicolonNode();
     }
 
     function parseDeclare() {
@@ -169,13 +165,7 @@ export function parser(tokens) {
             init = parseOperand();
         }
         match('semicolon');
-        return {
-            type: 'Declare',
-            id: { type: 'Identifier', name: idToken.value },
-            varType: typeToken.value,
-            isArray,
-            init,
-        };
+        return new SemicolonNode();
     }
 
     function parseLabel() {
