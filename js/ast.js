@@ -52,18 +52,18 @@ export class DirectiveNode extends ASTNode {
 }
 
 export class ForNode extends ASTNode {
-    constructor(kind, condition, body) {
+    constructor(condition, body) {
         super('ForLoop');
-        this.kind = kind;
+        this.init = this.init;
         this.condition = condition;
+        this.step = step;
         this.body = body;
     }
 }
 
 export class WhileNode extends ASTNode {
-    constructor(kind, condition, body) {
+    constructor(condition, body) {
         super('WhileLoop');
-        this.kind = kind;
         this.condition = condition;
         this.body = body;
     }
@@ -71,10 +71,36 @@ export class WhileNode extends ASTNode {
 
 
 export class DoWhileNode extends ASTNode {
-    constructor(kind, condition, body) {
+    constructor(condition, body) {
         super('DoWhileLoop');
-        this.kind = kind;
         this.condition = condition;
         this.body = body;
+    }
+}
+
+export class IfNode extends ASTNode {
+    constructor(condition, thenBranch, elseBranch) {
+        super('IfNode'){
+            this.condition = condition;
+            this.thenBranch = thenBranch;
+            this.elseBranch = elseBranch;
+        }
+    }
+}
+
+export class SwitchNode extends ASTNode {
+    constructor(expresion, cases, defaultCase) {
+        super('SwitchNode');
+        this.expresion = expresion;
+        this.cases = cases;
+        this.defaultCase = defaultCase;
+    }
+}
+
+export class CaseNode extends ASTNode {
+    constructor(value, body) {
+        super('CaseNode');
+        this.value = value;
+        this.value = value;
     }
 }
