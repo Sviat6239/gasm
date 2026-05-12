@@ -21,6 +21,13 @@ export class StringNode extends ASTNode {
     }
 }
 
+export class BoolNode extends ASTNode {
+    constructor(value) {
+        super('Boolean');
+        this.value = value;
+    }
+}
+
 export class ProgramNode extends ASTNode {
     constructor(body) {
         super('Program');
