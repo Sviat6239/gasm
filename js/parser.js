@@ -112,17 +112,14 @@ export function parser(tokens) {
             return new StringNode(token.value);
         }
 
-        if (registerTokens.has(token.type)) {
+        if (registerTokens.has(token.type) || token.type === 'name') {
             advance();
-            return new RegisterNode(token.value);
-        }
-
-        if (token.type === 'name') {
-            advance();
-            return {
-                type: 'Identifier',
-                name: token.value
-            }
+            return registerTokens.has(token.type)
+                ? new RegisterNode(token.value)
+                : {
+                    type: 'Identifier',
+                    name: token.value
+                };
         }
         throw new TypeError(`Unexpected token in operand: ${token.type} (value: ${token.value})`);
     }
@@ -179,11 +176,26 @@ export function parser(tokens) {
     function parseInstruction() {
         const instr = advance();
         const args = [];
+
+        let lastToken = instr;
+
+        if (peek() && peek().type === 'name' && peek().value === instr.value) {
+            advance();
+        }
+
         while (peek() && peek().type !== 'semicolon') {
             if (match('comma')) {
                 continue;
             }
+
+            if (peek().type === 'name' && lastToken && peek().value === lastToken.value && lastToken.type !== 'name') {
+                advance();
+                continue;
+            }
+
+            lastToken = peek();
             args.push(parseOperand());
+            lastToken = tokens[current - 1];
         }
         match('semicolon');
         return new InstructionNode(instr.value, args);
