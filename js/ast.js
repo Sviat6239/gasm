@@ -1,5 +1,5 @@
-import { tokenizer } from "./lexer";
-import { parser } from "./parser";
+import { tokenizer } from "./lexer.js";
+import { parser } from "./parser.js";
 
 export class ASTNode {
     constructor(body) {

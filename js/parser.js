@@ -1,4 +1,4 @@
-import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode, SemicolonNode, ColonNode } from "./ast";
+import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode, SemicolonNode, ColonNode } from "./ast.js";
 
 export function parser(tokens) {
     let current = 0;
@@ -113,7 +113,7 @@ export function parser(tokens) {
         }
 
         if (registerTokens.has(token.type)) {
-            advanced();
+            advance();
             return new RegisterNode(token.value);
         }
 
