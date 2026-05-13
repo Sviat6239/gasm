@@ -1,4 +1,4 @@
-import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode, SemicolonNode, ColonNode } from "./ast.js";
+import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode, SemicolonNode, ColonNode, IdentifierNode } from "./ast.js";
 
 export function parser(tokens) {
     let current = 0;
@@ -116,10 +116,7 @@ export function parser(tokens) {
             advance();
             return registerTokens.has(token.type)
                 ? new RegisterNode(token.value)
-                : {
-                    type: 'Identifier',
-                    name: token.value
-                };
+                : new IdentifierNode(token.value);
         }
         throw new TypeError(`Unexpected token in operand: ${token.type} (value: ${token.value})`);
     }
@@ -241,10 +238,7 @@ export function parser(tokens) {
         if (token.type === 'name') {
             current++;
 
-            return {
-                type: 'Identifier',
-                name: token.value,
-            };
+            return new IdentifierNode(token.vlue);
         }
 
         throw new TypeError('Unexpected token: ' + token.type);

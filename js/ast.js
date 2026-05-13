@@ -145,6 +145,8 @@ export class ColonNode extends ASTNode {
     }
 }
 
+
+
 export class BinaryOperationNode extends ASTNode {
     constructor(operator, leftNode, rightNode) {
         super('BinaryOperationNode');
