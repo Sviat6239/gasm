@@ -145,7 +145,15 @@ export class ColonNode extends ASTNode {
     }
 }
 
-
+export class VariableDeclarationNode extends ASTNode {
+    constructor(id, dataType, isArray, init) {
+        super('VariableDeclaration');
+        this.id = id;
+        this.dataType = dataType;
+        this.isArray = isArray;
+        this.init = init;
+    }
+}
 
 export class BinaryOperationNode extends ASTNode {
     constructor(operator, leftNode, rightNode) {

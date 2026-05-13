@@ -1,4 +1,4 @@
-import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode, SemicolonNode, ColonNode, IdentifierNode } from "./ast.js";
+import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode, SemicolonNode, ColonNode, IdentifierNode, VariableDeclarationNode } from "./ast.js";
 
 export function parser(tokens) {
     let current = 0;
@@ -159,13 +159,7 @@ export function parser(tokens) {
             init = parseOperand();
         }
         match('semicolon');
-        return {
-            type: 'VariableDeclaration',
-            id: idToken.value,
-            dataType: typeToken.value,
-            isArray: isArray,
-            init: init
-        };
+        return new VariableDeclarationNode(idToken.value, typeToken.value, isArray, init);
     }
 
     function parseLabel() {
