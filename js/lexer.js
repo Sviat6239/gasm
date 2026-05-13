@@ -390,6 +390,12 @@ export function tokenizer(input) {
                 tokens.push({ type: 'jal', value: value });
             } else if (value === 'jalr') {
                 tokens.push({ type: 'jalr', value: value });
+            } else if (value === 'li') {
+                tokens.push({ type: 'li', value: value });
+            } else if (value === 'la') {
+                tokens.push({ type: 'la', value: value });
+            } else if (value === 'ecall') {
+                tokens.push({ type: 'ecall', value: value });
             } else if (value === 'beq') {
                 tokens.push({ type: 'beq', value: value });
             } else if (value === 'bne') {
