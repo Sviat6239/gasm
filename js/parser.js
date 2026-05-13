@@ -1,4 +1,4 @@
-import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode, SemicolonNode, ColonNode, IdentifierNode, VariableDeclarationNode } from "./ast.js";
+import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode, SemicolonNode, ColonNode, IdentifierNode, VariableDeclarationNode, LabelNode } from "./ast.js";
 
 export function parser(tokens) {
     let current = 0;
@@ -201,7 +201,7 @@ export function parser(tokens) {
         if (!match('colon')) {
             throw new TypeError('Expected colon after label');
         }
-        return { type: 'Label', name: nameToken.value };
+        return new LabelNode(nameToken.value);
     }
 
     function parseInstruction() {

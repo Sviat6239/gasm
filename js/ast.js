@@ -58,6 +58,13 @@ export class DirectiveNode extends ASTNode {
     }
 }
 
+export class LabelNode extends ASTNode {
+    constructor(name) {
+        super('Label');
+        this.name = name;
+    }
+}
+
 export class ForNode extends ASTNode {
     constructor(condition, body) {
         super('ForLoop');
