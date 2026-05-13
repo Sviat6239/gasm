@@ -217,19 +217,13 @@ export function parser(tokens) {
         if (token.type === 'number') {
             current++;
 
-            return {
-                type: 'NumberLiteral',
-                value: token.value,
-            };
+            return new NumberNode(token.value);
         }
 
         if (token.type === 'string') {
             current++;
 
-            return {
-                type: 'StringLiteral',
-                value: token.value
-            };
+            return new StringNode(token.value);
         }
 
         if (token.type === 'name') {
@@ -244,10 +238,7 @@ export function parser(tokens) {
         throw new TypeError('Unexpected token: ' + token.type);
     }
 
-    let ast = {
-        type: 'Program',
-        body: [],
-    };
+    let ast = new ProgramNode();
 
     while (current < tokens.length) {
         ast.body.push(walk());

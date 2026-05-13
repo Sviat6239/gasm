@@ -2,8 +2,8 @@ import { tokenizer } from "./lexer.js";
 import { parser } from "./parser.js";
 
 export class ASTNode {
-    constructor(body) {
-        this.type = this.type;
+    constructor(type) {
+        this.type = type;
     }
 }
 
@@ -29,7 +29,7 @@ export class BoolNode extends ASTNode {
 }
 
 export class ProgramNode extends ASTNode {
-    constructor(body) {
+    constructor(body = []) {
         super('Program');
         this.body = body;
     }
