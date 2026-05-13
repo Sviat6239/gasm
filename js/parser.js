@@ -238,7 +238,7 @@ export function parser(tokens) {
         if (token.type === 'name') {
             current++;
 
-            return new IdentifierNode(token.vlue);
+            return new IdentifierNode(token.value);
         }
 
         throw new TypeError('Unexpected token: ' + token.type);

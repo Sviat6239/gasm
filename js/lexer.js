@@ -816,7 +816,7 @@ export function tokenizer(input) {
                 tokens.push({ type: 'd30', value: value });
             } else if (value === 'd31') {
                 tokens.push({ type: 'd31', value: value });
-            } if (value === 'zero') {
+            } else if (value === 'zero') {
                 tokens.push({ type: 'zero', value: value });
             } else if (value === 'ra') {
                 tokens.push({ type: 'ra', value: value });
