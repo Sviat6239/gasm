@@ -1,4 +1,6 @@
 format efi_64;
+declare hello char[] = "UEFI hello";
+declare memory dq = 0;
 entry main;
 main:
     print hello;

@@ -7,5 +7,6 @@ main:
     tbz x0, 1, bit_zero;
     tbnz x1, 0, bit_one;
 bit_zero:
+    mov x2, 0;
 bit_one:
     ret;

@@ -3,11 +3,12 @@ format elf64;
 entry main;
 main:
     mov x0, 3;
-    cmp x0, 3;
-    bne miss;
-    mov x1, 1;
+    mov x1, 7;
+    cmp x0, x1;
+    bge ge;
+    mov x2, 0;
     b done;
-miss:
-    mov x1, 0;
+ge:
+    mov x2, 1;
 done:
     ret;

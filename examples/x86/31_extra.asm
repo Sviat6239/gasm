@@ -4,5 +4,6 @@ entry main;
 main:
     mov rax, 6;
     mul rax, 7;
-    div rax, 2;
+    div rax, 3;
+    neg rax;
     ret;

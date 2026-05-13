@@ -2,7 +2,7 @@ format bin;
 entry start;
 start:
     pushfd;
-    popfd;
     lahf;
     sahf;
+    popfd;
     ret;

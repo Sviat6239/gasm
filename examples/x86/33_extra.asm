@@ -3,6 +3,9 @@ format win_64;
 entry main;
 main:
     push rax;
-    mov rax, 42;
+    push rbx;
+    mov rax, 1;
+    mov rbx, 2;
     pop rbx;
+    pop rax;
     ret;

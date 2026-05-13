@@ -4,7 +4,7 @@ entry main;
 main:
     mov x0, 15;
     ands x0, x0, 7;
-    orr x0, x0, 1;
-    eor x0, x0, 2;
-    bic x0, x0, 1;
+    orr x0, x0, 8;
+    eor x1, x0, 3;
+    bic x2, x1, 1;
     ret;

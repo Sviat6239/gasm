@@ -2,8 +2,9 @@ arch arm64;
 format elf64;
 entry main;
 main:
-    bl helper;
+    bl worker;
     ret;
-helper:
+worker:
     mov x0, 1;
+    adds x0, x0, 2;
     ret;

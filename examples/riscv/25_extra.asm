@@ -6,4 +6,5 @@ main:
     ret;
 func:
     addi a0, zero, 1;
+    addi a0, a0, 2;
     jalr zero, ra;

@@ -2,12 +2,13 @@ arch x86_64;
 format win_64;
 entry main;
 main:
-    mov rax, 2;
-    cmp rax, 2;
+    mov rax, 1;
+    mov rbx, 1;
+    cmp rax, rbx;
     je equal;
-    mov rbx, 0;
+    mov rcx, 0;
     jmp done;
 equal:
-    mov rbx, 1;
+    mov rcx, 1;
 done:
     ret;

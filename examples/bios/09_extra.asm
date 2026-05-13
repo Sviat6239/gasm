@@ -1,6 +1,9 @@
 format bin;
 entry start;
 start:
-    b next;
+    mov ax, 1;
+    cmp ax, 2;
+    jnz next;
+    ret;
 next:
     ret;

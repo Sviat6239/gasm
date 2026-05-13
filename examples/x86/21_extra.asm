@@ -1,11 +1,16 @@
 arch x86_64;
 format win_64;
-declare counter dq = 3;
+declare steps dq = 4;
+declare total dq = 0;
 entry main;
 main:
-    mov rax, counter;
-loop:
+    mov rax, steps;
+    xor rbx, rbx;
+spin:
+    add rbx, rax;
     sub rax, 1;
     cmp rax, 0;
-    jnz loop;
+    jne spin;
+    mov rcx, total;
+    add rcx, rbx;
     ret;
