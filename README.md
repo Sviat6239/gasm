@@ -2,14 +2,20 @@
 
 GASM is a JavaScript prototype for tokenizing and partially parsing a
 high-level assembler-like syntax across x86, AArch64, and RISC-V examples.
-The current focus is front-end parsing (tokens -> AST-like nodes).
+The current focus is front-end parsing (tokens -> AST-like nodes) with a
+table-driven lexer and a lightweight parser.
+
+## Version
+
+- `0.0.1` - initial working prototype with lexer, parser, AST node classes,
+  and a runnable parser demo in `index.js`.
 
 ## Current status
 
-- `js/lexer.js` is implemented and contains a large built-in vocabulary
-  (directives, instructions, registers, identifiers, operators, punctuation).
+- `js/lexer.js` is implemented with keyword tables for directives,
+  instructions, registers, operators, punctuation, and RISC-V compressed forms.
 - `js/parser.js` is implemented and builds `ProgramNode` with instruction,
-  label, register, number, string, and identifier nodes.
+  label, variable declaration, register, number, string, and identifier nodes.
 - `js/ast.js` defines many node classes used by the parser and future features.
 - `js/ir.js` and `js/codegen.js` exist but are currently empty.
 - `index.js` is not a CLI; it runs a hardcoded parser demo snippet.
@@ -24,19 +30,21 @@ The current focus is front-end parsing (tokens -> AST-like nodes).
 - Parser handles:
   - instruction statements with operands and commas,
   - labels (`name:`),
-  - basic directive/declaration consumption,
+  - variable declarations (`declare name type[...] = ...`),
   - output as `ProgramNode` with node instances from `js/ast.js`.
+- Supported instruction groups currently include:
+  - x86 / x86-64 basics and common SSE/FPU mnemonics,
+  - ARM64/AArch64 arithmetic, branch, system, and floating-point mnemonics,
+  - RISC-V base integer, M/A/CSR, pseudo-instructions (`li`, `la`, `ecall`),
+    and compressed `c.*` forms.
 
 ## Known limitations
 
 - Comments are not supported in lexer input (`#` throws `Unknown charecter`).
 - Parser is still partial:
-  - directives/declarations are consumed but currently returned as
-    `SemicolonNode`,
   - no expression trees or block parsing (`if`, `while`, `for`, etc.),
   - some AST/parser branches are unfinished/buggy.
-- Running `node index.js` currently fails on the bundled complex sample
-  (`TypeError: Unexpected token: char`).
+- `index.js` is a demo script, not a command-line interface.
 
 ## Quick checks
 
@@ -50,6 +58,12 @@ Tokenizer + parser (minimal working example):
 
 ```bash
 node --input-type=module -e "import { tokenizer } from './js/lexer.js'; import { parser } from './js/parser.js'; console.dir(parser(tokenizer('mov rax, 19; add rax, 1;')), { depth: null });"
+```
+
+Current demo input from `index.js`:
+
+```bash
+node --input-type=module -e "import { tokenizer } from './js/lexer.js'; import { parser } from './js/parser.js'; console.dir(parser(tokenizer('declare msg char[] = \"Hello Win64!\"; mov rax, 19; add rax, 19; sub rax, rbx;')), { depth: null });"
 ```
 
 ## Examples
