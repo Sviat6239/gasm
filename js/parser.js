@@ -159,7 +159,13 @@ export function parser(tokens) {
             init = parseOperand();
         }
         match('semicolon');
-        return new SemicolonNode();
+        return {
+            type: 'VariableDeclaration',
+            id: idToken.value,
+            dataType: typeToken.value,
+            isArray: isArray,
+            init: init
+        };
     }
 
     function parseLabel() {
