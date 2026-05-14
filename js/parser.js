@@ -241,6 +241,11 @@ export function parser(tokens) {
             throw new TypeError('Unexpected end of input');
         }
 
+        if (token.type === 'semicolon') {
+            current++;
+            return new SemicolonNode();
+        }
+
         if (directiveTokens.has(token.type)) {
             return parseDirective();
         }
@@ -249,7 +254,8 @@ export function parser(tokens) {
             return parseDeclare();
         }
 
-        if (token.type === 'name' && peek(1) && peek(1).type === 'colon') {
+        // treat any token followed by a colon as a label (identifier may be a keyword)
+        if (peek(1) && peek(1).type === 'colon') {
             return parseLabel();
         }
 
@@ -273,6 +279,12 @@ export function parser(tokens) {
             current++;
 
             return new IdentifierNode(token.value);
+        }
+
+        if (token.type === 'entry') {
+            current++;
+
+            return new LabelNode(token.value);
         }
 
         throw new TypeError('Unexpected token: ' + token.type);
