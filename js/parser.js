@@ -1,16 +1,18 @@
-import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode, SemicolonNode, ColonNode, IdentifierNode } from "./ast.js";
+import { InstructionNode, RegisterNode, ProgramNode, StringNode, NumberNode, SemicolonNode, ColonNode, IdentifierNode, VariableDeclarationNode, LabelNode } from "./ast.js";
 
 export function parser(tokens) {
     let current = 0;
 
     const directiveTokens = new Set(['arch', 'format', 'entry']);
     const instructionTokens = new Set([
+        // Common / shared
         'mov', 'add', 'sub', 'mul', 'div', 'sqr', 'pow', 'cmp', 'jmp', 'jnz',
         'inc', 'dec', 'xor', 'and', 'or', 'not', 'shl', 'shr', 'sar', 'rol', 'ror',
         'ret', 'int', 'syscall',
         'ldr', 'str', 'orr', 'eor', 'bic', 'lsl', 'lsr', 'asr', 'tst', 'b', 'bl_op',
         'bx_op', 'adr', 'sdiv', 'udiv', 'bfi', 'ubfx', 'cbz', 'cbnz',
         'lui', 'auipc', 'lw', 'sw', 'ld', 'sd', 'addi', 'slt', 'slti', 'jal', 'jalr',
+        'li', 'la', 'ecall',
         'beq', 'bne', 'blt', 'bge',
         'out', 'in', 'cli', 'sti', 'lidt', 'lgdt', 'smsw', 'lmsw', 'invlpg', 'wbinvd',
         'rdmsr', 'wrmsr', 'rdtsr', 'cpuid', 'iret', 'pushfd', 'popfd', 'lahf', 'sahf',
@@ -20,8 +22,40 @@ export function parser(tokens) {
         'locate_device_path', 'install_protocol_interface',
         'reinstall_protocol_interface', 'uninstall_protocol_interface',
         'handle_protocol', 'register_protocol_notify', 'locate_handle_buffer',
-        'print', 'call', 'import', 'export', 'return', 'break', 'continue', 'print',
+        'print', 'call', 'import', 'export', 'return', 'break', 'continue',
+
+        // X86 / X86-64 specific
+        'push', 'pop', 'lea', 'nop', 'xchg', 'xadd', 'bsf', 'bsr', 'bt', 'bts', 'btr', 'btc',
+        'test', 'cmovz', 'cmovnz', 'cmova', 'cmovae', 'cmovb', 'cmovbe', 'cmovg', 'cmovge',
+        'cmovl', 'cmovle', 'leave', 'enter', 'hlt', 'cld', 'std', 'stc', 'clc', 'cmc',
+        'rep', 'repe', 'repne', 'stos', 'lods', 'movs', 'scas', 'cmps',
+        'imul', 'idiv', 'neg', 'adc', 'sbb',
+        'fld', 'fst', 'fstp', 'fadd', 'fsub', 'fmul', 'fdiv', 'fsqrt', 'fabs', 'fchs', 'fcom',
+        'movd', 'movq', 'movaps', 'movups', 'addps', 'subps', 'mulps', 'divps', 'sqrtps',
+        'addpd', 'subpd', 'mulpd', 'divpd', 'sqrtpd', 'andps', 'orps', 'xorps',
+        'vaddps', 'vsubps', 'vmulps', 'vdivps', 'vxorps', 'vandps', 'vorps',
+        'jz', 'je', 'jne', 'ja', 'jae', 'jb', 'jbe', 'jg', 'jge', 'jl', 'jle', 'jo', 'jno', 'js', 'jns',
+
+        // ARM64 / AArch64 specific
+        'adds', 'subs', 'negs', 'adcs', 'sbc', 'sbcs', 'madd', 'msub', 'smull', 'umull',
+        'smaddl', 'umaddl', 'ands', 'bics', 'mvn',
+        'ldrb', 'ldrh', 'ldrsw', 'ldp', 'stp', 'strb', 'strh',
+        'bl', 'blr', 'br', 'tbz', 'tbnz',
+        'cmn', 'svc', 'hvc', 'smc', 'eret', 'isb', 'dsb', 'dmb', 'msr', 'mrs',
+        'fcmp', 'fneg', 'fmov',
+
+        // RISC-V RV32I/RV64I and extensions
+        'sll', 'sltu', 'srl', 'sra', 'sltiu', 'xori', 'ori', 'andi', 'slli', 'srli', 'srai',
+        'lb', 'lh', 'lbu', 'lhu', 'sb', 'sh', 'bltu', 'bgeu',
+        'mulh', 'mulhsu', 'mulhu', 'divu', 'rem', 'remu',
+        'lr_w', 'sc_w', 'amoswap_w', 'amoadd_w', 'amoxor_w', 'amoand_w', 'amoor_w',
+        'amomin_w', 'amomax_w', 'amominu_w', 'amomaxu_w',
+        'csrrw', 'csrrs', 'csrrc', 'csrrwi', 'csrrsi', 'csrrci',
+        'c.add', 'c.addi', 'c.li', 'c.lui', 'c.mv', 'c.j', 'c.jal', 'c.beqz', 'c.bnez',
+        'c.lw', 'c.sw', 'c.srli', 'c.srai', 'c.andi', 'c.sub', 'c.xor', 'c.or', 'c.and',
+        'ebreak'
     ]);
+
     const registerTokens = new Set([
         // x86-64 General Purpose (64-bit)
         'rax', 'rbx', 'rcx', 'rdx', 'rsp', 'rbp', 'rsi', 'rdi',
@@ -159,7 +193,7 @@ export function parser(tokens) {
             init = parseOperand();
         }
         match('semicolon');
-        return new SemicolonNode();
+        return new VariableDeclarationNode(idToken.value, typeToken.value, isArray, init);
     }
 
     function parseLabel() {
@@ -167,7 +201,7 @@ export function parser(tokens) {
         if (!match('colon')) {
             throw new TypeError('Expected colon after label');
         }
-        return { type: 'Label', name: nameToken.value };
+        return new LabelNode(nameToken.value);
     }
 
     function parseInstruction() {
@@ -238,7 +272,7 @@ export function parser(tokens) {
         if (token.type === 'name') {
             current++;
 
-            return new IdentifierNode(token.vlue);
+            return new IdentifierNode(token.value);
         }
 
         throw new TypeError('Unexpected token: ' + token.type);
