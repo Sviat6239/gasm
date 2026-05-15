@@ -211,7 +211,36 @@ export function parser(tokens) {
             }
         }
 
+        if (token.type === 'name') {
+            current++;
+            return {
+                type: 'Word',
+                value: token.value,
+            };
+        }
 
+        if (token.type === 'question') {
+            current++;
+            return {
+                type: 'Question',
+                value: token.value,
+            };
+        }
+
+        if (token.type === 'less') {
+            if (tokens[current].type === 'equal') {
+                current++;
+                return {
+                    type: 'LessOrEqual',
+                    value: "<=",
+                };
+            } else {
+                return {
+                    type: 'Less',
+                    value: token.value,
+                };
+            }
+        }
 
         throw new TypeError('Unexpected token: ' + token.type);
 
