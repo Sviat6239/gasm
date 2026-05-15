@@ -95,6 +95,19 @@ export function tokenizer(input) {
     while (current < input.length) {
         let char = input[current];
 
+        if (char === '0' && (input[current + 1] === 'x' || input[current + 1] === 'X')) {
+            let value = '0x';
+            current += 2;
+            char = input[current];
+            const HEX_DIGIT = /[0-9a-f]/i;
+            while (current < input.length && HEX_DIGIT.test(char)) {
+                value += char;
+                char = input[++current];
+            }
+            tokens.push({ type: 'number', value });
+            continue;
+        }
+
         let NUMBERS = /[0-9]/;
         if (NUMBERS.test(char)) {
             let value = '';
