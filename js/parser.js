@@ -117,56 +117,101 @@ export function parser(tokens) {
     function walk() {
         let token = tokens[current];
 
-
-        if (!token) {
-            throw new TypeError('Unexpected end of input');
+        if (token.type === 'equal') {
+            if (tokens[++current].type == 'equal') {
+                ++current;
+                return {
+                    type: 'ComparisonE',
+                    value: token.value + token.value,
+                };
+            } else {
+                return {
+                    type: 'Equal',
+                    value: token.value,
+                }
+            }
         }
 
-        if (token.type === 'semicolon') {
+        if (token.type === 'star') {
             current++;
-            return new SemicolonNode();
+            return {
+                type: 'Pointer',
+                value: token.value,
+            };
         }
 
-        if (directiveTokens.has(token.type)) {
-            return parseDirective();
-        }
-
-        if (token.type === 'declare') {
-            return parseDeclare();
-        }
-
-        // treat any token followed by a colon as a label (identifier may be a keyword)
-        if (peek(1) && peek(1).type === 'colon') {
-            return parseLabel();
-        }
-
-        if (instructionTokens.has(token.type)) {
-            return parseInstruction();
-        }
-
-        if (token.type === 'number') {
+        if (token.type === 'hash') {
             current++;
-
-            return new NumberNode(token.value);
+            return {
+                type: 'Comment',
+                value: token.value,
+            };
         }
 
-        if (token.type === 'string') {
-            current++;
-
-            return new StringNode(token.value);
+        if (token.type === 'not') {
+            if (tokens[++current].type === 'equal') {
+                ++current;
+                return {
+                    type: 'ComparisonN',
+                    value: token.value + "=",
+                };
+            } else {
+                return {
+                    type: 'Not',
+                    value: token.value
+                };
+            }
         }
 
-        if (token.type === 'name') {
-            current++;
-
-            return new IdentifierNode(token.value);
+        if (token.type === 'plus') {
+            if (tokens[++current].type === 'equal') {
+                ++current;
+                return {
+                    type: 'IncByNum',
+                    value: "+=",
+                };
+            } else if (tokens[current.type === 'plus']) {
+                ++current;
+                return {
+                    type: 'IncByOne',
+                    value: "++",
+                };
+            } else {
+                return {
+                    type: 'Plus',
+                    value: "+",
+                };
+            }
         }
 
-        if (token.type === 'entry') {
-            current++;
-
-            return new LabelNode(token.value);
+        if (token.type === 'minus') {
+            if (tokens[++current].type === 'minus') {
+                current++;
+                return {
+                    type: 'DecByOne',
+                    value: "--",
+                };
+            } else if (tokens[current].type === 'equal') {
+                current++;
+                return {
+                    type: 'DecByNum',
+                    value: "-=",
+                };
+            } else if (tokens[current].type === 'greater') {
+                current++;
+                return {
+                    type: 'Arrow',
+                    value: "->",
+                };
+            } else {
+                return {
+                    type: 'Minus',
+                    value: token.value,
+                };
+            }
         }
+
+
 
         throw new TypeError('Unexpected token: ' + token.type);
 

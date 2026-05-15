@@ -283,6 +283,11 @@ export function tokenizer(input) {
             current++;
             continue;
         }
+        if (char === '#') {
+            tokens.push({ type: 'hash', value: char });
+            current++;
+            continue;
+        }
 
         const WORD_CHAR = /[a-z0-9_]/i;
         if (/[a-z]/i.test(char)) {
