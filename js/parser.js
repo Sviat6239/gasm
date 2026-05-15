@@ -117,6 +117,59 @@ export function parser(tokens) {
     function walk() {
         let token = tokens[current];
 
+
+        if (!token) {
+            throw new TypeError('Unexpected end of input');
+        }
+
+        if (token.type === 'semicolon') {
+            current++;
+            return new SemicolonNode();
+        }
+
+        if (directiveTokens.has(token.type)) {
+            return parseDirective();
+        }
+
+        if (token.type === 'declare') {
+            return parseDeclare();
+        }
+
+        // treat any token followed by a colon as a label (identifier may be a keyword)
+        if (peek(1) && peek(1).type === 'colon') {
+            return parseLabel();
+        }
+
+        if (instructionTokens.has(token.type)) {
+            return parseInstruction();
+        }
+
+        if (token.type === 'number') {
+            current++;
+
+            return new NumberNode(token.value);
+        }
+
+        if (token.type === 'string') {
+            current++;
+
+            return new StringNode(token.value);
+        }
+
+        if (token.type === 'name') {
+            current++;
+
+            return new IdentifierNode(token.value);
+        }
+
+        if (token.type === 'entry') {
+            current++;
+
+            return new LabelNode(token.value);
+        }
+
+        throw new TypeError('Unexpected token: ' + token.type);
+
     }
 
     let ast = new ProgramNode();
