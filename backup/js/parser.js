@@ -228,7 +228,7 @@ export function parser(tokens) {
         }
 
         if (token.type === 'less') {
-            if (tokens[current].type === 'equal') {
+            if (tokens[++current].type === 'equal') {
                 current++;
                 return {
                     type: 'LessOrEqual',
@@ -391,7 +391,10 @@ export function parser(tokens) {
 
     }
 
-    let ast = new ProgramNode();
+    let ast = {
+        type: 'Program',
+        body: [],
+    };
 
     while (current < tokens.length) {
         ast.body.push(walk());
