@@ -242,6 +242,75 @@ export function parser(tokens) {
             }
         }
 
+        if (token.type === 'and') {
+            if (token[++current].type === 'and') {
+                current++;
+                return {
+                    type: 'AndAnd',
+                    value: "&&"
+                };
+            } else {
+                return {
+                    type: 'And',
+                    value: token.value
+                };
+            }
+        }
+
+        if (token.type === 'pipe') {
+            if (tokens[++current].type === 'pipe') {
+                current++;
+                return {
+                    type: 'OrOr',
+                    value: "||",
+                };
+            } else {
+                return {
+                    type: 'Pipe',
+                    value: token.value
+                };
+            }
+        }
+
+        if (token.type === 'greater') {
+            if (tokens[++current].type === 'equal') {
+                current++;
+                return {
+                    type: 'GreaterOrEqual',
+                    value: ">=",
+                };
+            } else {
+                return {
+                    type: 'Greater',
+                    value: token.value
+                };
+            }
+        }
+
+        if (token.type === 'caret') {
+            if (tokens[++current].type === 'equal') {
+                current++;
+                return {
+                    type: 'XorEqual',
+                    value: "^=",
+                };
+            } else {
+                return {
+                    type: 'Xor',
+                    value: token.value
+                };
+            }
+        }
+
+        if (token.type === 'comma') {
+            current++;
+            return {
+                type: 'Delimiter',
+                value: token.value
+            };
+        }
+
+
         throw new TypeError('Unexpected token: ' + token.type);
 
     }
