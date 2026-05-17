@@ -69,5 +69,12 @@ token_types_list = {
     'TYPE_STRING': TokenType("TYPE_STRING", r'\bstring\b'),
 
     #ASM instructions
-    
+    'MOV': TokenType("MOV", r'\bmov\b'),
+    'ADD': TokenType("ADD", r'\badd\b'),
+    'SUB': TokenType("SUB", r'\bsub\b'),
+
+    #High level instructions
+    'PRINT': TokenType("PRINT", r'\bprint\b'),
+    'IF': TokenType("IF", r'\bif\b'),
+    'ELSE': TokenType("ELSE", r'\belse\b'),
 }              
