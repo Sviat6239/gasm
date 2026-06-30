@@ -19,10 +19,12 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Function.h"
+#include "llvm/IR/Intrinsics.h"
 
 //namespaces
 using namespace std;
 using namespace llvm;
+using namespace Intrinsic;
 
 int main() {
     vector<vector<string>> code_lines;
@@ -60,7 +62,7 @@ int main() {
     IRBuilder<> builder(context);
 
     FunctionType* funcType = FunctionType::get(builder.getInt32Ty(), false);
-    Function* mainFunc = FUnction::Create(FuncType, Function::ExternalLinkage, "main", module);
+    Function* mainFunc = Function::Create(funcType, Function::ExternalLinkage, "main", module);
     BasicBlock* entry = BasicBlock::Create(context, "entry", mainFunc);
     builder.SetInsertPoint(entry);
 
@@ -90,145 +92,20 @@ int main() {
 
     //main loop
     for (const auto& row : code_lines){
-        if (row[0] == 'let'){
-
-        } else if (row[0] == 'add'){
-
-        } else if (row[0] == 'sub'){
-
-        } else if (row[0] == 'mul'){
-
-        } else if (row[0] == 'div'){
-
-        } else if (row[0] == 'sqr'){
-
-        } else if (row[0] == 'root'){
-
-        } else if (row[0] == 'pow'){
-
-        } else if (row[0] == 'log'){
-
-        } else if (row[0] == 'log10'){
-
-        } else if (row[0] == 'sin'){
-
-        } else if (row[0] == 'cos'){
-
-        } else if (row[0] == 'tg'){
-
-        } else if (row[0] == 'ctg'){
-
-        } else if (row[0] == 'arc-sin'){
-
-        } else if (row[0] == 'arc-cos'){
-
-        } else if (row[0] == 'arc-tg'){
-
-        } else if (row[0] == 'arc-ctg'){
-
-        } else if (row[0] == 'fact'){
-
-        } else if (row[0] == 'tetr'){
-
-        } else if (row[0] == 'mov'){
-
-        } else if (row[0] == 'print'){
-
-        } else if (row[0] == 'read'){
-
-        } else if (row[0] == 'tostr'){
-
-        } else if (row[0] == 'toint'){
-
-        } else if (row[0] == 'tobin'){
-
-        } else if (row[0] == 'tohex'){
-
-        } else if (row[0] == 'tooct'){
-
-        } else if (row[0] == 'tostrbin'){
-
-        } else if (row[0] == 'tostrhex'){
-
-        } else if (row[0] == 'tostroct'){
-
-        } else if (row[0] == 'if'){
-
-        } else if (row[0] == 'elif'){
-
-        } else if (row[0] == 'else'){
-
-        } else if (row[0] == 'end'){
-
-        } else if (row[0] == 'label'){
-
-        } else if (row[0] == 'jmp'){
-
-        } else if (row[0] == 'jne'){
-
-        } else if (row[0] == 'je'){
-
-        } else if (row[0] == 'jge'){
-
-        } else if (row[0] == 'jg'){
-
-        } else if (row[0] == 'jle'){
-
-        } else if (row[0] == 'jl'){
-
-        } else if (row[0] == 'cmp'){
-
-        } else if (row[0] == 'struct'){
-
-        } else if (row[0] == 'call'){
-
-        } else if (row[0] == 'apicall'){
-
-        } else if (row[0] == 'syscall'){
-
-        } else if (row[0] == 'for'){
-
-        } else if (row[0] == 'while'){
-
-        } else if (row[0] == 'until'){
-
-        } else if (row[0] == 'switch'){
-
-        } else if (row[0] == 'case'){
-
-        } else if (row[0] == 'procedure'){
-
-        } else if (row[0] == 'exchg'){
-
-        } else if (row[0] == 'push'){
-
-        } else if (row[0] == 'pop'){
-
-        } else if (row[0] == 'inc'){
-
-        } else if (row[0] == 'dec'){
-
-        } else if (row[0] == 'int'){
-
-        } else if (row[0] == 'shl'){
-
-        } else if (row[0] == 'shr'){
-
-        } else if (row[0] == 'sal'){
-
-        } else if (row[0] == 'sar'){
-
-        } else if (row[0] == 'rol'){
-
-        } else if (row[0] == 'ror'){
-
-        } else if (row[0] == 'ret'){
-
-        } else if (row[0] == 'lea'){
-            
+        if (row.empty()) continue;
+
+        if (row[0] == "let") {
+            if (row.size() > 1) {
+                std::string token = row[1];
+                size_t colonPos = token.find(':');
+                if (colonPos != std::string::npos) {
+                    std::string name = token.substr(0, colonPos);
+                    std::string type = token.substr(colonPos + 1);
+                }
+            }
         }
 
     }
 
-    retutn 0;
+    return 0;
 }
