@@ -96,11 +96,26 @@ int main() {
 
         if (row[0] == "let") {
             if (row.size() > 1) {
-                std::string token = row[1];
+                string token = row[1];
                 size_t colonPos = token.find(':');
-                if (colonPos != std::string::npos) {
-                    std::string name = token.substr(0, colonPos);
-                    std::string type = token.substr(colonPos + 1);
+                if (colonPos != string::npos) {
+                    string type = token.substr(0, colonPos);
+                    string name = token.substr(colonPos + 1);
+
+                    cout << type << endl;
+                    cout << name << endl;
+                }
+            }
+        } else if (row[0] == "const"){
+            if (row.size() > 1){
+                string token = row[1];
+                size_t colonPos = token.find(':');
+                if (colonPos != string::npos) {
+                    string type = token.substr(0, colonPos);
+                    string name = token.substr(colonPos + 1);
+
+                    cout << type << endl;
+                    cout << name << endl;
                 }
             }
         }
