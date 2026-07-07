@@ -1,3 +1,3 @@
-let int:number = 54;
-let float:float_num = 5.14;
-const float:pi = 3.14;
+let i32:number = 54;
+let f32:float_num = 5.14;
+const f64:pi = 3.14;
