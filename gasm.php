@@ -1,5 +1,17 @@
 <?php
-    $file = fopen("code.as", "r") or die("Unable to open file!");
-    echo fread($file, filesize("code.as"));
-    fclose($file);
+    $lines = file("code.as", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    if ($line === false){
+        die("Cant open file");
+    }
+
+    $data = [];
+
+    foreach ($lines as $line){
+        $tokens = preg_split('/\s+/', trim($line));
+
+        $data[] = $tokens;
+    }
+
+    print_r($data);
 ?>
