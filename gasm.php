@@ -1,6 +1,9 @@
 <?php
     $lines = file("code.as", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
+    $variables = [];
+    $output_code = [];
+
     if ($lines === false){
         die("Cant open file");
     }
@@ -38,6 +41,8 @@ foreach ($lines as $line) {
 
                 echo implode(' ', $between) . "\n";
             }
+        } elseif (in_array($tokens[0], $variables)){
+            print_r("in array\n");
         }
     }
 ?>
