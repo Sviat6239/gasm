@@ -14,4 +14,14 @@
     }
 
     print_r($data);
+
+    foreach ($data as $token){
+        if ($token[0] == "let"){
+            print_r("let\n");
+        } elseif ($token[0] == "const"){
+            print_r("const\n");
+        } elseif ($token[0] == "echo"){
+            print_r("echo\n");
+        }
+    }
 ?>
