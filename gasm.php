@@ -7,11 +7,13 @@
 
     $data = [];
 
-    foreach ($lines as $line){
-        $tokens = preg_split('/\s+/', trim($line));
+foreach ($lines as $line) {
+    preg_match_all('/[a-zA-Z0-9_.]+|[():=:]/', $line, $matches);
+    $tokens = $matches[0];
 
-        $data[] = $tokens;
-    }
+    if (empty($tokens)) continue;
+    $data[] = $tokens;
+}
 
     print_r($data);
 
@@ -19,19 +21,23 @@
         if ($tokens[0] == "let"){
             $fullToken = $tokens[1];
 
-            $parts = explode(":", $fullToken);
+            $mutability = $tokens[1];
+            $name = $tokens[5];
+            $type = $tokens[3];
+            $value = $tokens[7];
 
-            if (count($parts) == 3){
-                $mutability = $parts[0];
-                $name = $parts[1];
-                $type = $parts[2];
-                $value = $tokens[3];
+            echo "$mutability:$name:$type:$value\n";
 
-                echo "$mutability:$name:$type:$value\n";
-            }
 
         } elseif ($tokens[0] == "echo"){
-            print_r("echo\n");
+            $startIndex = array_search('(', $tokens);
+            $endIndex = array_search(')', $tokens);
+
+            if ($startIndex !== false && $endIndex !== false && $endIndex > $startIndex){
+                $between = array_slice($tokens, $startIndex + 1, $endIndex - $startIndex - 1);
+
+                echo implode(' ', $between) . "\n";
+            }
         }
     }
 ?>
