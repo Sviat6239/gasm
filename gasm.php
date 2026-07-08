@@ -1,7 +1,7 @@
 <?php
     $lines = file("code.as", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-    if ($line === false){
+    if ($lines === false){
         die("Cant open file");
     }
 
