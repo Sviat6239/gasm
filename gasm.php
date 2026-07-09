@@ -38,14 +38,44 @@ foreach ($lines as $line) {
                 array_push($variables, [$name, $type, $value]);
             }
 
-        } elseif ($tokens[0] == "echo"){
+        } elseif ($tokens[0] == "echo") {
             $startIndex = array_search('(', $tokens);
             $endIndex = array_search(')', $tokens);
 
-            if ($startIndex !== false && $endIndex !== false && $endIndex > $startIndex){
+            if ($startIndex !== false && $endIndex !== false && $endIndex > $startIndex) {
                 $between = array_slice($tokens, $startIndex + 1, $endIndex - $startIndex - 1);
 
-                echo implode(' ', $between) . "\n";
+                $output = "";
+                foreach ($between as $token) {
+                    if (preg_match('/^["\'].*["\']$/', $token)) {
+                        $output .= trim($token, "\"'") . " ";
+                    } else {
+                        $found = false;
+
+                        foreach ($variables as $var) {
+                            if ($var[0] == $token) {
+                                $output .= $var[2] . " ";
+                                $found = true;
+                                break;
+                            }
+                        }
+
+                        if (!$found) {
+                            foreach ($constants as $const) {
+                                if ($const[0] == $token) {
+                                    $output .= $const[2] . " ";
+                                    $found = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!$found) {
+                            $output .= "[undefined] ";
+                        }
+                    }
+                }
+                echo trim($output) . "\n";
             }
         } elseif (in_array($tokens[0], $variables)){
             print_r("in array\n");
