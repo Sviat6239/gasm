@@ -1,87 +1,77 @@
-# GASM - Experimental HLA Prototype (JavaScript)
+# GASM - Experimental PHP Prototype
 
-GASM is a JavaScript prototype for tokenizing and partially parsing a
-high-level assembler-like syntax across x86, AArch64, and RISC-V examples.
-The current focus is front-end parsing (tokens -> AST-like nodes) with a
-table-driven lexer and a lightweight parser.
+GASM is a small PHP prototype for a toy assembly-like language. It reads
+`code.as`, tokenizes each line with a simple regex, tracks mutable and
+immutable values, and prints values through `echo(...)`.
 
 ## Version
 
-- `0.0.1` - initial working prototype with lexer, parser, AST node classes,
-  and a runnable parser demo in `index.js`.
+- `0.0.1` - initial working prototype with a single PHP interpreter in
+  `gasm.php` and a sample program in `code.as`.
 
 ## Current status
 
-- `js/lexer.js` is implemented with keyword tables for directives,
-  instructions, registers, operators, punctuation, and RISC-V compressed forms.
-- `js/parser.js` is implemented and builds `ProgramNode` with instruction,
-  label, variable declaration, register, number, string, and identifier nodes.
-- `js/ast.js` defines many node classes used by the parser and future features.
-- `js/ir.js` and `js/codegen.js` exist but are currently empty.
-- `index.js` is not a CLI; it runs a hardcoded parser demo snippet.
+- `gasm.php` reads `code.as` and processes it line by line.
+- `let` declarations are supported for mutable (`mut`) and immutable (`umut`)
+  values.
+- Variables store a `type` and a `value`.
+- `echo(...)` prints literals, variables, and constants in order.
+- Simple reassignment is supported with `name = value`.
 
 ## What works now
 
-- Decimal numeric literals (`0-9` digits).
-- String literals in single or double quotes with basic escapes (`\n`, `\t`).
-- Tokenization of punctuation and operators:
-  `; : , { } [ ] ( ) = == != < <= > >= && || ++ -- . * % & + - /`.
-- Unknown words are tokenized as `{ type: 'name', value }`.
-- Parser handles:
-  - instruction statements with operands and commas,
-  - labels (`name:`),
-  - variable declarations (`declare name type[...] = ...`),
-  - output as `ProgramNode` with node instances from `js/ast.js`.
-- Supported instruction groups currently include:
-  - x86 / x86-64 basics and common SSE/FPU mnemonics,
-  - ARM64/AArch64 arithmetic, branch, system, and floating-point mnemonics,
-  - RISC-V base integer, M/A/CSR, pseudo-instructions (`li`, `la`, `ecall`),
-    and compressed `c.*` forms.
+- Declaration syntax in the current sample form:
+  `let mut:i32:number = 54;`
+- Immutable declarations:
+  `let umut:f64:pi = 3.14;`
+- String values in quotes:
+  `let mut:str:msg = "Hello World";`
+- Printing values:
+  `echo (number float_num);`
+- Reassigning mutable values:
+  `number = 100;`
 
 ## Known limitations
 
-- Comments are not supported in lexer input (`#` throws `Unknown charecter`).
-- Parser is still partial:
-  - no expression trees or block parsing (`if`, `while`, `for`, etc.),
-  - some AST/parser branches are unfinished/buggy.
-- `index.js` is a demo script, not a command-line interface.
+- No expression parsing.
+- No arithmetic or block syntax.
+- No comments.
+- No conditionals or loops.
+- Tokens are extracted with a very small regex, so unsupported characters are
+  ignored or skipped rather than handled by a real lexer.
 
 ## Quick checks
 
-Tokenizer only:
+Run the interpreter against the bundled sample:
 
 ```bash
-node --input-type=module -e "import { tokenizer } from './js/lexer.js'; console.log(tokenizer('mov rax, 19;'))"
+php .\gasm.php
 ```
 
-Tokenizer + parser (minimal working example):
+The current `code.as` sample prints:
 
 ```bash
-node --input-type=module -e "import { tokenizer } from './js/lexer.js'; import { parser } from './js/parser.js'; console.dir(parser(tokenizer('mov rax, 19; add rax, 1;')), { depth: null });"
-```
-
-Current demo input from `index.js`:
-
-```bash
-node --input-type=module -e "import { tokenizer } from './js/lexer.js'; import { parser } from './js/parser.js'; console.dir(parser(tokenizer('declare msg char[] = \"Hello Win64!\"; mov rax, 19; add rax, 19; sub rax, rbx;')), { depth: null });"
+54 5.14
+5.14
+3.14
+Hello
+100
 ```
 
 ## Examples
 
-The `examples/` folder contains sample sources by target:
+The `code.as` file contains the current demo program:
 
-- `examples/x86/`
-- `examples/aarch64/`
-- `examples/riscv/`
-- `examples/bios/`
-- `examples/uefi/`
+- mutable integer value
+- mutable float value
+- immutable float constant
+- string value
+- `echo(...)` output
+- mutable reassignment
 
 ## Project layout
 
-- `js/lexer.js` - tokenizer
-- `js/parser.js` - parser (token stream to AST-like nodes)
-- `js/ast.js` - node type definitions
-- `js/ir.js` - reserved for IR stage (empty)
-- `js/codegen.js` - reserved for codegen stage (empty)
-- `index.js` - local parser demo script
-- `index.asm` - sample source file
+- `gasm.php` - interpreter
+- `code.as` - sample source file
+- `compile.ps1` - legacy build script, not used by the PHP prototype
+- `LICENSE` - project license
