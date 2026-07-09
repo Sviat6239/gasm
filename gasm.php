@@ -12,7 +12,7 @@
     $data = [];
 
 foreach ($lines as $line) {
-    preg_match_all('/[a-zA-Z0-9_.]+|[():=:]/', $line, $matches);
+    preg_match_all('/[a-zA-Z0-9_.]+|[():=+\-:]|"[^"]*"|\'[^\']*\'/', $line, $matches);
     $tokens = $matches[0];
 
     if (empty($tokens)) continue;
@@ -20,6 +20,28 @@ foreach ($lines as $line) {
 }
 
     //print_r($data);
+    function evaluateExpression($tokens, $vars, $consts) {
+        $processed = [];
+        foreach ($tokens as $t) {
+            if (isset($vars[$t])) $processed[] = $vars[$t]['value'];
+            elseif (isset($consts[$t])) $processed[] = $consts[$t]['value'];
+            else $processed[] = $t;
+        }
+
+        $result = (float)$processed[0];
+
+        for ($i = 1; $i < count($processed); $i += 2) {
+            $op = $processed[$i];
+            $val = (float)($processed[$i + 1] ?? 0);
+
+            if ($op == '+') {
+                $result += $val;
+            } elseif ($op == '-') {
+                $result -= $val;
+            }
+        }
+        return $result;
+    }
 
     foreach ($data as $tokens){
         if ($tokens[0] == "let"){
@@ -63,9 +85,8 @@ foreach ($lines as $line) {
             }
         } elseif (isset($variables[$tokens[0]]) && ($tokens[1] ?? '') === '=') {
             $varName = $tokens[0];
-            $newValue = $tokens[2];
-
-            $variables[$varName]['value'] = $newValue;
+            $expression = array_slice($tokens, 2);
+            $variables[$varName]['value'] = evaluateExpression($expression, $variables, $constants);
         }
     }
 
