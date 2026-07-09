@@ -6,3 +6,5 @@ echo (number float_num);
 echo (float_num);
 echo (pi);
 echo (msg);
+number = 100;
+echo (number);

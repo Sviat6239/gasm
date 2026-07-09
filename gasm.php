@@ -33,9 +33,9 @@ foreach ($lines as $line) {
             echo "$mutability:$name:$type:$value\n";
 
             if ($tokens[1] == "umut"){
-                array_push($constants, [$name, $type, $value]);
+                $constants[$name] = ['type' => $type, 'value' => $value];
             } elseif ($tokens[1] == "mut"){
-                array_push($variables, [$name, $type, $value]);
+                $variables[$name] = ['type' => $type, 'value' => $value];
             }
 
         } elseif ($tokens[0] == "echo") {
@@ -50,38 +50,25 @@ foreach ($lines as $line) {
                     if (preg_match('/^["\'].*["\']$/', $token)) {
                         $output .= trim($token, "\"'") . " ";
                     } else {
-                        $found = false;
-
-                        foreach ($variables as $var) {
-                            if ($var[0] == $token) {
-                                $output .= $var[2] . " ";
-                                $found = true;
-                                break;
-                            }
-                        }
-
-                        if (!$found) {
-                            foreach ($constants as $const) {
-                                if ($const[0] == $token) {
-                                    $output .= $const[2] . " ";
-                                    $found = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!$found) {
+                        if (isset($variables[$token])) {
+                            $output .= $variables[$token]['value'] . " ";
+                        } elseif (isset($constants[$token])) {
+                            $output .= $constants[$token]['value'] . " ";
+                        } else {
                             $output .= "[undefined] ";
                         }
                     }
                 }
                 echo trim($output) . "\n";
             }
-        } elseif (in_array($tokens[0], $variables)){
-            print_r("in array\n");
+        } elseif (isset($variables[$tokens[0]]) && ($tokens[1] ?? '') === '=') {
+            $varName = $tokens[0];
+            $newValue = $tokens[2];
+
+            $variables[$varName]['value'] = $newValue;
         }
     }
 
-    print_r($variables);
-    print_r($constants);
+    //print_r($variables);
+    //print_r($constants);
 ?>
