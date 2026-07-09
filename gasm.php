@@ -2,6 +2,7 @@
     $lines = file("code.as", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
     $variables = [];
+    $constants = [];
     $output_code = [];
 
     if ($lines === false){
@@ -31,6 +32,11 @@ foreach ($lines as $line) {
 
             echo "$mutability:$name:$type:$value\n";
 
+            if ($tokens[1] == "umut"){
+                array_push($constants, [$name, $type, $value]);
+            } elseif ($tokens[1] == "mut"){
+                array_push($variables, [$name, $type, $value]);
+            }
 
         } elseif ($tokens[0] == "echo"){
             $startIndex = array_search('(', $tokens);
@@ -45,4 +51,7 @@ foreach ($lines as $line) {
             print_r("in array\n");
         }
     }
+
+    print_r($variables);
+    print_r($constants);
 ?>
