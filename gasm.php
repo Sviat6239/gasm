@@ -4,6 +4,9 @@
     $variables = [];
     $constants = [];
     $output_code = [];
+    $reg_count = 1;
+
+    $output_code[] = "define i32 @main() {";
 
     if ($lines === false){
         die("Cant open file");
@@ -11,55 +14,59 @@
 
     $data = [];
 
-foreach ($lines as $line) {
-    preg_match_all('/[a-zA-Z0-9_.]+|[():=+\-:]|"[^"]*"|\'[^\']*\'/', $line, $matches);
-    $tokens = $matches[0];
+    foreach ($lines as $line) {
+        preg_match_all('/[a-zA-Z0-9_.]+|[():=+\-:]|"[^"]*"|\'[^\']*\'/', $line, $matches);
+        $tokens = $matches[0];
 
-    if (empty($tokens)) continue;
-    $data[] = $tokens;
-}
+        if (empty($tokens)) continue;
+        $data[] = $tokens;
+    }
 
     //print_r($data);
-    function evaluateExpression($tokens, $vars, $consts) {
-        $processed = [];
-        foreach ($tokens as $t) {
-            if (isset($vars[$t])) $processed[] = $vars[$t]['value'];
-            elseif (isset($consts[$t])) $processed[] = $consts[$t]['value'];
-            else $processed[] = $t;
+    function getOperand($token, &$variables, &$reg_count, &$output_code) {
+        if (is_numeric($token)) {
+            return $token;
+        } else {
+            $reg = "%" . ($reg_count++);
+            $output_code[] = "  $reg = load i32, ptr %$token";
+            return $reg;
         }
+    }
 
-        $result = (float)$processed[0];
+    function compileExpression($tokens, &$variables, &$reg_count, &$output_code) {
+        $last_reg = getOperand($tokens[0], $variables, $reg_count, $output_code);
 
-        for ($i = 1; $i < count($processed); $i += 2) {
-            $op = $processed[$i];
-            $val = (float)($processed[$i + 1] ?? 0);
+        for ($i = 1; $i < count($tokens); $i += 2) {
+            $op = $tokens[$i];
+            $val = $tokens[$i + 1];
 
-            if ($op == '+') {
-                $result += $val;
-            } elseif ($op == '-') {
-                $result -= $val;
-            }
+            $next_val = getOperand($val, $variables, $reg_count, $output_code);
+
+            $res_reg = "%" . ($reg_count++);
+            if ($op == '+') $output_code[] = "  $res_reg = add i32 $last_reg, $next_val";
+            elseif ($op == '-') $output_code[] = "  $res_reg = sub i32 $last_reg, $next_val";
+
+            $last_reg = $res_reg;
         }
-        return $result;
+        return $last_reg;
     }
 
     foreach ($data as $tokens){
-        if ($tokens[0] == "let"){
-            $fullToken = $tokens[1];
-
+        if ($tokens[0] == "let") {
             $mutability = $tokens[1];
-            $name = $tokens[5];
             $type = $tokens[3];
+            $name = $tokens[5];
             $value = $tokens[7];
 
-            //echo "$mutability:$name:$type:$value\n";
+            $output_code[] = "  %$name = alloca i32";
 
-            if ($tokens[1] == "umut"){
+            $output_code[] = "  store i32 $value, ptr %$name";
+
+            if ($mutability == "umut") {
                 $constants[$name] = ['type' => $type, 'value' => $value];
-            } elseif ($tokens[1] == "mut"){
+            } elseif ($mutability == "mut") {
                 $variables[$name] = ['type' => $type, 'value' => $value];
             }
-
         } elseif ($tokens[0] == "echo") {
             $startIndex = array_search('(', $tokens);
             $endIndex = array_search(')', $tokens);
@@ -86,10 +93,15 @@ foreach ($lines as $line) {
         } elseif (isset($variables[$tokens[0]]) && ($tokens[1] ?? '') === '=') {
             $varName = $tokens[0];
             $expression = array_slice($tokens, 2);
-            $variables[$varName]['value'] = evaluateExpression($expression, $variables, $constants);
+            $result_reg = compileExpression($expression, $variables, $reg_count, $output_code);
+            $output_code[] = "  store i32 $result_reg, ptr %$varName";
         }
     }
 
     //print_r($variables);
     //print_r($constants);
+
+    $output_code[] = "  ret i32 0";
+    $output_code[] = "}";
+    file_put_contents("output.ll", implode("\n", $output_code));
 ?>
