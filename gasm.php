@@ -19,7 +19,7 @@ foreach ($lines as $line) {
     $data[] = $tokens;
 }
 
-    print_r($data);
+    //print_r($data);
 
     foreach ($data as $tokens){
         if ($tokens[0] == "let"){
@@ -30,7 +30,7 @@ foreach ($lines as $line) {
             $type = $tokens[3];
             $value = $tokens[7];
 
-            echo "$mutability:$name:$type:$value\n";
+            //echo "$mutability:$name:$type:$value\n";
 
             if ($tokens[1] == "umut"){
                 $constants[$name] = ['type' => $type, 'value' => $value];
