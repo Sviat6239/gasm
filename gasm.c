@@ -30,6 +30,57 @@ void init_output_code(Output_Code *oc)
     oc->capacity = 0;
 }
 
+void parse_line(const char *buffer, Line *line)
+{
+    char temp[1024];
+    int temp_idx = 0;
+    bool in_quotes = false;
+    char quote_type = 0;
+
+    for (int i = 0; buffer[i] != '\0'; i++)
+    {
+        char c = buffer[i];
+
+        if ((c == '"' || c == '\'') && (i == 0 || buffer[i - 1] != '\\'))
+        {
+            if (!in_quotes)
+            {
+                in_quotes = true;
+                quote_type = c;
+            }
+            else if (c == quote_type)
+            {
+                in_quotes = false;
+            }
+            else
+            {
+                temp[temp_idx++] = c;
+            }
+        }
+        else if (!in_quotes && (c == ' ' || c == '\t' || c == '\n' || c == '\r'))
+        {
+            if (temp_idx > 0)
+            {
+                temp[temp_idx] = '\0';
+                line->tokens = realloc(line->tokens, (line->token_count + 1) * sizeof(char *));
+                line->tokens[line->token_count++] = strdup(temp);
+                temp_idx = 0;
+            }
+        }
+        else
+        {
+            temp[temp_idx++] = c;
+        }
+    }
+
+    if (temp_idx > 0)
+    {
+        temp[temp_idx] = '\0';
+        line->tokens = realloc(line->tokens, (line->token_count + 1) * sizeof(char *));
+        line->tokens[line->token_count++] = strdup(temp);
+    }
+}
+
 int main()
 {
     FILE *fptr = fopen("code.as", "r");
@@ -52,26 +103,22 @@ int main()
     // Read file and tokenize
     while (fgets(buffer, sizeof(buffer), fptr))
     {
+        char *comment_ptr = strstr(buffer, "//");
+        if (comment_ptr)
+            *comment_ptr = '\0';
+
+        char *semi = strchr(buffer, ';');
+        if (semi)
+            *semi = '\0';
+
         if (strspn(buffer, " \t\n\r\f\v") == strlen(buffer))
-        {
             continue;
-        }
 
         lines = realloc(lines, (line_count + 1) * sizeof(Line));
         lines[line_count].tokens = NULL;
         lines[line_count].token_count = 0;
 
-        char *token = strtok(buffer, " \t\n\r");
-        while (token != NULL)
-        {
-            int t_cnt = lines[line_count].token_count;
-            lines[line_count].tokens = realloc(lines[line_count].tokens, (t_cnt + 1) * sizeof(char *));
-
-            lines[line_count].tokens[t_cnt] = strdup(token);
-            lines[line_count].token_count++;
-
-            token = strtok(NULL, " \t\n\r");
-        }
+        parse_line(buffer, &lines[line_count]);
         line_count++;
     }
 
