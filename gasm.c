@@ -235,6 +235,11 @@ int main()
     // ==================== CODE GENERATION PHASE ====================
     printf("\n=== Generating output code ===\n");
 
+    add_line_to_code(&myCode, "declare i32 @printf(i8*, ...)");
+    add_line_to_code(&myCode, "@.str = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"");
+    add_line_to_code(&myCode, "");
+    add_line_to_code(&myCode, "define i32 @main() {");
+
     for (int i = 0; i < line_count; i++)
     {
         if (lines[i].token_count == 0)
@@ -287,6 +292,9 @@ int main()
             continue;
         }
     }
+
+    add_line_to_code(&myCode, "  ret i32 0");
+    add_line_to_code(&myCode, "}");
 
     // ==================== WRITE OUTPUT TO FILE ====================
     FILE *out_fptr = fopen("output.ll", "w");
