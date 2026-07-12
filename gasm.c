@@ -160,6 +160,18 @@ void add_line_to_code(Output_Code *oc, const char *text)
     oc->count++;
 }
 
+const char *map_to_llvm_type(const char *lang_type);
+
+Variable *find_variable(Variable *vars, int count, const char *name)
+{
+    for (int i = 0; i < count; i++)
+    {
+        if (strcmp(vars[i].name, name) == 0)
+            return &vars[i];
+    }
+    return NULL;
+}
+
 int main()
 {
     // Open the source file
@@ -244,6 +256,8 @@ int main()
             else
                 strcpy(llvm_type, "i64");
 
+            add_variable(&vars, &vars_count, true, type, name, val);
+
             char buf[256];
             sprintf(buf, "%%%s = alloca %s", name, llvm_type);
             add_line_to_code(&myCode, buf);
@@ -253,8 +267,19 @@ int main()
         }
         else if (strcmp(lines[i].tokens[0], "echo") == 0)
         {
-            add_line_to_code(&myCode, "there is the echo");
-            printf("echo\n");
+            char *name = lines[i].tokens[2];
+
+            Variable *v = find_variable(vars, vars_count, name);
+
+            char llvm_type[16];
+            strcpy(llvm_type, map_to_llvm_type(v->type));
+
+            char buf[256];
+            sprintf(buf, "%%tmp = load %s, %s* %%%s", llvm_type, llvm_type, name);
+            add_line_to_code(&myCode, buf);
+
+            sprintf(buf, "call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), %s %%tmp)", llvm_type);
+            add_line_to_code(&myCode, buf);
         }
         else
         {
@@ -304,4 +329,17 @@ int main()
     free(vars);
 
     return 0;
+}
+
+const char *map_to_llvm_type(const char *lang_type)
+{
+    if (strcmp(lang_type, "i32") == 0)
+        return "i32";
+    if (strcmp(lang_type, "f32") == 0)
+        return "float";
+    if (strcmp(lang_type, "f64") == 0)
+        return "double";
+    if (strcmp(lang_type, "str") == 0)
+        return "i8*";
+    return "i64";
 }

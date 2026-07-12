@@ -6,8 +6,13 @@ store float 5.14, float* %float_num
 store double 3.14, double* %pi
 %msg = alloca i64
 store i64 Hello World, i64* %msg
-there is the echo
-there is the echo
-there is the echo
-there is the echo
-there is the echo
+%tmp = load i32, i32* %number
+call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i32 %tmp)
+%tmp = load float, float* %float_num
+call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), float %tmp)
+%tmp = load double, double* %pi
+call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), double %tmp)
+%tmp = load i8*, i8** %msg
+call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i8* %tmp)
+%tmp = load i32, i32* %number
+call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i32 %tmp)
