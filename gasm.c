@@ -84,6 +84,10 @@ int main()
         {
             printf("echo");
         }
+        else
+        {
+            continue;
+        }
 
         printf("\n");
     }
