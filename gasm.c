@@ -57,6 +57,19 @@ void parse_line(const char *buffer, Line *line)
                 temp[temp_idx++] = c;
             }
         }
+        else if (!in_quotes && (c == '(' || c == ')'))
+        {
+            if (temp_idx > 0)
+            {
+                temp[temp_idx] = '\0';
+                line->tokens = realloc(line->tokens, (line->token_count + 1) * sizeof(char *));
+                line->tokens[line->token_count++] = strdup(temp);
+                temp_idx = 0;
+            }
+            line->tokens = realloc(line->tokens, (line->token_count + 1) * sizeof(char *));
+            char bracket[2] = {c, '\0'};
+            line->tokens[line->token_count++] = strdup(bracket);
+        }
         else if (!in_quotes && (c == ' ' || c == '\t' || c == '\n' || c == '\r'))
         {
             if (temp_idx > 0)
