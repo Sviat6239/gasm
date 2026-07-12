@@ -14,7 +14,7 @@ typedef struct
     bool mutability;
     char *type;
     char *name;
-    char *value
+    char *value;
 } Variable;
 typedef struct
 {
@@ -39,6 +39,10 @@ int main()
     // Read file and tokenize
     while (fgets(buffer, sizeof(buffer), fptr))
     {
+        if (strspn(buffer, " \t\n\r\f\v") == strlen(buffer))
+        {
+            continue;
+        }
 
         lines = realloc(lines, (line_count + 1) * sizeof(Line));
         lines[line_count].tokens = NULL;
@@ -66,6 +70,21 @@ int main()
         {
             printf("[%s] ", lines[i].tokens[j]);
         }
+
+        printf("\n");
+    }
+
+    for (int i = 0; i < line_count; i++)
+    {
+        if (strcmp(lines[i].tokens[0], "let") == 0)
+        {
+            printf("let");
+        }
+        else if (strcmp(lines[i].tokens[0], "echo") == 0)
+        {
+            printf("echo");
+        }
+
         printf("\n");
     }
 
