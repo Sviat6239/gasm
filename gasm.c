@@ -23,6 +23,13 @@ typedef struct
     int capacity;
 } Output_Code;
 
+void init_output_code(Output_Code *oc)
+{
+    oc->lines = NULL;
+    oc->count = 0;
+    oc->capacity = 0;
+}
+
 int main()
 {
     FILE *fptr = fopen("code.as", "r");
@@ -35,6 +42,12 @@ int main()
     Line *lines = NULL;
     int line_count = 0;
     char buffer[1024];
+
+    Output_Code myCode;
+    init_output_code(&myCode);
+
+    Variable *variables = NULL;
+    int vars_count = 0;
 
     // Read file and tokenize
     while (fgets(buffer, sizeof(buffer), fptr))
