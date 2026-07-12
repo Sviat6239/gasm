@@ -1,62 +1,54 @@
-# GASM - Experimental PHP Prototype
+# GASM - Experimental C Prototype
 
-GASM is a small PHP prototype for a toy assembly-like language. It reads
-`code.as`, tokenizes each line with a simple regex, tracks mutable and
-immutable values, and prints values through `echo(...)`.
+GASM is a small C prototype for a toy assembly-like language. It reads
+`code.as`, tokenizes each line, strips `//` comments, and prints the parsed
+tokens together with a few debug markers for `let` and `echo` lines.
 
 ## Version
 
-- `0.0.1` - initial working prototype with a single PHP interpreter in
-  `gasm.php` and a sample program in `code.as`.
+- `0.0.1` - initial working prototype with a single C interpreter in
+  `gasm.c` and a sample program in `code.as`.
 
 ## Current status
 
-- `gasm.php` reads `code.as` and processes it line by line.
-- `let` declarations are supported for mutable (`mut`) and immutable (`umut`)
-  values.
-- Variables store a `type` and a `value`.
-- `echo(...)` prints literals, variables, and constants in order.
-- Simple reassignment is supported with `name = value`.
+- `gasm.c` reads `code.as` and processes it line by line.
+- Comments starting with `//` are removed before tokenization.
+- Each non-empty line is split into tokens and printed as `Line N: ...`.
+- `let` lines are detected and logged as `let`.
+- `echo` lines are detected and logged as `echo`.
 
 ## What works now
 
-- Declaration syntax in the current sample form:
-  `let mut:i32:number = 54;`
-- Immutable declarations:
-  `let umut:f64:pi = 3.14;`
-- String values in quotes:
-  `let mut:str:msg = "Hello World";`
-- Printing values:
-  `echo (number float_num);`
-- Reassigning mutable values:
-  `number = 100;`
+- Tokenizing declaration-style lines such as:
+  `let mut i32 number = 54;`
+- Tokenizing immutable declarations:
+  `let umut f64 pi = 3.14;`
+- Keeping quoted strings together as one token:
+  `let mut str msg = "Hello World";`
+- Splitting parentheses into separate tokens:
+  `echo (number);`
+- Ignoring comment text after `//`.
 
 ## Known limitations
 
 - No expression parsing.
 - No arithmetic or block syntax.
-- No comments.
+- No variable evaluation or execution semantics.
 - No conditionals or loops.
-- Tokens are extracted with a very small regex, so unsupported characters are
-  ignored or skipped rather than handled by a real lexer.
+- `let` handling is still hardcoded and does not yet map tokens to real
+  variable definitions.
 
 ## Quick checks
 
-Run the interpreter against the bundled sample:
+Compile and run the prototype against the bundled sample:
 
 ```bash
-php .\gasm.php
+gcc gasm.c -o a.exe
+.\a.exe
 ```
 
-The current `code.as` sample prints:
-
-```bash
-54 5.14
-5.14
-3.14
-Hello
-100
-```
+The current `code.as` sample prints tokenized lines, then `let` / `echo`
+markers for matching statements.
 
 ## Examples
 
@@ -66,12 +58,12 @@ The `code.as` file contains the current demo program:
 - mutable float value
 - immutable float constant
 - string value
-- `echo(...)` output
-- mutable reassignment
+- `echo (...)` statements
+- reassignment-like line
 
 ## Project layout
 
-- `gasm.php` - interpreter
+- `gasm.c` - interpreter / tokenizer prototype
 - `code.as` - sample source file
-- `compile.ps1` - legacy build script, not used by the PHP prototype
+- `compile.ps1` - legacy build script, not used by the current prototype
 - `LICENSE` - project license
