@@ -205,5 +205,28 @@ int main()
     free(lines);
     fclose(fptr);
 
+    FILE *out_fptr = fopen("output.ll", "w");
+    if (out_fptr == NULL)
+    {
+        perror("Unable to create file:");
+        return -1;
+    }
+
+    for (int i = 0; i < myCode.count; i++)
+    {
+        fprintf(out_fptr, "%s\n", myCode.lines[i]);
+    }
+
+    fclose(out_fptr);
+    free(myCode.lines);
+
+    for (int i = 0; i < vars_count; i++)
+    {
+        free(vars[i].type);
+        free(vars[i].name);
+        free(vars[i].value);
+    }
+    free(vars);
+
     return 0;
 }
