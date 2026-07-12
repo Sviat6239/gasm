@@ -94,6 +94,31 @@ void parse_line(const char *buffer, Line *line)
     }
 }
 
+void add_variable(Variable **vars, int *count, bool mut, char *type, char *name, char *val)
+{
+    *vars = realloc(*vars, (*count + 1) * sizeof(Variable));
+
+    Variable *v = &((*vars)[*count]);
+    v->mutability = mut;
+    v->type = strdup(type);
+    v->name = strdup(name);
+    v->value = strdup(val);
+
+    (*count)++;
+}
+
+void add_line_to_code(Output_Code *oc, const char *text)
+{
+    if (oc->count >= oc->capacity)
+    {
+        oc->capacity = (oc->capacity == 0) ? 10 : oc->capacity * 2;
+        oc->lines = realloc(oc->lines, oc->capacity * sizeof(char *));
+    }
+
+    oc->lines[oc->count] = strdup(text);
+    oc->count++;
+}
+
 int main()
 {
     FILE *fptr = fopen("code.as", "r");
@@ -110,7 +135,7 @@ int main()
     Output_Code myCode;
     init_output_code(&myCode);
 
-    Variable *variables = NULL;
+    Variable *vars = NULL;
     int vars_count = 0;
 
     // Read file and tokenize
@@ -151,10 +176,13 @@ int main()
     {
         if (strcmp(lines[i].tokens[0], "let") == 0)
         {
+            add_variable(&vars, &vars_count, true, "int", "counter", "0");
+            add_line_to_code(&myCode, "there is the let");
             printf("let");
         }
         else if (strcmp(lines[i].tokens[0], "echo") == 0)
         {
+            add_line_to_code(&myCode, "there is the echo");
             printf("echo");
         }
         else
