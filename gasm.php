@@ -1,6 +1,14 @@
 <?php
     $lines = file("code.as", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
+    echo PHP_OS;
+    $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+    $isLinux = strtoupper(substr(PHP_OS, 0, 3)) === 'LINUX';
+    $isFreeBSD = strtoupper(substr(PHP_OS, 0, 3)) === 'FreeBSD';
+    $isOpenBSD = strtoupper(substr(PHP_OS, 0, 3)) === 'OpenBSD';
+    $isNetBSD = strtoupper(substr(PHP_OS, 0, 3)) === 'NetBSD';
+    $isMacOS = strtoupper(substr(PHP_OS, 0, 3)) === 'MacOS';
+
     $variables = [];
     $constants = [];
     $output_code = [];
