@@ -15,6 +15,7 @@ int main() {
     int line_count = 0;
     char buffer[1024];
 
+    //Read file and tokenize
     while (fgets(buffer, sizeof(buffer), fptr)) {
 
         lines = realloc(lines, (line_count + 1) * sizeof(Line));
@@ -34,6 +35,7 @@ int main() {
         line_count++;
     }
 
+    //Output
     for (int i = 0; i < line_count; i++) {
         printf("Line %d: ", i);
         for (int j = 0; j < lines[i].token_count; j++) {
@@ -42,6 +44,7 @@ int main() {
         printf("\n");
     }
 
+    //Free memory
     for (int i = 0; i < line_count; i++) {
         for (int j = 0; j < lines[i].token_count; j++) {
             free(lines[i].tokens[j]);
