@@ -230,10 +230,26 @@ int main()
 
         if (strcmp(lines[i].tokens[0], "let") == 0)
         {
-            // Currently hardcoded - in real compiler this should parse actual tokens
-            add_variable(&vars, &vars_count, true, "int", "counter", "0");
-            add_line_to_code(&myCode, "there is the let");
-            printf("let\n");
+            char *type = lines[i].tokens[2];
+            char *name = lines[i].tokens[3];
+            char *val = lines[i].tokens[5];
+
+            char llvm_type[16];
+            if (strcmp(type, "i32") == 0)
+                strcpy(llvm_type, "i32");
+            else if (strcmp(type, "f32") == 0)
+                strcpy(llvm_type, "float");
+            else if (strcmp(type, "f64") == 0)
+                strcpy(llvm_type, "double");
+            else
+                strcpy(llvm_type, "i64");
+
+            char buf[256];
+            sprintf(buf, "%%%s = alloca %s", name, llvm_type);
+            add_line_to_code(&myCode, buf);
+
+            sprintf(buf, "store %s %s, %s* %%%s", llvm_type, val, llvm_type, name);
+            add_line_to_code(&myCode, buf);
         }
         else if (strcmp(lines[i].tokens[0], "echo") == 0)
         {
