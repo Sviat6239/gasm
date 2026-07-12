@@ -6,39 +6,41 @@ tokens together with a few debug markers for `let` and `echo` lines.
 
 ## Version
 
-- `0.0.2` - initial working prototype with a single C interpreter in
+- `0.0.3` - initial working prototype with a single C interpreter in
   `gasm.c` and a sample program in `code.as`.
 
 ## Current status
 
 - `gasm.c` reads `code.as` and processes it line by line.
 - Comments starting with `//` are removed before tokenization.
+- Semicolons are stripped before parsing.
 - Each non-empty line is split into tokens and printed as `Line N: ...`.
-- `let` lines are detected and logged as `let`.
-- `echo` lines are detected and logged as `echo`.
-- Parsed `let` and `echo` lines are also written to `output.ll`.
+- `let` lines generate simple LLVM IR with `alloca` and `store`.
+- `echo` lines generate LLVM IR with `load` and `printf`.
+- Parsed `let` and `echo` lines are written to `output.ll`.
+- The program prints section headers for reading, tokenizing, and code generation.
+- Unknown commands are reported with `Unknown command: ...`.
 
 ## What works now
 
-- Tokenizing declaration-style lines such as:
+- Parsing declaration-style lines such as:
   `let mut i32 number = 54;`
-- Tokenizing immutable declarations:
+- Parsing immutable declarations:
   `let umut f64 pi = 3.14;`
+- Supporting `i32`, `f32`, `f64`, and `str` types in the LLVM mapping.
 - Keeping quoted strings together as one token:
   `let mut str msg = "Hello World";`
-- Splitting parentheses into separate tokens:
-  `echo (number);`
+- Handling `echo (name);` for declared variables.
 - Ignoring comment text after `//`.
 
 ## Known limitations
 
 - No expression parsing.
 - No arithmetic or block syntax.
-- No variable evaluation or execution semantics.
 - No conditionals or loops.
-- `let` handling is still hardcoded and does not yet map tokens to real
-  variable definitions.
-- `output.ll` is generated from the parsed `let` and `echo` lines only.
+- `let` handling is still positional and assumes the current sample layout.
+- `echo` expects a previously declared variable name.
+- Unsupported lines fall through as unknown commands.
 
 ## Quick checks
 
@@ -49,8 +51,8 @@ gcc gasm.c -o a.exe
 .\a.exe
 ```
 
-The current `code.as` sample prints tokenized lines, then `let` / `echo`
-markers for matching statements, and creates `output.ll`.
+The current `code.as` sample prints the parsing stages, generates LLVM-like
+lines for `let` and `echo`, and creates `output.ll`.
 
 ## Examples
 
@@ -67,6 +69,6 @@ The `code.as` file contains the current demo program:
 
 - `gasm.c` - interpreter / tokenizer prototype
 - `code.as` - sample source file
-- `output.ll` - generated output file with parsed markers
+- `output.ll` - generated output file with LLVM-like lines
 - `compile.ps1` - legacy build script, not used by the current prototype
 - `LICENSE` - project license
