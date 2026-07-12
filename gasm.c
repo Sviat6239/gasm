@@ -3,12 +3,24 @@
 #include <string.h>
 #include <stdbool.h>
 
+/*
+ * Structure to hold tokenized line.
+ * tokens - array of strings (each token)
+ * token_count - number of tokens in the line
+ */
 typedef struct
 {
     char **tokens;
     int token_count;
 } Line;
 
+/*
+ * Represents a variable in our simple language.
+ * mutability - whether the variable can be changed (true = mutable)
+ * type       - data type (e.g. "int")
+ * name       - variable name
+ * value      - initial value as string
+ */
 typedef struct
 {
     bool mutability;
@@ -16,6 +28,13 @@ typedef struct
     char *name;
     char *value;
 } Variable;
+
+/*
+ * Structure to collect generated output code (LLVM IR in this case).
+ * lines    - array of code lines
+ * count    - current number of lines
+ * capacity - allocated capacity for dynamic growth
+ */
 typedef struct
 {
     char **lines;
@@ -23,6 +42,9 @@ typedef struct
     int capacity;
 } Output_Code;
 
+/*
+ * Initializes Output_Code structure with safe default values.
+ */
 void init_output_code(Output_Code *oc)
 {
     oc->lines = NULL;
@@ -30,9 +52,16 @@ void init_output_code(Output_Code *oc)
     oc->capacity = 0;
 }
 
+/*
+ * Parses a single line into tokens, handling:
+ * - quoted strings (preserves content inside "" and '')
+ * - parentheses as separate tokens
+ * - whitespace as delimiters
+ * - basic escape support for quotes
+ */
 void parse_line(const char *buffer, Line *line)
 {
-    char temp[1024];
+    char temp[1024]; // temporary buffer for building current token
     int temp_idx = 0;
     bool in_quotes = false;
     char quote_type = 0;
@@ -41,6 +70,7 @@ void parse_line(const char *buffer, Line *line)
     {
         char c = buffer[i];
 
+        // Handle quote characters (start/end of string literals)
         if ((c == '"' || c == '\'') && (i == 0 || buffer[i - 1] != '\\'))
         {
             if (!in_quotes)
@@ -57,6 +87,7 @@ void parse_line(const char *buffer, Line *line)
                 temp[temp_idx++] = c;
             }
         }
+        // Handle parentheses as separate tokens when outside quotes
         else if (!in_quotes && (c == '(' || c == ')'))
         {
             if (temp_idx > 0)
@@ -70,6 +101,7 @@ void parse_line(const char *buffer, Line *line)
             char bracket[2] = {c, '\0'};
             line->tokens[line->token_count++] = strdup(bracket);
         }
+        // Whitespace delimiters (outside quotes)
         else if (!in_quotes && (c == ' ' || c == '\t' || c == '\n' || c == '\r'))
         {
             if (temp_idx > 0)
@@ -86,6 +118,7 @@ void parse_line(const char *buffer, Line *line)
         }
     }
 
+    // Add the last token if any remains
     if (temp_idx > 0)
     {
         temp[temp_idx] = '\0';
@@ -94,6 +127,10 @@ void parse_line(const char *buffer, Line *line)
     }
 }
 
+/*
+ * Adds a new variable to the variables array.
+ * Dynamically resizes the array and duplicates strings.
+ */
 void add_variable(Variable **vars, int *count, bool mut, char *type, char *name, char *val)
 {
     *vars = realloc(*vars, (*count + 1) * sizeof(Variable));
@@ -107,6 +144,10 @@ void add_variable(Variable **vars, int *count, bool mut, char *type, char *name,
     (*count)++;
 }
 
+/*
+ * Adds a line of generated code to the output buffer.
+ * Automatically grows the buffer when needed.
+ */
 void add_line_to_code(Output_Code *oc, const char *text)
 {
     if (oc->count >= oc->capacity)
@@ -121,10 +162,11 @@ void add_line_to_code(Output_Code *oc, const char *text)
 
 int main()
 {
+    // Open the source file
     FILE *fptr = fopen("code.as", "r");
     if (!fptr)
     {
-        perror("Error");
+        perror("Error opening input file 'code.as'");
         return -1;
     }
 
@@ -138,20 +180,26 @@ int main()
     Variable *vars = NULL;
     int vars_count = 0;
 
-    // Read file and tokenize
+    // ==================== READING AND TOKENIZING PHASE ====================
+    printf("=== Reading and tokenizing code.as ===\n");
+
     while (fgets(buffer, sizeof(buffer), fptr))
     {
+        // Remove comments (everything after //)
         char *comment_ptr = strstr(buffer, "//");
         if (comment_ptr)
             *comment_ptr = '\0';
 
+        // Remove semicolon if present (simple statement terminator)
         char *semi = strchr(buffer, ';');
         if (semi)
             *semi = '\0';
 
+        // Skip empty lines
         if (strspn(buffer, " \t\n\r\f\v") == strlen(buffer))
             continue;
 
+        // Allocate new Line structure
         lines = realloc(lines, (line_count + 1) * sizeof(Line));
         lines[line_count].tokens = NULL;
         lines[line_count].token_count = 0;
@@ -160,7 +208,8 @@ int main()
         line_count++;
     }
 
-    // Output
+    // ==================== DEBUG: PRINT ALL TOKENS ====================
+    printf("\n=== Tokenized lines ===\n");
     for (int i = 0; i < line_count; i++)
     {
         printf("Line %d: ", i);
@@ -168,47 +217,41 @@ int main()
         {
             printf("[%s] ", lines[i].tokens[j]);
         }
-
         printf("\n");
     }
 
+    // ==================== CODE GENERATION PHASE ====================
+    printf("\n=== Generating output code ===\n");
+
     for (int i = 0; i < line_count; i++)
     {
+        if (lines[i].token_count == 0)
+            continue;
+
         if (strcmp(lines[i].tokens[0], "let") == 0)
         {
+            // Currently hardcoded - in real compiler this should parse actual tokens
             add_variable(&vars, &vars_count, true, "int", "counter", "0");
             add_line_to_code(&myCode, "there is the let");
-            printf("let");
+            printf("let\n");
         }
         else if (strcmp(lines[i].tokens[0], "echo") == 0)
         {
             add_line_to_code(&myCode, "there is the echo");
-            printf("echo");
+            printf("echo\n");
         }
         else
         {
+            printf("Unknown command: %s\n", lines[i].tokens[0]);
             continue;
         }
-
-        printf("\n");
     }
 
-    // Free memory
-    for (int i = 0; i < line_count; i++)
-    {
-        for (int j = 0; j < lines[i].token_count; j++)
-        {
-            free(lines[i].tokens[j]);
-        }
-        free(lines[i].tokens);
-    }
-    free(lines);
-    fclose(fptr);
-
+    // ==================== WRITE OUTPUT TO FILE ====================
     FILE *out_fptr = fopen("output.ll", "w");
     if (out_fptr == NULL)
     {
-        perror("Unable to create file:");
+        perror("Unable to create output file 'output.ll'");
         return -1;
     }
 
@@ -218,6 +261,22 @@ int main()
     }
 
     fclose(out_fptr);
+    printf("Output written to output.ll\n");
+
+    // ==================== CLEANUP PHASE ====================
+    // Free all allocated memory to prevent leaks
+    for (int i = 0; i < line_count; i++)
+    {
+        for (int j = 0; j < lines[i].token_count; j++)
+        {
+            free(lines[i].tokens[j]);
+        }
+        free(lines[i].tokens);
+    }
+    free(lines);
+
+    fclose(fptr);
+
     free(myCode.lines);
 
     for (int i = 0; i < vars_count; i++)
