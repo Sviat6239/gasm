@@ -333,13 +333,51 @@ int main()
 
 const char *map_to_llvm_type(const char *lang_type)
 {
+    if (strcmp(lang_type, "i8") == 0)
+        return "i8";
+    if (strcmp(lang_type, "i16") == 0)
+        return "i16";
     if (strcmp(lang_type, "i32") == 0)
         return "i32";
-    if (strcmp(lang_type, "f32") == 0)
-        return "float";
-    if (strcmp(lang_type, "f64") == 0)
-        return "double";
+    if (strcmp(lang_type, "i64") == 0)
+        return "i64";
+
+    if (strcmp(lang_type, "ui8") == 0)
+        return "i8";
+    if (strcmp(lang_type, "ui16") == 0)
+        return "i16";
+    if (strcmp(lang_type, "ui32") == 0)
+        return "i32";
+    if (strcmp(lang_type, "ui64") == 0)
+        return "i64";
+
+    if (strcmp(lang_type, "int8_t") == 0)
+        return "i8";
+    if (strcmp(lang_type, "int16_t") == 0)
+        return "i16";
+    if (strcmp(lang_type, "int32_t") == 0)
+        return "i32";
+    if (strcmp(lang_type, "int64_t") == 0)
+        return "i64";
+
+    if (strcmp(lang_type, "uint8_t") == 0)
+        return "i8";
+    if (strcmp(lang_type, "uint16_t") == 0)
+        return "i16";
+    if (strcmp(lang_type, "uint32_t") == 0)
+        return "i32";
+    if (strcmp(lang_type, "uint64_t") == 0)
+        return "i64";
+
+    if (strcmp(lang_type, "char") == 0)
+        return "i8";
     if (strcmp(lang_type, "str") == 0)
         return "i8*";
+
+    if (strcmp(lang_type, "f32") == 0 || strcmp(lang_type, "float") == 0)
+        return "float";
+    if (strcmp(lang_type, "f64") == 0 || strcmp(lang_type, "double") == 0)
+        return "double";
+
     return "i64";
 }
