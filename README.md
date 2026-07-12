@@ -6,7 +6,7 @@ tokens together with a few debug markers for `let` and `echo` lines.
 
 ## Version
 
-- `0.0.1` - initial working prototype with a single C interpreter in
+- `0.0.2` - initial working prototype with a single C interpreter in
   `gasm.c` and a sample program in `code.as`.
 
 ## Current status
@@ -16,6 +16,7 @@ tokens together with a few debug markers for `let` and `echo` lines.
 - Each non-empty line is split into tokens and printed as `Line N: ...`.
 - `let` lines are detected and logged as `let`.
 - `echo` lines are detected and logged as `echo`.
+- Parsed `let` and `echo` lines are also written to `output.ll`.
 
 ## What works now
 
@@ -37,6 +38,7 @@ tokens together with a few debug markers for `let` and `echo` lines.
 - No conditionals or loops.
 - `let` handling is still hardcoded and does not yet map tokens to real
   variable definitions.
+- `output.ll` is generated from the parsed `let` and `echo` lines only.
 
 ## Quick checks
 
@@ -48,7 +50,7 @@ gcc gasm.c -o a.exe
 ```
 
 The current `code.as` sample prints tokenized lines, then `let` / `echo`
-markers for matching statements.
+markers for matching statements, and creates `output.ll`.
 
 ## Examples
 
@@ -65,5 +67,6 @@ The `code.as` file contains the current demo program:
 
 - `gasm.c` - interpreter / tokenizer prototype
 - `code.as` - sample source file
+- `output.ll` - generated output file with parsed markers
 - `compile.ps1` - legacy build script, not used by the current prototype
 - `LICENSE` - project license
