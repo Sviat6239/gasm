@@ -6,31 +6,33 @@ tokens together with a few debug markers for `let` and `echo` lines.
 
 ## Version
 
-- `0.0.3` - initial working prototype with a single C interpreter in
-  `gasm.c` and a sample program in `code.as`.
+- `0.0.4` - current prototype with a single C interpreter in `gasm.c` and a
+  sample program in `code.as`.
 
 ## Current status
 
-- `gasm.c` reads `code.as` and processes it line by line.
-- Comments starting with `//` are removed before tokenization.
-- Semicolons are stripped before parsing.
-- Each non-empty line is split into tokens and printed as `Line N: ...`.
-- `let` lines generate simple LLVM IR with `alloca` and `store`.
-- `echo` lines generate LLVM IR with `load` and `printf`.
+- `gasm.c` reads `code.as` line by line, strips `//` comments, and removes
+  trailing semicolons before parsing.
+- Non-empty lines are tokenized and printed as `Line N: ...` for debugging.
+- `let` declarations generate LLVM IR with `alloca` and `store`.
+- `echo` reads a declared variable, emits `load`, and prints it with `printf`.
+- String values are stored as LLVM globals and printed through `@printf`.
 - Parsed `let` and `echo` lines are written to `output.ll`.
-- The program prints section headers for reading, tokenizing, and code generation.
-- Unknown commands are reported with `Unknown command: ...`.
+- Other lines are currently skipped during code generation.
+- The program prints section headers for reading, tokenizing, and code
+  generation.
 
 ## What works now
 
-- Parsing declaration-style lines such as:
-  `let mut i32 number = 54;`
-- Parsing immutable declarations:
-  `let umut f64 pi = 3.14;`
-- Supporting `i32`, `f32`, `f64`, and `str` types in the LLVM mapping.
-- Keeping quoted strings together as one token:
-  `let mut str msg = "Hello World";`
-- Handling `echo (name);` for declared variables.
+- Parsing declaration-style lines such as `let mut i32 number = 54;`.
+- Parsing immutable declarations such as `let umut f64 pi = 3.14;`.
+- Supporting integer aliases `i8`, `i16`, `i32`, `i64`, `ui8`, `ui16`,
+  `ui32`, `ui64`, `int8_t`, `int16_t`, `int32_t`, `int64_t`, `uint8_t`,
+  `uint16_t`, `uint32_t`, `uint64_t`, and `char`.
+- Supporting floating-point aliases `f32`, `float`, `f64`, and `double`.
+- Supporting string values with quoted text kept together as one token, for
+  example `let mut str msg = "Hello World";`.
+- Handling `echo (name);` for previously declared variables.
 - Ignoring comment text after `//`.
 
 ## Known limitations
@@ -38,9 +40,9 @@ tokens together with a few debug markers for `let` and `echo` lines.
 - No expression parsing.
 - No arithmetic or block syntax.
 - No conditionals or loops.
-- `let` handling is still positional and assumes the current sample layout.
+- `let` handling is positional and expects the current token layout.
+- Reassignment lines such as `number = number + 11;` are currently skipped.
 - `echo` expects a previously declared variable name.
-- Unsupported lines fall through as unknown commands.
 
 ## Quick checks
 
@@ -52,7 +54,8 @@ gcc gasm.c -o a.exe
 ```
 
 The current `code.as` sample prints the parsing stages, generates LLVM-like
-lines for `let` and `echo`, and creates `output.ll`.
+lines for `let` and `echo`, and creates `output.ll`. The sample also contains
+a reassignment-like line that is currently skipped.
 
 ## Examples
 
@@ -63,7 +66,7 @@ The `code.as` file contains the current demo program:
 - immutable float constant
 - string value
 - `echo (...)` statements
-- reassignment-like line
+- a reassignment-like line that is currently skipped
 
 ## Project layout
 
