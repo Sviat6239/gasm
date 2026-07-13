@@ -386,6 +386,33 @@ int main()
                 add_line_to_code(&myCode, buf);
             }
         }
+        else if (strcmp(lines[i].tokens[0], "mov") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "$") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "jne") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "je") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "jge") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "jg") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "jle") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "jl") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "cmp") == 0)
+        {
+        }
     }
 
     // ==================== WRITE OUTPUT TO FILE ====================
