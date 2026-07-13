@@ -470,6 +470,9 @@ int main()
         else if (strcmp(lines[i].tokens[0], "tetr") == 0)
         {
         }
+        else if (strcmp(lines[i].tokens[0], "if") == 0)
+        {
+        }
     }
 
     // ==================== WRITE OUTPUT TO FILE ====================
