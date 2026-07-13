@@ -473,6 +473,9 @@ int main()
         else if (strcmp(lines[i].tokens[0], "if") == 0)
         {
         }
+        else if (strcmp(lines[i].tokens[0], find_variable(vars, vars_count, lines[i].tokens[0])) == 0)
+        {
+        }
     }
 
     // ==================== WRITE OUTPUT TO FILE ====================
