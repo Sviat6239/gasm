@@ -255,6 +255,9 @@ int main()
     Variable *vars = NULL;
     int vars_count = 0;
 
+    // Flags
+    bool is_use_echo = false;
+
     // ==================== READING AND TOKENIZING PHASE ====================
     printf("=== Reading and tokenizing code.as ===\n");
 
@@ -341,6 +344,9 @@ int main()
         }
         else if (strcmp(lines[i].tokens[0], "echo") == 0)
         {
+
+            is_use_echo = true;
+
             char *name = lines[i].tokens[2];
             Variable *v = find_variable(vars, vars_count, name);
             if (!v)
