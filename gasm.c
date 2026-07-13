@@ -314,13 +314,15 @@ int main()
 
             const char *llvm_type = map_to_llvm_type(type);
             const char *storage_type = (strcmp(llvm_type, "float") == 0) ? "double" : llvm_type;
+            if (strcmp(type, "str") == 0)
+                storage_type = "i8*";
 
             Variable *existing = find_variable(vars, vars_count, name);
             char buf[256];
 
             if (existing == NULL)
             {
-                sprintf(buf, "  %%%s = alloca %s", name, (strcmp(type, "str") == 0) ? "i8*" : storage_type);
+                sprintf(buf, "  %%%s = alloca %s", name, storage_type);
                 add_line_to_code(&myCode, buf);
                 add_variable(&vars, &vars_count, true, type, name, val);
             }
@@ -329,7 +331,6 @@ int main()
             {
                 char str_label[32];
                 sprintf(str_label, "@.str.%d", myCode.str_count++);
-
                 add_global_string(&myCode, str_label, val);
 
                 sprintf(buf, "  store i8* getelementptr ([%zu x i8], [%zu x i8]* %s, i32 0, i32 0), i8** %%%s",

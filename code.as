@@ -1,10 +1,12 @@
 let mut i32 number = 54;
+let mut i64 another_number = 8192;
 let mut f32 float_num = 5.14;
 let umut f64 pi = 3.14;
 let mut str msg = "Hello World";
 // this is the comment!
 
 echo (number);
+echo (another_number);
 echo (float_num);
 echo (pi);
 echo (msg);
