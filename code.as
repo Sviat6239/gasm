@@ -12,3 +12,6 @@ echo (msg);
 // another comment.
 number = number + 11;
 echo (number);
+
+let num str greet = "Welcome, dear User!";
+echo (greet);

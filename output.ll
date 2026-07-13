@@ -6,6 +6,7 @@ declare i32 @printf(i8*, ...)
 @.str.s = private unnamed_addr constant [3 x i8] c"%s\00"
 
 @.str.0 = private unnamed_addr constant [12 x i8] c"Hello World\00"
+@.str.1 = private unnamed_addr constant [20 x i8] c"Welcome, dear User!\00"
 
 define i32 @main() {
   %number = alloca i32
@@ -27,5 +28,9 @@ define i32 @main() {
   call i32 (i8*, ...) @printf(i8* getelementptr ([3 x i8], [3 x i8]* @.str.s, i32 0, i32 0), i8* %tmp3)
   %tmp4 = load i32, i32* %number
   call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.d, i32 0, i32 0), i32 %tmp4)
+  %greet = alloca i8*
+  store i8* getelementptr ([20 x i8], [20 x i8]* @.str.1, i32 0, i32 0), i8** %greet
+  %tmp5 = load i8*, i8** %greet
+  call i32 (i8*, ...) @printf(i8* getelementptr ([3 x i8], [3 x i8]* @.str.s, i32 0, i32 0), i8* %tmp5)
   ret i32 0
 }
