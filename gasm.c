@@ -40,6 +40,13 @@ typedef struct
     char **lines;
     int count;
     int capacity;
+
+    char **globals;
+    int global_count;
+    int global_capacity;
+
+    int tmp_count;
+    int str_count;
 } Output_Code;
 
 /*
@@ -172,6 +179,55 @@ Variable *find_variable(Variable *vars, int count, const char *name)
     return NULL;
 }
 
+void add_global_line(Output_Code *oc, const char *line)
+{
+    if (oc->global_count >= oc->global_capacity)
+    {
+        oc->global_capacity = (oc->global_capacity == 0) ? 10 : oc->global_capacity * 2;
+        oc->globals = realloc(oc->globals, sizeof(char *) * oc->global_capacity);
+    }
+    oc->globals[oc->global_count++] = strdup(line);
+}
+
+void add_global_string(Output_Code *oc, const char *name, const char *value)
+{
+    char buf[512];
+    sprintf(buf, "%s = private unnamed_addr constant [%zu x i8] c\"%s\\00\"",
+            name, strlen(value) + 1, value);
+    add_global_line(oc, buf);
+}
+
+void write_output_to_file(Output_Code *oc, const char *filename)
+{
+    FILE *fp = fopen(filename, "w");
+    if (!fp)
+        return;
+
+    fprintf(fp, "target triple = \"aarch64-w64-windows-gnu\"\n\n");
+
+    fprintf(fp, "declare i32 @printf(i8*, ...)\n");
+    fprintf(fp, "@.str.d = private unnamed_addr constant [4 x i8] c\"%%d\\0A\\00\"\n");
+    fprintf(fp, "@.str.f = private unnamed_addr constant [4 x i8] c\"%%f\\0A\\00\"\n");
+    fprintf(fp, "@.str.s = private unnamed_addr constant [3 x i8] c\"%%s\\00\"\n\n");
+
+    for (int i = 0; i < oc->global_count; i++)
+    {
+        fprintf(fp, "%s\n", oc->globals[i]);
+    }
+
+    fprintf(fp, "\ndefine i32 @main() {\n");
+
+    for (int i = 0; i < oc->count; i++)
+    {
+        fprintf(fp, "%s\n", oc->lines[i]);
+    }
+
+    fprintf(fp, "  ret i32 0\n");
+    fprintf(fp, "}\n");
+
+    fclose(fp);
+}
+
 int main()
 {
     // Open the source file
@@ -187,7 +243,14 @@ int main()
     char buffer[1024];
 
     Output_Code myCode;
-    init_output_code(&myCode);
+    myCode.lines = NULL;
+    myCode.count = 0;
+    myCode.capacity = 0;
+    myCode.globals = NULL;
+    myCode.global_count = 0;
+    myCode.global_capacity = 0;
+    myCode.tmp_count = 0;
+    myCode.str_count = 0;
 
     Variable *vars = NULL;
     int vars_count = 0;
@@ -235,11 +298,6 @@ int main()
     // ==================== CODE GENERATION PHASE ====================
     printf("\n=== Generating output code ===\n");
 
-    add_line_to_code(&myCode, "declare i32 @printf(i8*, ...)");
-    add_line_to_code(&myCode, "@.str = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"");
-    add_line_to_code(&myCode, "");
-    add_line_to_code(&myCode, "define i32 @main() {");
-
     for (int i = 0; i < line_count; i++)
     {
         if (lines[i].token_count == 0)
@@ -251,65 +309,80 @@ int main()
             char *name = lines[i].tokens[3];
             char *val = lines[i].tokens[5];
 
-            char llvm_type[16];
-            if (strcmp(type, "i32") == 0)
-                strcpy(llvm_type, "i32");
-            else if (strcmp(type, "f32") == 0)
-                strcpy(llvm_type, "float");
-            else if (strcmp(type, "f64") == 0)
-                strcpy(llvm_type, "double");
-            else
-                strcpy(llvm_type, "i64");
+            const char *llvm_type = map_to_llvm_type(type);
+            const char *storage_type = (strcmp(llvm_type, "float") == 0) ? "double" : llvm_type;
 
-            add_variable(&vars, &vars_count, true, type, name, val);
-
+            Variable *existing = find_variable(vars, vars_count, name);
             char buf[256];
-            sprintf(buf, "%%%s = alloca %s", name, llvm_type);
-            add_line_to_code(&myCode, buf);
 
-            sprintf(buf, "store %s %s, %s* %%%s", llvm_type, val, llvm_type, name);
-            add_line_to_code(&myCode, buf);
+            if (existing == NULL)
+            {
+                sprintf(buf, "  %%%s = alloca %s", name, (strcmp(type, "str") == 0) ? "i8*" : storage_type);
+                add_line_to_code(&myCode, buf);
+                add_variable(&vars, &vars_count, true, type, name, val);
+            }
+
+            if (strcmp(type, "str") == 0)
+            {
+                char str_label[32];
+                sprintf(str_label, "@.str.%d", myCode.str_count++);
+
+                add_global_string(&myCode, str_label, val);
+
+                sprintf(buf, "  store i8* getelementptr ([%zu x i8], [%zu x i8]* %s, i32 0, i32 0), i8** %%%s",
+                        strlen(val) + 1, strlen(val) + 1, str_label, name);
+                add_line_to_code(&myCode, buf);
+            }
+            else
+            {
+                sprintf(buf, "  store %s %s, %s* %%%s", storage_type, val, storage_type, name);
+                add_line_to_code(&myCode, buf);
+            }
         }
         else if (strcmp(lines[i].tokens[0], "echo") == 0)
         {
             char *name = lines[i].tokens[2];
-
             Variable *v = find_variable(vars, vars_count, name);
+            if (!v)
+            {
+                printf("Error: Variable %s not found\n", name);
+                continue;
+            }
 
-            char llvm_type[16];
-            strcpy(llvm_type, map_to_llvm_type(v->type));
-
+            const char *l_type = map_to_llvm_type(v->type);
             char buf[256];
-            sprintf(buf, "%%tmp = load %s, %s* %%%s", llvm_type, llvm_type, name);
+            int id = myCode.tmp_count++;
+
+            sprintf(buf, "  %%tmp%d = load %s, %s* %%%s", id, l_type, l_type, name);
             add_line_to_code(&myCode, buf);
 
-            sprintf(buf, "call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), %s %%tmp)", llvm_type);
-            add_line_to_code(&myCode, buf);
-        }
-        else
-        {
-            printf("Unknown command: %s\n", lines[i].tokens[0]);
-            continue;
+            if (strcmp(v->type, "str") == 0)
+            {
+                sprintf(buf, "  call i32 (i8*, ...) @printf(i8* getelementptr ([3 x i8], [3 x i8]* @.str.s, i32 0, i32 0), i8* %%tmp%d)", id);
+                add_line_to_code(&myCode, buf);
+            }
+            else if (strcmp(l_type, "float") == 0)
+            {
+                sprintf(buf, "  %%ext%d = fpext float %%tmp%d to double", id, id);
+                add_line_to_code(&myCode, buf);
+                sprintf(buf, "  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.f, i32 0, i32 0), double %%ext%d)", id);
+                add_line_to_code(&myCode, buf);
+            }
+            else if (strcmp(l_type, "double") == 0)
+            {
+                sprintf(buf, "  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.f, i32 0, i32 0), double %%tmp%d)", id);
+                add_line_to_code(&myCode, buf);
+            }
+            else
+            {
+                sprintf(buf, "  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.d, i32 0, i32 0), %s %%tmp%d)", l_type, id);
+                add_line_to_code(&myCode, buf);
+            }
         }
     }
-
-    add_line_to_code(&myCode, "  ret i32 0");
-    add_line_to_code(&myCode, "}");
 
     // ==================== WRITE OUTPUT TO FILE ====================
-    FILE *out_fptr = fopen("output.ll", "w");
-    if (out_fptr == NULL)
-    {
-        perror("Unable to create output file 'output.ll'");
-        return -1;
-    }
-
-    for (int i = 0; i < myCode.count; i++)
-    {
-        fprintf(out_fptr, "%s\n", myCode.lines[i]);
-    }
-
-    fclose(out_fptr);
+    write_output_to_file(&myCode, "output.ll");
     printf("Output written to output.ll\n");
 
     // ==================== CLEANUP PHASE ====================
