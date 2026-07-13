@@ -1,24 +1,25 @@
 # GASM - Experimental C Prototype
 
 GASM is a small C prototype for a toy assembly-like language. It reads
-`code.as`, tokenizes each line, strips `//` comments, and prints the parsed
-tokens together with a few debug markers for `let` and `echo` lines.
+`code.as`, strips `//` comments, tokenizes each line, and generates a simple
+LLVM-like `output.ll` file for supported `let` and `echo` statements.
 
 ## Version
 
-- `0.0.4` - current prototype with a single C interpreter in `gasm.c` and a
-  sample program in `code.as`.
+- `0.0.5` - current prototype with a single C interpreter in `gasm.c`, LLVM
+  IR generation, and a sample program in `code.as`.
 
 ## Current status
 
-- `gasm.c` reads `code.as` line by line, strips `//` comments, and removes
-  trailing semicolons before parsing.
+- `gasm.c` reads `code.as` line by line, strips `//` comments, removes
+  trailing semicolons, and skips empty lines.
 - Non-empty lines are tokenized and printed as `Line N: ...` for debugging.
 - `let` declarations generate LLVM IR with `alloca` and `store`.
 - `echo` reads a declared variable, emits `load`, and prints it with `printf`.
 - String values are stored as LLVM globals and printed through `@printf`.
 - Parsed `let` and `echo` lines are written to `output.ll`.
-- Other lines are currently skipped during code generation.
+- Other language keywords are recognized in the parser, but their code paths
+  are still empty.
 - The program prints section headers for reading, tokenizing, and code
   generation.
 
@@ -34,6 +35,7 @@ tokens together with a few debug markers for `let` and `echo` lines.
   example `let mut str msg = "Hello World";`.
 - Handling `echo (name);` for previously declared variables.
 - Ignoring comment text after `//`.
+- Preserving quoted strings while tokenizing, including spaces inside them.
 
 ## Known limitations
 
@@ -43,6 +45,8 @@ tokens together with a few debug markers for `let` and `echo` lines.
 - `let` handling is positional and expects the current token layout.
 - Reassignment lines such as `number = number + 11;` are currently skipped.
 - `echo` expects a previously declared variable name.
+- Most instruction keywords like `mov`, `add`, `sub`, and `cmp` are parsed
+  but not yet implemented.
 
 ## Quick checks
 
@@ -67,6 +71,7 @@ The `code.as` file contains the current demo program:
 - string value
 - `echo (...)` statements
 - a reassignment-like line that is currently skipped
+- a second string declaration near the end of the file
 
 ## Project layout
 
