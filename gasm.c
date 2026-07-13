@@ -413,6 +413,63 @@ int main()
         else if (strcmp(lines[i].tokens[0], "cmp") == 0)
         {
         }
+        else if (strcmp(lines[i].tokens[0], "add") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "sub") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "mul") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "div") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "sqr") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "root") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "pow") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "log") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "log10") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "sin") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "cos") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "tg") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "cotg") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "arc_sin") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "arc_cos") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "arc_tg") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "arc_ctg") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "fact") == 0)
+        {
+        }
+        else if (strcmp(lines[i].tokens[0], "tetr") == 0)
+        {
+        }
     }
 
     // ==================== WRITE OUTPUT TO FILE ====================
