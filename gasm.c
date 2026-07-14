@@ -306,6 +306,8 @@ int main()
         if (lines[i].token_count == 0)
             continue;
 
+        Variable *found_var = find_variable(vars, vars_count, lines[i].tokens[0]);
+
         if (strcmp(lines[i].tokens[0], "let") == 0)
         {
             char *type = lines[i].tokens[2];
@@ -473,8 +475,13 @@ int main()
         else if (strcmp(lines[i].tokens[0], "if") == 0)
         {
         }
-        else if (strcmp(lines[i].tokens[0], find_variable(vars, vars_count, lines[i].tokens[0])) == 0)
+        else if (found_var != NULL)
         {
+            printf("Found variable: %s, %d, %s, %s\n", found_var->name, found_var->mutability, found_var->type, found_var->value);
+        }
+        else
+        {
+            printf("Error: Unknown command or variable '%s'\n", lines[i].tokens[0]);
         }
     }
 
