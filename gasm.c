@@ -306,6 +306,8 @@ int main()
         if (lines[i].token_count == 0)
             continue;
 
+        int j; // token position in a line
+
         Variable *found_var = find_variable(vars, vars_count, lines[i].tokens[0]);
 
         if (strcmp(lines[i].tokens[0], "let") == 0)
@@ -478,6 +480,16 @@ int main()
         else if (found_var != NULL)
         {
             printf("Found variable: %s, %d, %s, %s\n", found_var->name, found_var->mutability, found_var->type, found_var->value);
+            Variable *found_var = find_variable(vars, vars_count, lines[i].tokens[2]);
+
+            for (int pos; pos < lines[i])
+            {
+            }
+
+            if (found_var != NULL && strcmp(lines[i].tokens[1], "=") == 0)
+            {
+                printf("Found variable: %s, %d, %s, %s\n", found_var->name, found_var->mutability, found_var->type, found_var->value);
+            }
         }
         else
         {
