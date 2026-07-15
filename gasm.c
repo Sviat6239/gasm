@@ -197,6 +197,46 @@ void add_global_string(Output_Code *oc, const char *name, const char *value)
     add_global_line(oc, buf);
 }
 
+void emit_echo(Output_Code *oc, Variable *vars, int vars_count, const char *name)
+{
+    Variable *v = find_variable(vars, vars_count, name);
+    if (!v)
+    {
+        printf("Error: Variable %s not found\n", name);
+        return;
+    }
+
+    const char *l_type = map_to_llvm_type(v->type);
+    char buf[256];
+    int id = oc->tmp_count++;
+
+    sprintf(buf, "  %%tmp%d = load %s, %s* %%%s", id, l_type, l_type, name);
+    add_line_to_code(oc, buf);
+
+    if (strcmp(v->type, "str") == 0)
+    {
+        sprintf(buf, "  call i32 (i8*, ...) @printf(i8* getelementptr ([3 x i8], [3 x i8]* @.str.s, i32 0, i32 0), i8* %%tmp%d)", id);
+        add_line_to_code(oc, buf);
+    }
+    else if (strcmp(l_type, "float") == 0)
+    {
+        sprintf(buf, "  %%ext%d = fpext float %%tmp%d to double", id, id);
+        add_line_to_code(oc, buf);
+        sprintf(buf, "  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.f, i32 0, i32 0), double %%ext%d)", id);
+        add_line_to_code(oc, buf);
+    }
+    else if (strcmp(l_type, "double") == 0)
+    {
+        sprintf(buf, "  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.f, i32 0, i32 0), double %%tmp%d)", id);
+        add_line_to_code(oc, buf);
+    }
+    else
+    {
+        sprintf(buf, "  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.d, i32 0, i32 0), %s %%tmp%d)", l_type, id);
+        add_line_to_code(oc, buf);
+    }
+}
+
 void write_output_to_file(Output_Code *oc, const char *filename)
 {
     FILE *fp = fopen(filename, "w");
@@ -301,12 +341,12 @@ int main()
     // ==================== CODE GENERATION PHASE ====================
     printf("\n=== Generating output code ===\n");
 
+    int if_label_count = 0;
+
     for (int i = 0; i < line_count; i++)
     {
         if (lines[i].token_count == 0)
             continue;
-
-        int j; // token position in a line
 
         Variable *found_var = find_variable(vars, vars_count, lines[i].tokens[0]);
 
@@ -349,46 +389,8 @@ int main()
         }
         else if (strcmp(lines[i].tokens[0], "echo") == 0)
         {
-
             is_use_echo = true;
-
-            char *name = lines[i].tokens[2];
-            Variable *v = find_variable(vars, vars_count, name);
-            if (!v)
-            {
-                printf("Error: Variable %s not found\n", name);
-                continue;
-            }
-
-            const char *l_type = map_to_llvm_type(v->type);
-            char buf[256];
-            int id = myCode.tmp_count++;
-
-            sprintf(buf, "  %%tmp%d = load %s, %s* %%%s", id, l_type, l_type, name);
-            add_line_to_code(&myCode, buf);
-
-            if (strcmp(v->type, "str") == 0)
-            {
-                sprintf(buf, "  call i32 (i8*, ...) @printf(i8* getelementptr ([3 x i8], [3 x i8]* @.str.s, i32 0, i32 0), i8* %%tmp%d)", id);
-                add_line_to_code(&myCode, buf);
-            }
-            else if (strcmp(l_type, "float") == 0)
-            {
-                sprintf(buf, "  %%ext%d = fpext float %%tmp%d to double", id, id);
-                add_line_to_code(&myCode, buf);
-                sprintf(buf, "  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.f, i32 0, i32 0), double %%ext%d)", id);
-                add_line_to_code(&myCode, buf);
-            }
-            else if (strcmp(l_type, "double") == 0)
-            {
-                sprintf(buf, "  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.f, i32 0, i32 0), double %%tmp%d)", id);
-                add_line_to_code(&myCode, buf);
-            }
-            else
-            {
-                sprintf(buf, "  call i32 (i8*, ...) @printf(i8* getelementptr ([4 x i8], [4 x i8]* @.str.d, i32 0, i32 0), %s %%tmp%d)", l_type, id);
-                add_line_to_code(&myCode, buf);
-            }
+            emit_echo(&myCode, vars, vars_count, lines[i].tokens[2]);
         }
         else if (strcmp(lines[i].tokens[0], "mov") == 0)
         {
@@ -476,19 +478,176 @@ int main()
         }
         else if (strcmp(lines[i].tokens[0], "if") == 0)
         {
+            if (lines[i].token_count < 6)
+            {
+                printf("Error: malformed if condition\n");
+                continue;
+            }
+
+            int true_start = i + 1;
+            int true_end = true_start;
+            while (true_end < line_count)
+            {
+                if (lines[true_end].token_count > 0 && strcmp(lines[true_end].tokens[0], "}") == 0)
+                    break;
+                true_end++;
+            }
+
+            if (true_end >= line_count)
+            {
+                printf("Error: missing closing brace for if block\n");
+                continue;
+            }
+
+            bool has_else = false;
+            int else_start = -1;
+            int else_end = -1;
+
+            if (lines[true_end].token_count >= 2 &&
+                strcmp(lines[true_end].tokens[0], "}") == 0 &&
+                strcmp(lines[true_end].tokens[1], "else") == 0)
+            {
+                has_else = true;
+                else_start = true_end + 1;
+            }
+            else if (true_end + 1 < line_count && lines[true_end + 1].token_count > 0 &&
+                     strcmp(lines[true_end + 1].tokens[0], "else") == 0)
+            {
+                has_else = true;
+                else_start = true_end + 2;
+            }
+
+            if (has_else)
+            {
+                else_end = else_start;
+                while (else_end < line_count)
+                {
+                    if (lines[else_end].token_count > 0 && strcmp(lines[else_end].tokens[0], "}") == 0)
+                        break;
+                    else_end++;
+                }
+
+                if (else_end >= line_count)
+                {
+                    printf("Error: missing closing brace for else block\n");
+                    continue;
+                }
+            }
+
+            char *left_name = lines[i].tokens[2];
+            char *op = lines[i].tokens[3];
+            char *right_name = lines[i].tokens[4];
+
+            Variable *left_var = find_variable(vars, vars_count, left_name);
+            Variable *right_var = find_variable(vars, vars_count, right_name);
+
+            if (!left_var || !right_var)
+            {
+                printf("Error: unknown variable in if condition\n");
+                continue;
+            }
+
+            const char *left_type = map_to_llvm_type(left_var->type);
+            const char *right_type = map_to_llvm_type(right_var->type);
+
+            if (strcmp(left_type, right_type) != 0 || strcmp(left_type, "i8*") == 0 || strcmp(left_type, "float") == 0 || strcmp(left_type, "double") == 0)
+            {
+                printf("Error: currently if supports only integer variables with same type\n");
+                continue;
+            }
+
+            const char *icmp_op = NULL;
+            if (strcmp(op, "==") == 0)
+                icmp_op = "eq";
+            else if (strcmp(op, "!=") == 0)
+                icmp_op = "ne";
+            else if (strcmp(op, ">") == 0)
+                icmp_op = "sgt";
+            else if (strcmp(op, ">=") == 0)
+                icmp_op = "sge";
+            else if (strcmp(op, "<") == 0)
+                icmp_op = "slt";
+            else if (strcmp(op, "<=") == 0)
+                icmp_op = "sle";
+
+            if (!icmp_op)
+            {
+                printf("Error: unsupported if operator %s\n", op);
+                continue;
+            }
+
+            int label_id = if_label_count++;
+            int lhs_id = myCode.tmp_count++;
+            int rhs_id = myCode.tmp_count++;
+            int cmp_id = myCode.tmp_count++;
+            char buf[256];
+
+            sprintf(buf, "  %%tmp%d = load %s, %s* %%%s", lhs_id, left_type, left_type, left_name);
+            add_line_to_code(&myCode, buf);
+            sprintf(buf, "  %%tmp%d = load %s, %s* %%%s", rhs_id, right_type, right_type, right_name);
+            add_line_to_code(&myCode, buf);
+            sprintf(buf, "  %%cmp%d = icmp %s %s %%tmp%d, %%tmp%d", cmp_id, icmp_op, left_type, lhs_id, rhs_id);
+            add_line_to_code(&myCode, buf);
+
+            if (has_else)
+                sprintf(buf, "  br i1 %%cmp%d, label %%if_true_%d, label %%if_false_%d", cmp_id, label_id, label_id);
+            else
+                sprintf(buf, "  br i1 %%cmp%d, label %%if_true_%d, label %%if_end_%d", cmp_id, label_id, label_id);
+            add_line_to_code(&myCode, buf);
+
+            sprintf(buf, "if_true_%d:", label_id);
+            add_line_to_code(&myCode, buf);
+
+            for (int k = true_start; k < true_end; k++)
+            {
+                if (lines[k].token_count == 0 || strcmp(lines[k].tokens[0], "{") == 0)
+                    continue;
+
+                if (strcmp(lines[k].tokens[0], "echo") == 0)
+                    emit_echo(&myCode, vars, vars_count, lines[k].tokens[2]);
+                else
+                    printf("Warning: unsupported statement inside if block: %s\n", lines[k].tokens[0]);
+            }
+
+            sprintf(buf, "  br label %%if_end_%d", label_id);
+            add_line_to_code(&myCode, buf);
+
+            if (has_else)
+            {
+                sprintf(buf, "if_false_%d:", label_id);
+                add_line_to_code(&myCode, buf);
+
+                for (int k = else_start; k < else_end; k++)
+                {
+                    if (lines[k].token_count == 0 || strcmp(lines[k].tokens[0], "{") == 0)
+                        continue;
+
+                    if (strcmp(lines[k].tokens[0], "echo") == 0)
+                        emit_echo(&myCode, vars, vars_count, lines[k].tokens[2]);
+                    else
+                        printf("Warning: unsupported statement inside else block: %s\n", lines[k].tokens[0]);
+                }
+
+                sprintf(buf, "  br label %%if_end_%d", label_id);
+                add_line_to_code(&myCode, buf);
+            }
+
+            sprintf(buf, "if_end_%d:", label_id);
+            add_line_to_code(&myCode, buf);
+
+            i = has_else ? else_end : true_end;
+        }
+        else if (strcmp(lines[i].tokens[0], "else") == 0 || strcmp(lines[i].tokens[0], "{") == 0 || strcmp(lines[i].tokens[0], "}") == 0)
+        {
         }
         else if (found_var != NULL)
         {
             printf("Found variable: %s, %d, %s, %s\n", found_var->name, found_var->mutability, found_var->type, found_var->value);
-            Variable *found_var = find_variable(vars, vars_count, lines[i].tokens[2]);
+            Variable *assigned_var = find_variable(vars, vars_count, lines[i].tokens[2]);
 
-            for (int pos; pos < lines[i])
+            if (assigned_var != NULL && lines[i].token_count > 2 && strcmp(lines[i].tokens[1], "=") == 0)
             {
-            }
-
-            if (found_var != NULL && strcmp(lines[i].tokens[1], "=") == 0)
-            {
-                printf("Found variable: %s, %d, %s, %s\n", found_var->name, found_var->mutability, found_var->type, found_var->value);
+                printf("Found variable: %s, %d, %s, %s\n", assigned_var->name, assigned_var->mutability, assigned_var->type, assigned_var->value);
             }
         }
         else
