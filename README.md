@@ -1,82 +1,66 @@
-# GASM - Experimental C Prototype
+# GASM
 
-GASM is a small C prototype for a toy assembly-like language. It reads
-`code.as`, strips `//` comments, tokenizes each line, and generates a simple
-LLVM-like `output.ll` file for supported `let` and `echo` statements.
+GASM is a toy assembly-like language prototype written in C. The current
+repository contains an experimental frontend lexer/parser and a set of sample
+`.as` sources used to exercise the language shape.
 
 ## Version
 
-- `0.0.5` - current prototype with a single C interpreter in `gasm.c`, LLVM
-  IR generation, and a sample program in `code.as`.
+- `0.1.0`
 
-## Current status
+## Current State
 
-- `gasm.c` reads `code.as` line by line, strips `//` comments, removes
-  trailing semicolons, and skips empty lines.
-- Non-empty lines are tokenized and printed as `Line N: ...` for debugging.
-- `let` declarations generate LLVM IR with `alloca` and `store`.
-- `echo` reads a declared variable, emits `load`, and prints it with `printf`.
-- String values are stored as LLVM globals and printed through `@printf`.
-- Parsed `let` and `echo` lines are written to `output.ll`.
-- Other language keywords are recognized in the parser, but their code paths
-  are still empty.
-- The program prints section headers for reading, tokenizing, and code
-  generation.
+- `frontend/lexer.c` and `frontend/lexer.h` define token kinds for keywords,
+  operators, identifiers, numeric literals, string literals, mutability, and a
+  set of primitive type names.
+- `frontend/parser.c` and `frontend/parser.h` define AST node types and parser
+  entry points for declarations, `echo`, identifiers, literals, and basic
+  binary expressions.
+- `code.as` contains a sample program that uses explicit mutability and data
+  types in `let` declarations.
+- `gamma/` contains additional `.as` examples.
+- `include/` contains platform-specific `.ll` snippets.
+- `legacy/` is an older implementation and is intentionally not described
+  here.
 
-## What works now
+## Language Surface
 
-- Parsing declaration-style lines such as `let mut i32 number = 54;`.
-- Parsing immutable declarations such as `let umut f64 pi = 3.14;`.
-- Supporting integer aliases `i8`, `i16`, `i32`, `i64`, `ui8`, `ui16`,
-  `ui32`, `ui64`, `int8_t`, `int16_t`, `int32_t`, `int64_t`, `uint8_t`,
-  `uint16_t`, `uint32_t`, `uint64_t`, and `char`.
-- Supporting floating-point aliases `f32`, `float`, `f64`, and `double`.
-- Supporting string values with quoted text kept together as one token, for
-  example `let mut str msg = "Hello World";`.
-- Handling `echo (name);` for previously declared variables.
-- Ignoring comment text after `//`.
-- Preserving quoted strings while tokenizing, including spaces inside them.
+The current lexer recognizes:
 
-## Known limitations
+- `let`, `echo`
+- `mut`, `umut`
+- primitive type names such as `i64`, `i32`, `i16`, `i8`, `ui64`, `ui32`,
+  `ui16`, `ui8`, `f64`, `f32`, `str`, and `char`
+- identifiers
+- integer and floating-point literals
+- string literals
+- arithmetic and grouping tokens such as `+`, `-`, `*`, `/`, `(`, `)`
 
-- No expression parsing.
-- No arithmetic or block syntax.
-- No conditionals or loops.
-- `let` handling is positional and expects the current token layout.
-- Reassignment lines such as `number = number + 11;` are currently skipped.
-- `echo` expects a previously declared variable name.
-- Most instruction keywords like `mov`, `add`, `sub`, and `cmp` are parsed
-  but not yet implemented.
+The parser is structured to build AST nodes for:
 
-## Quick checks
-
-Compile and run the prototype against the bundled sample:
-
-```bash
-gcc gasm.c -o a.exe
-.\a.exe
-```
-
-The current `code.as` sample prints the parsing stages, generates LLVM-like
-lines for `let` and `echo`, and creates `output.ll`. The sample also contains
-a reassignment-like line that is currently skipped.
+- program blocks
+- numeric and string values
+- variable references
+- `let` assignments with explicit mutability and type metadata
+- `echo` statements
+- binary expressions
 
 ## Examples
 
-The `code.as` file contains the current demo program:
+The bundled `code.as` sample demonstrates declarations like:
 
-- mutable integer value
-- mutable float value
-- immutable float constant
-- string value
-- `echo (...)` statements
-- a reassignment-like line that is currently skipped
-- a second string declaration near the end of the file
+```text
+let mut i32 number = 54;
+let umut f64 pi = 3.14;
+let mut str msg = "Hello World";
+echo (number);
+```
 
-## Project layout
+## Repository Layout
 
-- `gasm.c` - interpreter / tokenizer prototype
-- `code.as` - sample source file
-- `output.ll` - generated output file with LLVM-like lines
-- `compile.ps1` - legacy build script, not used by the current prototype
-- `LICENSE` - project license
+- `code.as` - main sample source file
+- `gamma/` - additional example programs
+- `frontend/` - lexer and parser prototype
+- `include/` - platform-specific `.ll` include snippets
+- `output.ll` - generated LLVM-like output sample
+- `README.md` - project overview
