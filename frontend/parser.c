@@ -75,3 +75,13 @@ ASTNode* parse_statement(TokenList* tokens, init pos){
     }
   
 } 
+
+ASTNode* parse_expression(TokenList* tokens, int* pos){
+    Token current = tokens->tokens[*pos];
+    ASTNode* left = NULL;
+
+    if (current.type == TOKEN_INT){
+        left = create_node(AST_number, current.value, NULL, NULL, NULL);
+        (*pos)++;
+    }
+}
