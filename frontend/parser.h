@@ -1,5 +1,5 @@
-#ifdef PARSER_H
-#endif PARSER_H
+#ifndef PARSER_H
+#define PARSER_H
 
 #include "lexer.h"
 
@@ -15,14 +15,12 @@ typedef enum {
     AST_ASSIGN
 } ASTNodeType;
 
-/*
- * AST node structure
- * Represents one node in the abstract syntax tree
- */
-typedef struct ASTNode{
+typedef struct ASTNode {
     ASTNodeType type;
     int value;
     char name[64];
+    const char* data_type;
+    int mutability;
     struct ASTNode* left;
     struct ASTNode* right;
 } ASTNode;
@@ -36,6 +34,7 @@ typedef struct ASTNode{
  */
 ASTNode* parse(TokenList* tokens);
 
-void print_asr(ASTNode* node, int indent);
+ASTNode* parse_statement(TokenList* tokens, int* pos);
+ASTNode* parse_expression(TokenList* tokens, int* pos);
 
 #endif

@@ -3,36 +3,52 @@
 #include <string.h>
 #include "parser.h"
 
-ASTNode* create_node(ASTNodeType type, int value, const char* name, ASTNode* left, ASTNode* right){
+ASTNode* create_node(ASTNodeType type, int value, const char* name, const char* data_type, int mutability, ASTNode* left, ASTNode* right) {
     ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
     node->type = type;
     node->value = value;
-    if (name != NULL){
+    node->data_type = data_type;
+    node->mutability = mutability;
+    
+    if (name != NULL) {
         strncpy(node->name, name, 63);
         node->name[63] = '\0';
     } else {
         node->name[0] = '\0';
-    } else {
-        node->name[0] = '\0';
     }
+    
     node->left = left;
     node->right = right;
     return node;
 }
 
-ASTNode* parse_expression(TokenList* tokens, int pos);
-
-ASTNode* parse_statement(TokenList* tokens, init pos){
+ASTNode* parse_statement(TokenList* tokens, int* pos) {
     Token current = tokens->tokens[*pos];
 
-    if (current.type == TOKEN_LET){
-        (*pos)++
-        (*pos)++
-        (*pos)++
+    if (current.type == TOKEN_LET) {
+        (*pos)++;
+
+        int mutability = 0;
+        if (tokens->tokens[*pos].type == TOKEN_MUT || tokens->tokens[*pos].type == TOKEN_UMUT) {
+            mutability = (tokens->tokens[*pos].type == TOKEN_MUT) ? 1 : 0;
+            (*pos)++;
+        }
+
+        const char* d_type = "i32";
+        TokenType t_type = tokens->tokens[*pos].type;
+        if (t_type >= TOKEN_I64 && t_type <= TOKEN_F32) {
+            d_type = tokens->tokens[*pos].data_type;
+            (*pos)++;
+        }
+
+        if (tokens->tokens[*pos].type != TOKEN_IDENTIFIER) {
+            printf("Syntax error: expected identifier at pos=%d\n", *pos);
+            exit(1);
+        }
         Token var = tokens->tokens[*pos];
         (*pos)++;
 
-        if (tokens->tokens[*pos].type != TOKEN_EQUAL){
+        if (tokens->tokens[*pos].type != TOKEN_EQUAL) {
             printf("Syntax error: expected '=' at pos=%d\n", *pos);
             exit(1);
         }
@@ -40,48 +56,52 @@ ASTNode* parse_statement(TokenList* tokens, init pos){
 
         ASTNode* expr = parse_expression(tokens, pos);
 
-        if (tokens->tokens[*pos].type != TOKEN_SEMICOLON){
-            printf("Syntax error: expected ';' at pos=%d\n", *pos);
-        }
-        (*pos)++;
-
-        return create_node(AST_ASSIGN, 0, var.name, expr, NULL);
-    } else if (current.type == TOKEN_ECHO){
-        (*pos)++;
-
-        ASTNode* expr = parse_expression(tokens, pos);
-
-        if (tokens->tokens[*pos].type != TOKEN_SEMICOLON){
+        if (tokens->tokens[*pos].type != TOKEN_SEMICOLON) {
             printf("Syntax error: expected ';' at pos=%d\n", *pos);
             exit(1);
         }
         (*pos)++;
 
-        return create_node(AST_ECHO, 0, NULL, expr, NULL);
-
-    } else if (current.type == TOKEN_LPAREN) {
+        return create_node(AST_ASSIGN, 0, var.name, d_type, mutability, expr, NULL);
+    } 
+    
+    else if (current.type == TOKEN_ECHO) {
         (*pos)++;
         ASTNode* expr = parse_expression(tokens, pos);
-        if (tokens->tokens[*pos].type != TOKEN_RPAREN){
-            printf("Syntax error: expected ')', at pos=%d\n", *pos);
+
+        if (tokens->tokens[*pos].type != TOKEN_SEMICOLON) {
+            printf("Syntax error: expected ';' at pos=%d\n", *pos);
+            exit(1);
+        }
+        (*pos)++;
+        return create_node(AST_ECHO, 0, NULL, NULL, 0, expr, NULL);
+    } 
+    
+    else if (current.type == TOKEN_LPAREN) {
+        (*pos)++;
+        ASTNode* expr = parse_expression(tokens, pos);
+        if (tokens->tokens[*pos].type != TOKEN_RPAREN) {
+            printf("Syntax error: expected ')' at pos=%d\n", *pos);
             exit(1);
         }
         (*pos)++;
         return expr;
-    } else {
+    } 
+    
+    else {
         ASTNode* expr = parse_expression(tokens, pos);
-        if (tokens->[*pos].type == TOKEN_SEMICOLON) (*pos)++;
+        if (tokens->tokens[*pos].type == TOKEN_SEMICOLON) (*pos)++;
         return expr;
     }
-  
-} 
+}
 
-ASTNode* parse_expression(TokenList* tokens, int* pos){
+ASTNode* parse_expression(TokenList* tokens, int* pos) {
     Token current = tokens->tokens[*pos];
     ASTNode* left = NULL;
 
-    if (current.type == TOKEN_INT){
-        left = create_node(AST_number, current.value, NULL, NULL, NULL);
+    if (current.type == TOKEN_INT) {
+        left = create_node(AST_NUMBER, current.value, NULL, current.data_type, 0, NULL, NULL);
         (*pos)++;
     }
+    return left;
 }

@@ -1,11 +1,7 @@
 #ifndef LEXER_H
-#endif LEXER_H
+#define LEXER_H
 
-/*
- * Token types for the GASM
- * Each token represents a meaningful element of the source code
- */
-typedef enum{
+typedef enum {
     TOKEN_INT,
     TOKEN_ECHO,
     TOKEN_PLUS,
@@ -35,14 +31,12 @@ typedef enum{
     TOKEN_IDENTIFIER
 } TokenType;
 
-/*
- * Token structure
- * Holds type and value or name (depending on token)
- */
-typedef struct{
+typedef struct {
     TokenType type;
     int value;
     char name[64];
+    const char *data_type;
+    int mutability;
 } Token;
 
 /*
