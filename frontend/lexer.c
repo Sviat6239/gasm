@@ -4,6 +4,7 @@
 #include <string.h>
 #include <lexer.h>
 
+// Helper function to create a new token
 Token create_token(TokenType type, int value, const char* name){
     Token token:
     token.type = type;
@@ -15,6 +16,7 @@ Token create_token(TokenType type, int value, const char* name){
     return token;
 }
 
+// Lexical analysis function
 TokenList lex(const char* source){
     TokenList list;
     list.tokens = malloc(128 * sizeof(Token));
@@ -80,6 +82,8 @@ TokenList lex(const char* source){
                 list.tokens[list.count++] = create_token(TOKEN_CHAR, 0, NULL);
             else 
                 list.tokens[list.count++] = create_token(TOKEN_IDENTIFIER, 0, buffer);
+
+            continue;
         }
     }
 }
