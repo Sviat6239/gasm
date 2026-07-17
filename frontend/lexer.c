@@ -100,6 +100,38 @@ TokenList lex(const char* source){
                 exit(1);
         }
         i++;
-        
+    }
+    list.tokens[list.count++] = create_token(TOKEN_EOF, 0, NULL);
+    return list;
+}
+
+void print_tokens(TokenList* list){
+    for (int i = 0; i < list->count; i++){
+        Token t = list->tokens[i];
+        switch (t.type){
+            case TOKEN_CHAR: printf("CHAR\n"); break;
+            case TOKEN_DIV: printf("DIV\n"); break;
+            case TOKEN_ECHO: printf("ECHO\n"); break;
+            case TOKEN_EOF: printf("EOF\n"); break;
+            case TOKEN_EQUAL: printf("EQUAL\n"); break;
+            case TOKEN_I16: printf("I16\n"); break;
+            case TOKEN_I32: printf("I32\n"); break;
+            case TOKEN_I64: printf("I64\n"); break;
+            case TOKEN_I8: printf("I8\n"); break;
+            case TOKEN_IDENTIFIER: printf("IDENT(%s)\n", t.name); break;
+            case TOKEN_INT: printf("NUMBER(%d)\n", t.value); break;
+            case TOKEN_LET: printf("LET\n"); break;
+            case TOKEN_MINUS: printf("MINUS\n"); break;
+            case TOKEN_MULT: printf("MULT\n"); break;
+            case TOKEN_MUT: printf("MUT\n"); break;
+            case TOKEN_PLUS: printf("PLUS\n"); break;
+            case TOKEN_SEMICOLON: printf("SEMI\n"); break;
+            case TOKEN_STR: printf("STR\n"); break;
+            case TOKEN_UI16: printf("UI16\n"); break;
+            case TOKEN_UI32: printf("UI32\n"); break;
+            case TOKEN_UI64: printf("UI64\n"); break;
+            case TOKEN_UI8: printf("UI8\n"); break;
+            case TOKEN_UMUT: printf("UMUT\n"); break;
+        }
     }
 }
