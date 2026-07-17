@@ -59,6 +59,21 @@ void init_output_code(Output_Code *oc)
     oc->capacity = 0;
 }
 
+int next_register = 1;
+
+int allocate_register() {
+    return next_register++;
+}
+
+int reset_register(){
+    return next_register = 1;
+}
+
+int current_merge_id = 0;
+
+int current_if_id = 0;
+int next_check_label = 0;
+
 /*
  * Parses a single line into tokens, handling:
  * - quoted strings (preserves content inside "" and '')
@@ -237,6 +252,31 @@ void emit_echo(Output_Code *oc, Variable *vars, int vars_count, const char *name
     }
 }
 
+int emit_condition(Token *tokens, Variable *vars, int var_count) {
+    const char *left_name = tokens[2];
+    const char *op = tokens[3];
+    const char *right_name = tokens[4];
+
+    Variable *v1 = find_variable(vars, var_count, left_name);
+    Variable *v2 = find_variable(vars, var_count, right_name);
+
+    int reg_l = allocate_register();
+    int reg_r = allocate_register();
+    int reg_res = allocate_register();
+    printf("  %%%d = load i32, i32* %%%s, align 4\n", reg_l, v1->name);
+    printf("  %%%d = load i32, i32* %%%s, align 4\n", reg_r, v2->name);
+
+    const char *llvm_op = "sge";
+    if (strcmp(op, "<") == 0) llvm_op = "slt";
+    else if (strcmp(op, ">") == 0) llvm_op = "sgt";
+    else if (strcmp(op, "<=") == 0) llvm_op = "sle";
+    else if (strcmp(op, "==") == 0) llvm_op = "eq";
+    else if (strcmp(op, "!=") == 0) llvm_op = "ne";
+
+    printf("  %%%d = icmp %s i32 %%%d, %%%d\n", reg_res, llvm_op, reg_l, reg_r);
+    return reg_res;
+}
+
 void write_output_to_file(Output_Code *oc, const char *filename)
 {
     FILE *fp = fopen(filename, "w");
@@ -268,14 +308,6 @@ void write_output_to_file(Output_Code *oc, const char *filename)
     fclose(fp);
 }
 
-int allocate_register() {
-    return next_register++;
-}
-
-int reset_register(){
-    return next_register = 1;
-}
-
 int main()
 {
     // Open the source file
@@ -302,6 +334,9 @@ int main()
 
     Variable *vars = NULL;
     int vars_count = 0;
+
+    int next_label_id = 1;
+    int current_merge_id = 0;
 
     // Flags
     bool is_use_echo = false;
@@ -484,11 +519,41 @@ int main()
         else if (strcmp(lines[i].tokens[0], "tetr") == 0)
         {
         }
-        else if (strcmp(lines[i].tokens[0], "if") == 0)
-        {
+        else if (strcmp(lines[i].tokens[0], "if") == 0) {
+            current_if_id = next_label_id++;
+            current_merge_id = next_label_id++;
+            
+            int body_label = next_label_id++;
+            next_check_label = next_label_id++;
+
+            int cond_reg = emit_condition(tokens, vars, vars_count);
+
+            printf("  br i1 %%%d, label %%block_%d, label %%block_%d\n", cond_reg, body_label, next_check_label);
+
+            printf("\nblock_%d:\n", body_label);
         }
-        else if (strcmp(lines[i].tokens[0], "else") == 0 || strcmp(lines[i].tokens[0], "{") == 0 || strcmp(lines[i].tokens[0], "}") == 0)
-        {
+        else if (strcmp(lines[i].tokens[0], "}") == 0 && strcmp(lines[i].tokens[1], "else") == 0 && strcmp(lines[i].tokens[2], "if") == 0) {
+            printf("  br label %%block_%d\n", current_merge_id);
+            printf("\nblock_%d:\n", next_check_label);
+            int body_label = next_label_id++;
+            next_check_label = next_label_id++;
+            int cond_reg = emit_condition(tokens + 2, vars, vars_count); 
+            printf("  br i1 %%%d, label %%block_%d, label %%block_%d\n", cond_reg, body_label, next_check_label);
+            printf("\nblock_%d:\n", body_label);
+        }
+        else if (strcmp(lines[i].tokens[0], "}") == 0 && strcmp(lines[i].tokens[1], "else") == 0) {
+            printf("  br label %%block_%d\n", current_merge_id);
+            printf("\nblock_%d:\n", next_check_label);
+            next_check_label = 0; 
+        }
+        else if (strcmp(lines[i].tokens[0], "}") == 0) {
+            printf("  br label %%block_%d\n", current_merge_id);
+            if (next_check_label != 0) {
+                printf("\nblock_%d:\n", next_check_label);
+                printf("  br label %%block_%d\n", current_merge_id);
+                next_check_label = 0;
+            }
+            printf("\nblock_%d:\n", current_merge_id);
         }
         else if (found_var != NULL)
         {
