@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <lexer.h>
+#include "lexer.h"
 
 // Helper function to create a new token
 Token create_token(TokenType type, int value, const char* name){
@@ -85,5 +85,21 @@ TokenList lex(const char* source){
 
             continue;
         }
+
+        switch (c){
+            case '+': list.tokens[list.count++] = create_token(TOKEN_PLUS, 0, NULL); break;
+            case '-': list.tokens[list.count++] = create_token(TOKEN_MINUS, 0, NULL); break;
+            case '*': list.tokens[list.count++] = create_token(TOKEN_MULT, 0, NULL); break;
+            case '/': list.tokens[list.count++] = create_token(TOKEN_DIV, 0, NULL); break;
+            case '=': list.tokens[list.count++] = create_token(TOKEN_EQUAL, 0, NULL); break;
+            case ';': list.tokens[list.count++] = create_token(TOKEN_SEMICOLON, 0, NULL); break;
+            case '(': list.tokens[list.count++] = create_token(TOKEN_LPAREN, 0, NULL); break;
+            case ')': list.tokens[list.count++] = create_token(TOKEN_RPAREN, 0, NULL): break;
+            default;
+                printf("Unknown character: %c\n", c);
+                exit(1);
+        }
+        i++;
+        
     }
 }
