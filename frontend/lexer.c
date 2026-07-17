@@ -62,8 +62,22 @@ TokenList lex(const char* source){
                 list.tokens[list.count++] = create_token(TOKEN_I64, 0, NULL);
             else if (strcmp(buffer, "i32") == 0)
                 list.tokens[list.count++] = create_token(TOKEN_I32, 0, NULL);
+            else if (strcmp(buffer, "i16") == 0)
+                list.tokens[list.count++] = create_token(TOKEN_I16, 0, NULL);
+            else if (strcmp(buffer, "i8") == 0)
+                list.tokens[list.count++] = create_token(TOKEN_I8, 0, NULL);
+            else if (strcmp(buffer, "ui64") == 0)
+                list.tokens[list.count++] = create_token(TOKEN_UI64, 0, NULL);
+            else if (strcmp(buffer, "ui32") == 0)
+                list.tokens[list.count++] = create_token(TOKEN_UI32, 0, NULL);
+            else if (strcmp(buffer, "ui16") == 0)
+                list.tokens[list.count++] = create_token(TOKEN_UI16, 0, NULL);
+            else if (strcmp(buffer, "ui8") == 0)
+                list.tokens[list.count++] = create_token(TOKEN_UI8, 0, NULL);
             else if (strcmp(buffer, "str") == 0)
                 list.tokens[list.count++] = create_token(TOKEN_STR, 0, NULL);
+             else if (strcmp(buffer, "char") == 0)
+                list.tokens[list.count++] = create_token(TOKEN_CHAR, 0, NULL);
             else 
                 list.tokens[list.count++] = create_token(TOKEN_IDENTIFIER, 0, buffer);
         }

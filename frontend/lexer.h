@@ -17,10 +17,17 @@ typedef enum{
     TOKEN_MUT,
     TOKEN_UMUT,
     TOKEN_I64,
+    TOKEN_UI64,
     TOKEN_I32,
+    TOKEN_UI32,
+    TOKEN_I16,
+    TOKEN_UI16,
+    TOKEN_I8,
+    TOKEN_UI8,
     TOKEN_F64,
     TOKEN_F32,
     TOKEN_STR,
+    TOKEN_CHAR,
     TOKEN_IDENTIFIER
 } TokenType;
 
