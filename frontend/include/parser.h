@@ -15,7 +15,9 @@ typedef enum {
     AST_ECHO,
     AST_BINARY_OP,
     AST_VAR,
-    AST_ASSIGN
+    AST_ASSIGN,
+    AST_IF,
+    AST_ELSE
 } ASTNodeType;
 
 typedef struct ASTNode {
