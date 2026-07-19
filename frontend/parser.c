@@ -137,3 +137,22 @@ ASTNode* parse_expression(TokenList* tokens, int* pos) {
     }
     return left;
 }
+
+ASTNode* parse(TokenList* tokens){
+    int pos = 0;
+    ASTNode* root = NULL;
+
+    while (tokens->tokens[pos].type != TOKEN_EOF){
+        ASTNode* stmt = parse_statement(tokens, &pos);
+
+        if (root == NULL){
+            root = stmt;
+        } else {
+            ASTNode* temp = root;
+            while (temp-> != NULL) temp = temp->right;
+            temp->right = stmt;
+        }
+    }
+
+    return root;
+}
