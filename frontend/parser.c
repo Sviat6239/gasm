@@ -102,6 +102,23 @@ ASTNode* parse_expression(TokenList* tokens, int* pos) {
     if (current.type == TOKEN_INT) {
         left = create_node(AST_NUMBER, current.value, NULL, current.data_type, 0, NULL, NULL);
         (*pos)++;
+    } else if (current.type == TOKEN_IDENTIFIER){
+        left = create_node(AST_NUMBER, current.value, NULL, current.data_type, 0, NULL, NULL);
+        (*pos)++;
+    } else if (current.type == TOKEN_LPAREN){
+        (*pos)++;
+
+        left = parse_expression(tokens, pos);
+
+        if (tokens->tokens[*pos].type != TOKEN_RPAREN){
+            printf("Syntax error: expected ')' at pos=%d\n", *pos);
+            exit(1);
+        }
+
+        (*pos)++;
+    } else {
+        printf("Syntax error: unexpected token at pos=%d\n", *pos);
+        exit(1);
     }
     return left;
 }
