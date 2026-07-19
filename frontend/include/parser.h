@@ -9,6 +9,9 @@
  */
 typedef enum {
     AST_NUMBER,
+    AST_FLOAT,
+    AST_STRING,
+    AST_CHARACTER,
     AST_ECHO,
     AST_BINARY_OP,
     AST_VAR,
@@ -19,6 +22,7 @@ typedef struct ASTNode {
     ASTNodeType type;
     int value;
     char name[64];
+    char literal_value[128];
     const char* data_type;
     int mutability;
     struct ASTNode* left;
@@ -36,5 +40,6 @@ ASTNode* parse(TokenList* tokens);
 
 ASTNode* parse_statement(TokenList* tokens, int* pos);
 ASTNode* parse_expression(TokenList* tokens, int* pos);
+void print_ast(ASTNode* node, int indent);
 
 #endif

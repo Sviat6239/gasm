@@ -33,13 +33,73 @@ TokenList lex(const char* source) {
             continue;
         }
 
-        if (isdigit(c)) {
-            int value = 0;
-            while (isdigit(source[i])) {
-                value = value * 10 + (source[i] - '0');
-                i++;
+        if (c == '"') {
+            i++;
+            char buffer[64];
+            int j = 0;
+            while (source[i] != '"' && source[i] != '\0' && j < 63) {
+                buffer[j++] = source[i++];
             }
-            list.tokens[list.count++] = create_token(TOKEN_INT, value, NULL, "i32", 0);
+            buffer[j] = '\0';
+
+            if (source[i] == '"') {
+                i++;
+            } else {
+                printf("Syntax error: unterminated string literal\n");
+                exit(1);
+            }
+
+            list.tokens[list.count++] = create_token(TOKEN_STR, 0, buffer, "str", 0);
+            continue;
+        }
+
+        if (c == '\'') {
+            i++;
+            if (source[i] == '\0' || source[i] == '\'') {
+                printf("Syntax error: empty character literal\n");
+                exit(1);
+            }
+            
+            char char_val = source[i++];
+            
+            if (source[i] == '\'') {
+                i++;
+            } else {
+                printf("Syntax error: unterminated character literal\n");
+                exit(1);
+            }
+
+            list.tokens[list.count++] = create_token(TOKEN_CHAR, (int)char_val, NULL, "char", 0);
+            continue;
+        }
+
+        if (isdigit(c)) {
+            char num_buffer[64];
+            int j = 0;
+            
+            while (isdigit(source[i]) && j < 63) {
+                num_buffer[j++] = source[i++];
+            }
+
+            if (source[i] == '.') {
+                num_buffer[j++] = source[i++]
+                
+                if (!isdigit(source[i])) {
+                    printf("Syntax error: expected digit after dot\n");
+                    exit(1);
+                }
+                
+                while (isdigit(source[i]) && j < 63) {
+                    num_buffer[j++] = source[i++];
+                }
+                num_buffer[j] = '\0';
+                
+                list.tokens[list.count++] = create_token(TOKEN_F32, 0, num_buffer, "f32", 0);
+            } else {
+                num_buffer[j] = '\0';
+                int value = atoi(num_buffer);
+                list.tokens[list.count++] = create_token(TOKEN_INT, value, NULL, "i32", 0);
+            }
             continue;
         }
 
@@ -75,6 +135,10 @@ TokenList lex(const char* source) {
                 list.tokens[list.count++] = create_token(TOKEN_UI16, 0, NULL, "ui16", 0);
             else if (strcmp(buffer, "ui8") == 0)
                 list.tokens[list.count++] = create_token(TOKEN_UI8, 0, NULL, "ui8", 0);
+            else if (strcmp(buffer, "f64") == 0)
+                list.tokens[list.count++] = create_token(TOKEN_F64, 0, NULL, "f64", 0);
+            else if (strcmp(buffer, "f32") == 0)
+                list.tokens[list.count++] = create_token(TOKEN_F32, 0, NULL, "f32", 0);
             else if (strcmp(buffer, "str") == 0)
                 list.tokens[list.count++] = create_token(TOKEN_STR, 0, NULL, "str", 0);
             else if (strcmp(buffer, "char") == 0)
@@ -108,7 +172,19 @@ void print_tokens(TokenList* list) {
     for (int i = 0; i < list->count; i++) {
         Token t = list->tokens[i];
         switch (t.type) {
-            case TOKEN_CHAR: printf("CHAR\n"); break;
+            case TOKEN_CHAR: 
+                if (t.value != 0) printf("CHAR_LITERAL('%c')\n", (char)t.value);
+                else printf("TYPE_CHAR\n"); 
+                break;
+            case TOKEN_STR: 
+                if (t.name[0] != '\0') printf("STR_LITERAL(\"%s\")\n", t.name);
+                else printf("TYPE_STR\n"); 
+                break;
+            case TOKEN_F32: 
+                if (t.name[0] != '\0') printf("F32_LITERAL(%s)\n", t.name);
+                else printf("TYPE_F32\n");
+                break;
+            case TOKEN_F64: printf("TYPE_F64\n"); break;
             case TOKEN_DIV: printf("DIV\n"); break;
             case TOKEN_ECHO: printf("ECHO\n"); break;
             case TOKEN_EOF: printf("EOF\n"); break;
@@ -125,7 +201,6 @@ void print_tokens(TokenList* list) {
             case TOKEN_MUT: printf("MUT\n"); break;
             case TOKEN_PLUS: printf("PLUS\n"); break;
             case TOKEN_SEMICOLON: printf("SEMI\n"); break;
-            case TOKEN_STR: printf("STR\n"); break;
             case TOKEN_UI16: printf("UI16\n"); break;
             case TOKEN_UI32: printf("UI32\n"); break;
             case TOKEN_UI64: printf("UI64\n"); break;
