@@ -13,6 +13,8 @@ typedef enum {
     TOKEN_SEMICOLON,
     TOKEN_LPAREN,
     TOKEN_RPAREN,
+    TOKEN_LBRACE,
+    TOKEN_RBRACE,
     TOKEN_EOF,
     TOKEN_MUT,
     TOKEN_UMUT,
@@ -28,6 +30,8 @@ typedef enum {
     TOKEN_F32,
     TOKEN_STR,
     TOKEN_CHAR,
+    TOKEN_IF,
+    TOKEN_ELSE,
     TOKEN_IDENTIFIER
 } TokenType;
 
