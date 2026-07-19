@@ -120,5 +120,20 @@ ASTNode* parse_expression(TokenList* tokens, int* pos) {
         printf("Syntax error: unexpected token at pos=%d\n", *pos);
         exit(1);
     }
+
+    current = tokens->[*pos];
+    while (current.type == T_PLUS || current.type == T_MINUS ||
+        current.type == T_MULT || current.type == T_DIV){
+            char op = 0;
+            switch (current.type){
+                case T_PLUS: op = '+'; break;
+                case T_MINUS: op = '-'; break;
+                case T_MULT: op = '*'; break;
+                case T_DIV: op = '/'; break;
+            }
+            (*pos)++;
+            ASTNode* right = parse_expression(tokens, pos);
+            left = create_node(AST_BINARY_OP, op, NULL, current.data_type, 0, left, right);
+    }
     return left;
 }
