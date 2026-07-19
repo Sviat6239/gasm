@@ -156,3 +156,33 @@ ASTNode* parse(TokenList* tokens){
 
     return root;
 }
+
+void print_ast(ASTNode* node, int indent){
+    if (node == NULL) return;
+
+    for (int i = 0; i < indent; i++) printf(" ");
+
+    switch (node->type){
+        case AST_NUMBER:
+            print("AST_NUMBER(%d)\n", node->value);
+            break;
+        case AST_VAR:
+            printf("AST_VAR(%s, %s, %d)\n", node->name, node->data_type, node->mutability);
+            break;
+        case AST_BINARY_OP:
+            printf("AST_BINARY_OP(%c)\n", node->value);
+            print_ast(node->left, indent + 1);
+            print_ast(node->right, indent + 1);
+            break;
+        case AST_ASSIGN:
+            printf("AST_ASSIGN(%s)\n", node->name);
+            print_ast(node->left, indent + 1);
+            break;
+        case AST_PRINT:
+            printf("AST_PRINT\n");
+            print_ast(node->left, indent + 1);
+            break;
+        default:
+            printf("Unknown AST node\n");
+    }
+}
