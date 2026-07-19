@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "parser.h"
+#include "./include/parser.h"
 
 ASTNode* create_node(ASTNodeType type, int value, const char* name, const char* data_type, int mutability, ASTNode* left, ASTNode* right) {
     ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));

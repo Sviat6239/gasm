@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "lexer.h"
+#include "./include/lexer.h"
 
 Token create_token(TokenType type, int value, const char* name, const char *data_type, int mutability) {
     Token token;
