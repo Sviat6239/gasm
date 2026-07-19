@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include "../frontend/include/lexer.h"
-#include "../frontend/include/parser.h"
-#include "../frontend/include/utils.h"
+#include "frontend/include/lexer.h"
+#include "frontend/include/parser.h"
+#include "frontend/include/utils.h"
 
 int main(int argc, char* argv[]){
     if (argc < 2){

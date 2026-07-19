@@ -85,6 +85,21 @@ ASTNode* parse_statement(TokenList* tokens, int* pos) {
         return create_node(AST_ECHO, 0, NULL, NULL, NULL, 0, expr, NULL);
     } 
     
+    else if (current.type == TOKEN_IDENTIFIER && tokens->tokens[*pos + 1].type == TOKEN_EQUAL) {
+        Token var = current;
+        *pos += 2;
+
+        ASTNode* expr = parse_expression(tokens, pos);
+
+        if (tokens->tokens[*pos].type != TOKEN_SEMICOLON) {
+            printf("Syntax error: expected ';' after assignment at pos=%d\n", *pos);
+            exit(1);
+        }
+        (*pos)++;
+
+        return create_node(AST_ASSIGN, 0, var.name, NULL, NULL, 0, expr, NULL);
+    }
+    
     else if (current.type == TOKEN_LPAREN) {
         (*pos)++;
         ASTNode* expr = parse_expression(tokens, pos);

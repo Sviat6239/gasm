@@ -82,7 +82,7 @@ TokenList lex(const char* source) {
             }
 
             if (source[i] == '.') {
-                num_buffer[j++] = source[i++]
+                num_buffer[j++] = source[i++];
                 
                 if (!isdigit(source[i])) {
                     printf("Syntax error: expected digit after dot\n");
@@ -206,6 +206,8 @@ void print_tokens(TokenList* list) {
             case TOKEN_UI64: printf("UI64\n"); break;
             case TOKEN_UI8: printf("UI8\n"); break;
             case TOKEN_UMUT: printf("UMUT\n"); break;
+            case TOKEN_LPAREN: printf("LPAREN\n"); break;
+            case TOKEN_RPAREN: printf("RPAREN\n"); break;
             default: printf("UNKNOWN\n"); break;
         }
     }
