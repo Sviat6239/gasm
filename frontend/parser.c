@@ -3,6 +3,35 @@
 #include <string.h>
 #include "./include/parser.h"
 
+typedef struct {
+    char name[64];
+    const char* data_type;
+} Symbol;
+
+Symbol symbol_table[100];
+int symbol_count = 0;
+
+void add_symbol(const char* name, const char* data_type) {
+    for (int i = 0; i < symbol_count; i++) {
+        if (strcmp(symbol_table[i].name, name) == 0) {
+            symbol_table[i].data_type = data_type;
+            return;
+        }
+    }
+    strncpy(symbol_table[symbol_count].name, name, 63);
+    symbol_table[symbol_count].data_type = data_type;
+    symbol_count++;
+}
+
+const char* lookup_symbol(const char* name) {
+    for (int i = 0; i < symbol_count; i++) {
+        if (strcmp(symbol_table[i].name, name) == 0) {
+            return symbol_table[i].data_type;
+        }
+    }
+    return NULL;
+}
+
 ASTNode* create_node(ASTNodeType type, int value, const char* name, const char* literal_value, const char* data_type, int mutability, ASTNode* left, ASTNode* right) {
     ASTNode* node = (ASTNode*)malloc(sizeof(ASTNode));
     node->type = type;
@@ -62,6 +91,8 @@ ASTNode* parse_statement(TokenList* tokens, int* pos) {
         }
         (*pos)++;
 
+        add_symbol(var.name, d_type);
+
         ASTNode* expr = parse_expression(tokens, pos);
 
         if (tokens->tokens[*pos].type != TOKEN_SEMICOLON) {
@@ -71,7 +102,7 @@ ASTNode* parse_statement(TokenList* tokens, int* pos) {
         (*pos)++;
 
         return create_node(AST_ASSIGN, 0, var.name, NULL, d_type, mutability, expr, NULL);
-    } 
+    }
     
     else if (current.type == TOKEN_ECHO) {
         (*pos)++;
@@ -139,9 +170,15 @@ ASTNode* parse_expression(TokenList* tokens, int* pos) {
         (*pos)++;
     } 
     else if (current.type == TOKEN_IDENTIFIER) {
-        left = create_node(AST_VAR, 0, current.name, NULL, current.data_type, 0, NULL, NULL);
+        const char* actual_type = lookup_symbol(current.name);
+        if (actual_type == NULL) {
+            printf("Semantic error: variable '%s' used before declaration\n", current.name);
+            exit(1);
+        }
+        
+        left = create_node(AST_VAR, 0, current.name, NULL, actual_type, 0, NULL, NULL);
         (*pos)++;
-    } 
+    }
     else if (current.type == TOKEN_LPAREN) {
         (*pos)++;
         left = parse_expression(tokens, pos);
@@ -221,7 +258,7 @@ void print_ast(ASTNode* node, int indent) {
             print_ast(node->right, indent + 1);
             break;
         case AST_ASSIGN:
-            printf("AST_ASSIGN(var: %s, type: %s, mut: %d)\n", node->name, node->data_type, node->mutability);
+            printf("AST_ASSIGN(var: %s, type: %s, mut: %d)\n", node->name, node->data_type ? node->data_type : "reassign", node->mutability);
             print_ast(node->left, indent + 1);
             break;
         case AST_ECHO: 
