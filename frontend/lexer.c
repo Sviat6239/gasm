@@ -143,6 +143,10 @@ TokenList lex(const char* source) {
                 list.tokens[list.count++] = create_token(TOKEN_STR, 0, NULL, "str", 0);
             else if (strcmp(buffer, "char") == 0)
                 list.tokens[list.count++] = create_token(TOKEN_CHAR, 0, NULL, "char", 0);
+            else if (strcmp(buffer, "if") == 0)
+                list.tokens[list.count++] = create_token(TOKEN_IF, 0, NULL, NULL, 0);
+            else if (strcmp(buffer, "else") == 0)
+                list.tokens[list.count++] = create_token(TOKEN_ELSE, 0, NULL, NULL, 0);
             else
                 list.tokens[list.count++] = create_token(TOKEN_IDENTIFIER, 0, buffer, NULL, 0);
 
@@ -158,6 +162,8 @@ TokenList lex(const char* source) {
             case ';': list.tokens[list.count++] = create_token(TOKEN_SEMICOLON, 0, NULL, NULL, 0); break;
             case '(': list.tokens[list.count++] = create_token(TOKEN_LPAREN, 0, NULL, NULL, 0); break;
             case ')': list.tokens[list.count++] = create_token(TOKEN_RPAREN, 0, NULL, NULL, 0); break;
+            case '{': list.tokens[list.count++] = create_token(TOKEN_LBRACE, 0, NULL, NULL, 0); break;
+            case '}': list.tokens[list.count++] = create_token(TOKEN_RBRACE, 0, NULL, NULL, 0); break;
             default:
                 printf("Unknown character: %c\n", c);
                 exit(1);
@@ -208,6 +214,10 @@ void print_tokens(TokenList* list) {
             case TOKEN_UMUT: printf("UMUT\n"); break;
             case TOKEN_LPAREN: printf("LPAREN\n"); break;
             case TOKEN_RPAREN: printf("RPAREN\n"); break;
+            case TOKEN_LBRACE: printf("LBRACE\n"); break;
+            case TOKEN_RBRACE: printf("RBRACE\n"); break;
+            case TOKEN_IF: printf("IF\n"); break;
+            case TOKEN_ELSE: printf("ELSE\n"); break;
             default: printf("UNKNOWN\n"); break;
         }
     }
