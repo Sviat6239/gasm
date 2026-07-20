@@ -218,6 +218,8 @@ void print_tokens(TokenList* list) {
             case TOKEN_RPAREN: printf("RPAREN\n"); break;
             case TOKEN_LBRACE: printf("LBRACE\n"); break;
             case TOKEN_RBRACE: printf("RBRACE\n"); break;
+            case TOKEN_GREATER: printf("GREATER\n"); break;
+            case TOKEN_LESS: printf("LESS\n"); break;
             case TOKEN_IF: printf("IF\n"); break;
             case TOKEN_ELSE: printf("ELSE\n"); break;
             default: printf("UNKNOWN\n"); break;
