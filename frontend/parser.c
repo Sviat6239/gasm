@@ -216,13 +216,23 @@ ASTNode* parse_expression(TokenList* tokens, int* pos) {
 
     current = tokens->tokens[*pos]; 
     while (current.type == TOKEN_PLUS || current.type == TOKEN_MINUS ||
-           current.type == TOKEN_MULT || current.type == TOKEN_DIV) {
+        current.type == TOKEN_MULT || current.type == TOKEN_DIV ||
+        current.type == TOKEN_GREATER || current.type == TOKEN_LESS ||
+        current.type == TOKEN_GREATER_EQUAL || current.type == TOKEN_LESS_EQUAL ||
+        current.type == TOKEN_EQUAL_EQUAL || current.type == TOKEN_NOT_EQUAL) {
+
         char op = 0;
         switch (current.type) {
-            case TOKEN_PLUS:  op = '+'; break;
-            case TOKEN_MINUS: op = '-'; break;
-            case TOKEN_MULT:  op = '*'; break;
-            case TOKEN_DIV:   op = '/'; break;
+            case TOKEN_PLUS:          op = '+'; break;
+            case TOKEN_MINUS:         op = '-'; break;
+            case TOKEN_MULT:          op = '*'; break;
+            case TOKEN_DIV:           op = '/'; break;
+            case TOKEN_GREATER:       op = '>'; break;
+            case TOKEN_LESS:          op = '<'; break;
+            case TOKEN_GREATER_EQUAL: op = 'G'; break;
+            case TOKEN_LESS_EQUAL:    op = 'L'; break;
+            case TOKEN_EQUAL_EQUAL:   op = 'E'; break;
+            case TOKEN_NOT_EQUAL:     op = 'N'; break;
             default: break;
         }
         (*pos)++;
@@ -274,7 +284,15 @@ void print_ast(ASTNode* node, int indent) {
             printf("AST_VAR(name: %s, type: %s)\n", node->name, node->data_type ? node->data_type : "unknown");
             break;
         case AST_BINARY_OP:
-            printf("AST_BINARY_OP(%c)\n", node->value);
+            if (node->value == TOKEN_GREATER_EQUAL || node->value == 'G') {
+                printf("AST_BINARY_OP(>=)\n");
+            } else if (node->value == TOKEN_LESS_EQUAL || node->value == 'L') {
+                printf("AST_BINARY_OP(<=)\n");
+            } else if (node->value == TOKEN_EQUAL_EQUAL || node->value == 'E') {
+                printf("AST_BINARY_OP(==)\n");
+            } else {
+                printf("AST_BINARY_OP(%c)\n", node->value);
+            }
             print_ast(node->left, indent + 1);
             print_ast(node->right, indent + 1);
             break;
