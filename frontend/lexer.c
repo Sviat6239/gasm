@@ -158,14 +158,45 @@ TokenList lex(const char* source) {
             case '-': list.tokens[list.count++] = create_token(TOKEN_MINUS, 0, NULL, NULL, 0); break;
             case '*': list.tokens[list.count++] = create_token(TOKEN_MULT, 0, NULL, NULL, 0); break;
             case '/': list.tokens[list.count++] = create_token(TOKEN_DIV, 0, NULL, NULL, 0); break;
-            case '=': list.tokens[list.count++] = create_token(TOKEN_EQUAL, 0, NULL, NULL, 0); break;
             case ';': list.tokens[list.count++] = create_token(TOKEN_SEMICOLON, 0, NULL, NULL, 0); break;
             case '(': list.tokens[list.count++] = create_token(TOKEN_LPAREN, 0, NULL, NULL, 0); break;
             case ')': list.tokens[list.count++] = create_token(TOKEN_RPAREN, 0, NULL, NULL, 0); break;
             case '{': list.tokens[list.count++] = create_token(TOKEN_LBRACE, 0, NULL, NULL, 0); break;
             case '}': list.tokens[list.count++] = create_token(TOKEN_RBRACE, 0, NULL, NULL, 0); break;
-            case '>': list.tokens[list.count++] = create_token(TOKEN_GREATER, 0, NULL, NULL, 0); break;
-            case '<': list.tokens[list.count++] = create_token(TOKEN_LESS, 0, NULL, NULL, 0); break;
+            case '>':
+                if (source[i + 1] == '=') {
+                    list.tokens[list.count++] = create_token(TOKEN_GREATER_EQUAL, 0, NULL, NULL, 0);
+                    i++;
+                } else {
+                    list.tokens[list.count++] = create_token(TOKEN_GREATER, 0, NULL, NULL, 0);
+                }
+                break;
+
+            case '<':
+                if (source[i + 1] == '=') {
+                    list.tokens[list.count++] = create_token(TOKEN_LESS_EQUAL, 0, NULL, NULL, 0);
+                    i++;
+                } else {
+                    list.tokens[list.count++] = create_token(TOKEN_LESS, 0, NULL, NULL, 0);
+                }
+                break;
+
+            case '=':
+                if (source[i + 1] == '=') {
+                    list.tokens[list.count++] = create_token(TOKEN_EQUAL_EQUAL, 0, NULL, NULL, 0);
+                    i++;
+                } else {
+                    list.tokens[list.count++] = create_token(TOKEN_EQUAL, 0, NULL, NULL, 0);
+                }
+                break;
+            case '!':
+                if (source[i + 1] == '=') {
+                    list.tokens[list.count++] = create_token(TOKEN_NOT_EQUAL, 0, NULL, NULL, 0);
+                    i++;
+                } else {
+                    list.tokens[list.count++] = create_token(TOKEN_EXCLAMATION, 0, NULL, NULL, 0);
+                }
+                break;
             default:
                 printf("Unknown character: %c\n", c);
                 exit(1);
@@ -219,7 +250,12 @@ void print_tokens(TokenList* list) {
             case TOKEN_LBRACE: printf("LBRACE\n"); break;
             case TOKEN_RBRACE: printf("RBRACE\n"); break;
             case TOKEN_GREATER: printf("GREATER\n"); break;
+            case TOKEN_GREATER_EQUAL: printf("GREATER_EQUAL\n"); break;
             case TOKEN_LESS: printf("LESS\n"); break;
+            case TOKEN_LESS_EQUAL: printf("LESS_EQUAL\n"); break;
+            case TOKEN_EQUAL_EQUAL: printf("EQUAL_EQUAL\n"); break;
+            case TOKEN_NOT_EQUAL: printf("NOT_EQUAL\n"); break;
+            case TOKEN_EXCLAMATION: printf("EXCLAMATION\n"); break;
             case TOKEN_IF: printf("IF\n"); break;
             case TOKEN_ELSE: printf("ELSE\n"); break;
             default: printf("UNKNOWN\n"); break;
