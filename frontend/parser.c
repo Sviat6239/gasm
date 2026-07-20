@@ -350,10 +350,28 @@ void print_ast(ASTNode* node, int indent) {
             break;
         case AST_IF:
             printf("AST_IF\n");
-            printf("  Condition:\n");
+            for (int i = 0; i < indent + 1; i++) printf("  ");
+            printf("Condition:\n");
             print_ast(node->left, indent + 2);
-            printf("  Then:\n");
-            print_ast(node->right, indent + 2);
+
+            if (node->right && node->right->type == AST_ELSE) {
+                print_ast(node->right, indent + 1);
+            } else {
+                for (int i = 0; i < indent + 1; i++) printf("  ");
+                printf("Then:\n");
+                print_ast(node->right, indent + 2);
+            }
+            break;
+
+        case AST_ELSE:
+            printf("Then:\n");
+            print_ast(node->left, indent + 1);
+            
+            if (node->right != NULL) {
+                for (int i = 0; i < indent; i++) printf("  ");
+                printf("Else:\n");
+                print_ast(node->right, indent + 1);
+            }
             break;
         default:
             printf("Unknown AST node type: %d\n", node->type);
