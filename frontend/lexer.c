@@ -164,6 +164,8 @@ TokenList lex(const char* source) {
             case ')': list.tokens[list.count++] = create_token(TOKEN_RPAREN, 0, NULL, NULL, 0); break;
             case '{': list.tokens[list.count++] = create_token(TOKEN_LBRACE, 0, NULL, NULL, 0); break;
             case '}': list.tokens[list.count++] = create_token(TOKEN_RBRACE, 0, NULL, NULL, 0); break;
+            case '>': list.tokens[list.count++] = create_token(TOKEN_GREATER, 0, NULL, NULL, 0); break;
+            case '<': list.tokens[list.count++] = create_token(TOKEN_LESS, 0, NULL, NULL, 0); break;
             default:
                 printf("Unknown character: %c\n", c);
                 exit(1);
