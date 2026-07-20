@@ -211,6 +211,13 @@ ASTNode* parse_expression(TokenList* tokens, int* pos) {
     Token current = tokens->tokens[*pos];
     ASTNode* left = NULL;
 
+    if (current.type == TOKEN_MINUS) {
+        (*pos)++;
+        ASTNode* operand = parse_expression(tokens, pos);
+        
+        return create_node(AST_BINARY_OP, '-', NULL, NULL, operand->data_type, 0, create_node(AST_NUMBER, 0, NULL, NULL, "i32", 0, NULL, NULL), operand);
+    }
+
     if (current.type == TOKEN_INT) {
         left = create_node(AST_NUMBER, current.value, NULL, NULL, current.data_type, 0, NULL, NULL);
         (*pos)++;
