@@ -141,6 +141,27 @@ ASTNode* parse_statement(TokenList* tokens, int* pos) {
         (*pos)++;
         return expr;
     } 
+
+    else if (current.type == TOKEN_IF){
+        (*pos)++;
+        ASTNode* cond = parse_expression(tokens, pos);
+
+        if (tokens->tokens[*pos].type != TOKEN_LBRACE) {
+            printf("Syntax error: expected '{' at pos=%d\n", *pos);
+            exit(1);
+        }
+        (*pos)++;
+
+        ASTNode* then_body = parse_statement(tokens, pos);
+
+        if (tokens->tokens[*pos].type != TOKEN_RBRACE) {
+            printf("Syntax error: expected '}' after if body at pos=%d\n", *pos);
+            exit(1);
+        }
+        (*pos)++;
+
+        return create_node(AST_IF, 0, NULL, NULL, NULL, 0, cond, then_body);
+    }
     
     else {
         ASTNode* expr = parse_expression(tokens, pos);
@@ -264,6 +285,13 @@ void print_ast(ASTNode* node, int indent) {
         case AST_ECHO: 
             printf("AST_ECHO\n");
             print_ast(node->left, indent + 1);
+            break;
+        case AST_IF:
+            printf("AST_IF\n");
+            printf("  Condition:\n");
+            print_ast(node->left, indent + 2);
+            printf("  Then:\n");
+            print_ast(node->right, indent + 2);
             break;
         default:
             printf("Unknown AST node type: %d\n", node->type);
