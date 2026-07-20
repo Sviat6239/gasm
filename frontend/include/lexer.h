@@ -32,6 +32,8 @@ typedef enum {
     TOKEN_CHAR,
     TOKEN_IF,
     TOKEN_ELSE,
+    TOKEN_GREATER,
+    TOKEN_LESS,
     TOKEN_IDENTIFIER
 } TokenType;
 
