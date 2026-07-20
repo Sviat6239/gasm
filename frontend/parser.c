@@ -142,12 +142,27 @@ ASTNode* parse_statement(TokenList* tokens, int* pos) {
         return expr;
     } 
 
-    else if (current.type == TOKEN_IF){
+    else if (current.type == TOKEN_IF) {
         (*pos)++;
+
+        int has_paren = 0;
+        if (tokens->tokens[*pos].type == TOKEN_LPAREN) {
+            has_paren = 1;
+            (*pos)++;
+        }
+
         ASTNode* cond = parse_expression(tokens, pos);
 
+        if (has_paren) {
+            if (tokens->tokens[*pos].type != TOKEN_RPAREN) {
+                printf("Syntax error: expected ')' after condition at pos=%d\n", *pos);
+                exit(1);
+            }
+            (*pos)++;
+        }
+
         if (tokens->tokens[*pos].type != TOKEN_LBRACE) {
-            printf("Syntax error: expected '{' at pos=%d\n", *pos);
+            printf("Syntax error: expected '{' after if condition at pos=%d\n", *pos);
             exit(1);
         }
         (*pos)++;
@@ -160,7 +175,29 @@ ASTNode* parse_statement(TokenList* tokens, int* pos) {
         }
         (*pos)++;
 
-        return create_node(AST_IF, 0, NULL, NULL, NULL, 0, cond, then_body);
+        ASTNode* else_body = NULL;
+
+        if (tokens->tokens[*pos].type == TOKEN_ELSE) {
+            (*pos)++;
+
+            if (tokens->tokens[*pos].type == TOKEN_IF) {
+                else_body = parse_statement(tokens, pos);
+            } 
+            else if (tokens->tokens[*pos].type == TOKEN_LBRACE) {
+                (*pos)++;
+                else_body = parse_statement(tokens, pos);
+
+                if (tokens->tokens[*pos].type != TOKEN_RBRACE) {
+                    printf("Syntax error: expected '}' after else body at pos=%d\n", *pos);
+                    exit(1);
+                }
+                (*pos)++;
+            }
+        }
+
+        ASTNode* body_node = create_node(AST_ELSE, 0, NULL, NULL, NULL, 0, then_body, else_body);
+
+        return create_node(AST_IF, 0, NULL, NULL, NULL, 0, cond, body_node);
     }
     
     else {
