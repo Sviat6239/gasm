@@ -45,6 +45,14 @@ typedef enum {
     TOKEN_WHILE,
     TOKEN_SWITCH,
     TOKEN_CASE,
+    TOKEN_AMPERSAND,
+    TOKEN_PIPE,
+    TOKEN_ARROW,
+    TOKEN_HASH,
+    TOKEN_TILD,
+    TOKEN_PERCENT,
+    TOKEN_DOLLAR,
+    TOKEN_AT,
     TOKEN_IDENTIFIER
 } TokenType;
 

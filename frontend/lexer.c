@@ -208,6 +208,14 @@ TokenList lex(const char* source) {
                     list.tokens[list.count++] = create_token(TOKEN_EXCLAMATION, 0, NULL, NULL, 0);
                 }
                 break;
+            case '&': list.tokens[list.count++] = create_token(TOKEN_AMPERSAND, 0, NULL, NULL, 0); break;
+            case '|': list.tokens[list.count++] = create_token(TOKEN_PIPE, 0, NULL, NULL, 0); break;
+            case '^': list.tokens[list.count++] = create_token(TOKEN_ARROW, 0, NULL, NULL, 0); break;
+            case '#': list.tokens[list.count++] = create_token(TOKEN_HASH, 0, NULL, NULL, 0); break;
+            case '~': list.tokens[list.count++] = create_token(TOKEN_TILD, 0, NULL, NULL, 0); break;
+            case '%': list.tokens[list.count++] = create_token(TOKEN_PERCENT, 0, NULL, NULL, 0); break;
+            case '$': list.tokens[list.count++] = create_token(TOKEN_DOLLAR, 0, NULL, NULL, 0); break;
+            case '@': list.tokens[list.count++] = create_token(TOKEN_AT, 0, NULL, NULL, 0); break;
             default:
                 printf("Unknown character: %c\n", c);
                 exit(1);
