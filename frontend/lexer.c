@@ -173,6 +173,7 @@ TokenList lex(const char* source) {
             case ')': list.tokens[list.count++] = create_token(TOKEN_RPAREN, 0, NULL, NULL, 0); break;
             case '{': list.tokens[list.count++] = create_token(TOKEN_LBRACE, 0, NULL, NULL, 0); break;
             case '}': list.tokens[list.count++] = create_token(TOKEN_RBRACE, 0, NULL, NULL, 0); break;
+            case '?': list.tokens[list.count++] = create_token(TOKEN_QUESTION, 0, NULL, NULL, 0); break;
             case '>':
                 if (source[i + 1] == '=') {
                     list.tokens[list.count++] = create_token(TOKEN_GREATER_EQUAL, 0, NULL, NULL, 0);
@@ -268,6 +269,12 @@ void print_tokens(TokenList* list) {
             case TOKEN_EXCLAMATION: printf("EXCLAMATION\n"); break;
             case TOKEN_IF: printf("IF\n"); break;
             case TOKEN_ELSE: printf("ELSE\n"); break;
+            case TOKEN_QUESTION: printf("QUESTION\n"); break;
+            case TOKEN_FUNC: printf("FUNC\n"); break;
+            case TOKEN_FOR: printf("FOR\n"); break;
+            case TOKEN_WHILE: printf("WHILE\n"); break;
+            case TOKEN_SWITCH: printf("SWITCH\n"); break;
+            case TOKEN_CASE: printf("CASE\n"); break;
             default: printf("UNKNOWN\n"); break;
         }
     }
