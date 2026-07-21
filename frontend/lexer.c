@@ -164,8 +164,24 @@ TokenList lex(const char* source) {
         }
 
         switch (c) {
-            case '+': list.tokens[list.count++] = create_token(TOKEN_PLUS, 0, NULL, NULL, 0); break;
-            case '-': list.tokens[list.count++] = create_token(TOKEN_MINUS, 0, NULL, NULL, 0); break;
+            case '+':
+                if (souce[i + 1] == '='){
+                    list.tokens[list.count++] = create_token(TOKEN_PLUS_EQUAL, 0, NULL, NULL, 0);
+                } else if (source[i + 1] == '+'){
+                    list.tokens[list.count++] = create_token(TOKEN_PLUS_PLUS, 0, NULL, NULL, 0);
+                } else {
+                    list.tokens[list.count++] = create_token(TOKEN_PLUS, 0, NULL, NULL, 0);
+                }
+                break;
+            case '-':
+                if (souce[i + 1] == '='){
+                    list.tokens[list.count++] = create_token(TOKEN_MINUS_EQUAL, 0, NULL, NULL, 0);
+                } else if (source[i + 1] == '-'){
+                    list.tokens[list.count++] = create_token(TOKEN_MINUS_MINUS, 0, NULL, NULL, 0);
+                } else {
+                    list.tokens[list.count++] = create_token(TOKEN_MINUS, 0, NULL, NULL, 0);
+                }
+                break;
             case '*': list.tokens[list.count++] = create_token(TOKEN_MULT, 0, NULL, NULL, 0); break;
             case '/': list.tokens[list.count++] = create_token(TOKEN_DIV, 0, NULL, NULL, 0); break;
             case ';': list.tokens[list.count++] = create_token(TOKEN_SEMICOLON, 0, NULL, NULL, 0); break;
