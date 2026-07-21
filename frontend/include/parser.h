@@ -17,7 +17,12 @@ typedef enum {
     AST_VAR,
     AST_ASSIGN,
     AST_IF,
-    AST_ELSE
+    AST_ELSE,
+    AST_FUNC,
+    AST_SWITCH,
+    AST_CASE,
+    AST_FOR,
+    AST_WHILE
 } ASTNodeType;
 
 typedef struct ASTNode {
