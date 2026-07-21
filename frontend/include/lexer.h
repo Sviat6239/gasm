@@ -49,7 +49,7 @@ typedef enum {
     TOKEN_PIPE,
     TOKEN_ARROW,
     TOKEN_HASH,
-    TOKEN_TILD,
+    TOKEN_TILDE,
     TOKEN_PERCENT,
     TOKEN_DOLLAR,
     TOKEN_AT,

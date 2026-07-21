@@ -212,7 +212,7 @@ TokenList lex(const char* source) {
             case '|': list.tokens[list.count++] = create_token(TOKEN_PIPE, 0, NULL, NULL, 0); break;
             case '^': list.tokens[list.count++] = create_token(TOKEN_ARROW, 0, NULL, NULL, 0); break;
             case '#': list.tokens[list.count++] = create_token(TOKEN_HASH, 0, NULL, NULL, 0); break;
-            case '~': list.tokens[list.count++] = create_token(TOKEN_TILD, 0, NULL, NULL, 0); break;
+            case '~': list.tokens[list.count++] = create_token(TOKEN_TILDE, 0, NULL, NULL, 0); break;
             case '%': list.tokens[list.count++] = create_token(TOKEN_PERCENT, 0, NULL, NULL, 0); break;
             case '$': list.tokens[list.count++] = create_token(TOKEN_DOLLAR, 0, NULL, NULL, 0); break;
             case '@': list.tokens[list.count++] = create_token(TOKEN_AT, 0, NULL, NULL, 0); break;
@@ -283,6 +283,13 @@ void print_tokens(TokenList* list) {
             case TOKEN_WHILE: printf("WHILE\n"); break;
             case TOKEN_SWITCH: printf("SWITCH\n"); break;
             case TOKEN_CASE: printf("CASE\n"); break;
+            case TOKEN_AMPERSAND: printf("AMPERSAND\n"); break;
+            case TOKEN_PIPE: printf("PIPE\n"); break;
+            case TOKEN_ARROW: printf("ARROW\n"); break;
+            case TOKEN_TILDE: printf("TILDE\n"); break;
+            case TOKEN_PERCENT: printf("PERCENT\n"); break;
+            case TOKEN_DOLLAR: printf("DOLLAR\n"); break;
+            case TOKEN_AT: printf("AT\n"); break;
             default: printf("UNKNOWN\n"); break;
         }
     }
