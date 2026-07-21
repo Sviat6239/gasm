@@ -153,10 +153,10 @@ TokenList lex(const char* source) {
                 list.tokens[list.count++] = create_token(TOKEN_WHILE, 0, NULL, NULL, 0);
             else if (strcmp(buffer, "switch") == 0)
                 list.tokens[list.count++] = create_token(TOKEN_SWITCH, 0, NULL, NULL, 0);
-            else if (strrcmp(buffer, "case") == 0)
+            else if (strcmp(buffer, "case") == 0)
                 list.tokens[list.count++] = create_token(TOKEN_CASE, 0, NULL, NULL, 0);
             else if (strcmp(buffer, "func") == 0)
-                list.tokens[list.count++] = create_token(TOKEN_FUNC, 0, NULL< NULL, 0);
+                list.tokens[list.count++] = create_token(TOKEN_FUNC, 0, NULL, NULL, 0);
             else
                 list.tokens[list.count++] = create_token(TOKEN_IDENTIFIER, 0, buffer, NULL, 0);
 
@@ -165,7 +165,7 @@ TokenList lex(const char* source) {
 
         switch (c) {
             case '+':
-                if (souce[i + 1] == '='){
+                if (source[i + 1] == '='){
                     list.tokens[list.count++] = create_token(TOKEN_PLUS_EQUAL, 0, NULL, NULL, 0);
                 } else if (source[i + 1] == '+'){
                     list.tokens[list.count++] = create_token(TOKEN_PLUS_PLUS, 0, NULL, NULL, 0);
@@ -174,7 +174,7 @@ TokenList lex(const char* source) {
                 }
                 break;
             case '-':
-                if (souce[i + 1] == '='){
+                if (source[i + 1] == '='){
                     list.tokens[list.count++] = create_token(TOKEN_MINUS_EQUAL, 0, NULL, NULL, 0);
                 } else if (source[i + 1] == '-'){
                     list.tokens[list.count++] = create_token(TOKEN_MINUS_MINUS, 0, NULL, NULL, 0);
