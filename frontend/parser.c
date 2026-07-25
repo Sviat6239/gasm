@@ -199,6 +199,26 @@ ASTNode* parse_statement(TokenList* tokens, int* pos) {
 
         return create_node(AST_IF, 0, NULL, NULL, NULL, 0, cond, body_node);
     }
+
+    else if (current.type == TOKEN_FUNC){
+        printf("func\n");
+    }
+
+    else if (current.type == TOKEN_SWITCH){
+        printf("switch\n");
+    }
+
+    else if (current.type == TOKEN_CASE){
+        printf("case\n");
+    }
+
+    else if (current.type == TOKEN_FOR){
+        printf("for\n");
+    }
+
+    else if (current.type == TOKEN_WHILE){
+        printf("while\n");
+    }
     
     else {
         ASTNode* expr = parse_expression(tokens, pos);
@@ -373,6 +393,27 @@ void print_ast(ASTNode* node, int indent) {
                 print_ast(node->right, indent + 1);
             }
             break;
+
+        case AST_FUNC:
+            printf("Func:\n");
+            break;
+
+        case AST_SWITCH:
+            printf("Switch:\n");
+            break;
+
+        case AST_CASE:
+            printf("Case:\n");
+            break;
+
+        case AST_FOR:
+            printf("For:\n");
+            break;
+
+        case AST_WHILE:
+            printf("While:\n");
+            break;
+            
         default:
             printf("Unknown AST node type: %d\n", node->type);
     }
