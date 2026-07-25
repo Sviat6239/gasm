@@ -515,14 +515,63 @@ int main(){
                 break;
             }
 
-            case OP_AND:
-                break;
+            case OP_AND: {
+                Object b = pop();
+                Object a = pop();
 
-            case OP_OR:
-                break;
+                bool truth_a = false;
+                bool truth_b = false;
 
-            case OP_NOT:
+                if (a.type == VAL_INT) truth_a = (a.value.as_int != 0);
+                else if (a.type == VAL_FLOAT) truth_a = (a.value.as_float != 0.0);
+                else if (a.type == VAL_STR) truth_a = (a.value.as_str != NULL && a.value.as_str[0] != '\0');
+
+                if (b.type == VAL_INT) truth_b = (b.value.as_int != 0);
+                else if (b.type == VAL_FLOAT) truth_b = (b.value.as_float != 0.0);
+                else if (b.type == VAL_STR) truth_b = (b.value.as_str != NULL && b.value.as_str[0] != '\0');
+
+                if (a.type == VAL_STR) free(a.value.as_str);
+                if (b.type == VAL_STR) free(b.value.as_str);
+
+                push_int((truth_a && truth_b) ? 1 : 0);
                 break;
+            }
+
+            case OP_OR: {
+                Object b = pop();
+                Object a = pop();
+
+                bool truth_a = false;
+                bool truth_b = false;
+
+                if (a.type == VAL_INT) truth_a = (a.value.as_int != 0);
+                else if (a.type == VAL_FLOAT) truth_a = (a.value.as_float != 0.0);
+                else if (a.type == VAL_STR) truth_a = (a.value.as_str != NULL && a.value.as_str[0] != '\0');
+
+                if (b.type == VAL_INT) truth_b = (b.value.as_int != 0);
+                else if (b.type == VAL_FLOAT) truth_b = (b.value.as_float != 0.0);
+                else if (b.type == VAL_STR) truth_b = (b.value.as_str != NULL && b.value.as_str[0] != '\0');
+
+                if (a.type == VAL_STR) free(a.value.as_str);
+                if (b.type == VAL_STR) free(b.value.as_str);
+
+                push_int((truth_a || truth_b) ? 1 : 0);
+                break;
+            }
+
+            case OP_NOT: {
+                Object a = pop();
+                bool truth_a = false;
+
+                if (a.type == VAL_INT) truth_a = (a.value.as_int != 0);
+                else if (a.type == VAL_FLOAT) truth_a = (a.value.as_float != 0.0);
+                else if (a.type == VAL_STR) truth_a = (a.value.as_str != NULL && a.value.as_str[0] != '\0');
+
+                if (a.type == VAL_STR) free(a.value.as_str);
+
+                push_int(!truth_a ? 1 : 0);
+                break;
+            }
 
             case OP_CALL:
                 break;
