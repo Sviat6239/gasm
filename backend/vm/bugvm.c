@@ -3,28 +3,37 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define OP_PUSH     0x0001 // push value on the stack
-#define OP_PUSH_STR 0x0002 // push str value on the stack
-#define OP_POP      0x0003 // pop value from the stack
-#define OP_ADD      0x0004 // add two last values from the stack
-#define OP_SUB      0x0005 // sub two last values from the stack
-#define OP_MUL      0x0006 // mul two last values from the stack
-#define OP_DIV      0x0007 // div two last values from the stack
-#define OP_PRINT    0x0008 // print the value from the stack
-#define OP_INPUT    0x0009 // read value to the stack
-#define OP_STORE    0x000A // store value from the stack in a local variable
-#define OP_LOAD     0x000B // put a value from locals onto stack
-#define OP_CMP      0x000C // compare two top values from stack and set flags
-#define OP_JMP      0x000D // unconditional jump to a target line
-#define OP_JNZ      0x000E // jump to a target line if flag is not zero
-#define OP_JZ       0x000F // jump to a target line if flag is zero
-#define OP_JNE      0x0010 // jump if not equal (flags != FL_EQ)
-#define OP_JE       0x0011 // jump if equal (flags == FL_EQ)
-#define OP_JGE      0x0012 // jump if greater or equal (flags == FL_GT || flags == FL_EQ)
-#define OP_JG       0x0013 // jump if greater (flags == FL_GT)
-#define OP_JLE      0x0014 // jump if less or equal (flags == FL_LT || flags == FL_EQ)
-#define OP_JL       0x0015 // jump if less (flags == FL_LT)
-#define OP_HALT     0xFFFF // halt the program
+#define OP_PUSH         0x0001 // push value on the stack
+#define OP_PUSH_STR     0x0002 // push str value on the stack
+#define OP_PUSH_FLOAT   0x0003 // push float value on the stack
+#define OP_POP          0x0004 // pop value from the stack
+#define OP_ADD          0x0005 // add two last values from the stack
+#define OP_SUB          0x0006 // sub two last values from the stack
+#define OP_MUL          0x0007 // mul two last values from the stack
+#define OP_DIV          0x0008 // div two last values from the stack
+#define OP_PRINT        0x0009 // print the value from the stack
+#define OP_INPUT        0x000A // read value to the stack
+#define OP_STORE        0x000B // store value from the stack in a local variable
+#define OP_LOAD         0x000C // put a value from locals onto stack
+#define OP_CMP          0x000D // compare two top values from stack and set flags
+#define OP_JMP          0x000E // unconditional jump to a target line
+#define OP_JNZ          0x000F // jump to a target line if flag is not zero
+#define OP_JZ           0x0010 // jump to a target line if flag is zero
+#define OP_JNE          0x0011 // jump if not equal (flags != FL_EQ)
+#define OP_JE           0x0012 // jump if equal (flags == FL_EQ)
+#define OP_JGE          0x0013 // jump if greater or equal (flags == FL_GT || flags == FL_EQ)
+#define OP_JG           0x0014 // jump if greater (flags == FL_GT)
+#define OP_JLE          0x0015 // jump if less or equal (flags == FL_LT || flags == FL_EQ)
+#define OP_JL           0x0016 // jump if less (flags == FL_LT)
+#define OP_AND          0x0017 // logical AND
+#define OP_OR           0x0018 // logical OR
+#define OP_NOR          0x0019 // logical NOT
+#define OP_CALL         0x001A // call function
+#define OP_RET          0x001B // return from function
+#define OP_STRLEN       0x001C // string length
+#define OP_STRCMP       0x001D // compare string
+#define OP_LABEL        0x001E // create label
+#define OP_HALT         0xFFFF // halt the program
 
 typedef enum {
     FL_EQ,
@@ -36,7 +45,8 @@ CompareFlag flags;
 
 typedef enum {
     VAL_INT,
-    VAL_STR
+    VAL_STR,
+    VAL_FLOAT
 } ValType;
 
 typedef struct {
@@ -44,6 +54,7 @@ typedef struct {
     union {
         int as_int;
         char *as_str;
+        double as_float;
     } value;
 } Object;
 
@@ -52,8 +63,8 @@ typedef struct{
     int token_count;
 } Line;
 
-#define STACK_SIZE (1024 * 1024)
-#define LOCAL_SIZE (1024 * 1024)
+#define STACK_SIZE (1024 * 1024 * 16)
+#define LOCAL_SIZE (1024 * 1024 * 16)
 Object stack[STACK_SIZE];
 Object locals[LOCAL_SIZE];
 int sp = -1;
@@ -78,6 +89,13 @@ void push_str(char *str) {
     Object obj;
     obj.type = VAL_STR;
     obj.value.as_str = str;
+    push(obj);
+}
+
+void push_float(double val){
+    Object obj;
+    obj.type = VAL_FLOAT;
+    obj.value.as_float = val;
     push(obj);
 }
 
@@ -215,15 +233,24 @@ int main(){
                 push_int(val);
                 break;
             }
+
             case OP_PUSH_STR: {
                 char *str_ptr = strdup(lines[ip].tokens[1]);
                 push_str(str_ptr);
                 break;
             }
+
+            case OP_PUSH_FLOAT: {
+                double val = (int)strtol(lines[ip].tokens[1], NULL, 0);
+                push_float(val);
+                break;
+            }
+
             case OP_POP: {
                 pop();
                 break;
             }
+
             case OP_ADD: {
                 Object b = pop();
                 Object a = pop();
@@ -240,12 +267,16 @@ int main(){
                     free(a.value.as_str);
                     free(b.value.as_str);
                 } 
+                else if (a.type == VAL_FLOAT && b.type == VAL_INT){
+                    push_float(a.value.as_float + b.value.as_float);
+                }
                 else {
                     printf("Runtime Error: Invalid types for OP_ADD!\n");
                     return 1;
                 }
                 break;
             }
+            
             case OP_SUB: {
                 Object b = pop();
                 Object a = pop();
@@ -262,12 +293,16 @@ int main(){
                     free(a.value.as_str);
                     free(b.value.as_str);
                 } 
+                else if (a.type == VAL_FLOAT && b.type == VAL_INT){
+                    push_float(a.value.as_float - b.value.as_float);
+                }
                 else {
                     printf("Runtime Error: Invalid types for OP_SUB!\n");
                     return 1;
                 }
                 break;
             }
+
             case OP_MUL: {
                 Object b = pop();
                 Object a = pop();
@@ -284,12 +319,16 @@ int main(){
                     free(a.value.as_str);
                     free(b.value.as_str);
                 } 
+                else if (a.type == VAL_FLOAT && b.type == VAL_INT){
+                    push_float(a.value.as_float * b.value.as_float);
+                }
                 else {
                     printf("Runtime Error: Invalid types for OP_MUL!\n");
                     return 1;
                 }
                 break;
             }
+
             case OP_DIV: {
                 Object b = pop();
                 Object a = pop();
@@ -310,12 +349,20 @@ int main(){
                     free(a.value.as_str);
                     free(b.value.as_str);
                 } 
+                else if (a.type == VAL_FLOAT && b.type == VAL_FLOAT) {
+                    if(b.value.as_float == 0){
+                        printf("Error: cant divide by zero!");
+                        exit(1);
+                    }
+                    push_int(a.value.as_float / b.value.as_float);
+                } 
                 else {
                     printf("Runtime Error: Invalid types for OP_DIV!\n");
                     return 1;
                 }
                 break;
             }
+
             case OP_PRINT: {
                 if (sp < 0) {
                     printf("Error: Stack is empty!\n");
@@ -325,10 +372,13 @@ int main(){
                         printf("%d\n", obj.value.as_int);
                     } else if (obj.type == VAL_STR) {
                         printf("%s\n", obj.value.as_str);
+                    } else if (obj.type == VAL_FLOAT) {
+                        printf("%s\n", obj.value.as_float);
                     }
                 }
                 break;
             }
+
             case OP_INPUT: {
                 char input_buf[1024];
                 if (scanf(" %1023[^\n]", input_buf) != 1) {
@@ -356,6 +406,7 @@ int main(){
                 }
                 break;
             }
+
             case OP_STORE:{
                 if (lines[ip].token_count < 2){
                     printf("Error: required argument!");
@@ -375,6 +426,7 @@ int main(){
                 locals[idx] = pop(); 
                 break;
             }
+
             case OP_LOAD:{
                 if (lines[ip].token_count < 2){
                     printf("Error: ruquired argumnet!");
@@ -390,18 +442,25 @@ int main(){
                 push(locals[idx]); 
                 break;
             }
+
             case OP_CMP: {
                 Object b = pop();
                 Object a = pop();
 
-                if (a.type != VAL_INT || b.type != VAL_INT) {
-                    printf("Runtime Error: OP_CMP supports INTEGER comparison only!\n");
+                bool a_is_num = (a.type == VAL_INT || a.type == VAL_FLOAT);
+                bool b_is_num = (b.type == VAL_INT || b.type == VAL_FLOAT);
+
+                if (!a_is_num || !b_is_num) {
+                    printf("Runtime Error: OP_CMP supports INTEGER and FLOAT comparison only!\n");
                     return 1;
                 }
 
-                if (a.value.as_int == b.value.as_int) {
+                double val_a = (a.type == VAL_INT) ? (double)a.value.as_int : a.value.as_float;
+                double val_b = (b.type == VAL_INT) ? (double)b.value.as_int : b.value.as_float;
+
+                if (val_a == val_b) {
                     flags = FL_EQ;
-                } else if (a.value.as_int > b.value.as_int) {
+                } else if (val_a > val_b) {
                     flags = FL_GT;
                 } else {
                     flags = FL_LT;
@@ -454,6 +513,31 @@ int main(){
                 }
                 break;
             }
+
+            case OP_AND:
+                break;
+
+            case OP_OR:
+                break;
+
+            case OP_NOT:
+                break;
+
+            case OP_CALL:
+                break;
+
+            case OP_RET:
+                break;
+
+            case OP_STRCMP:
+                break;
+
+            case OP_STRLEN:
+                break;
+
+            case OP_LABEL:
+                break;
+
             case OP_HALT:
                 ip = line_count;
                 break;
