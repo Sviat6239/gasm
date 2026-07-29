@@ -233,6 +233,7 @@ TokenList lex(const char* source) {
             case '$': list.tokens[list.count++] = create_token(TOKEN_DOLLAR, 0, NULL, NULL, 0); break;
             case '@': list.tokens[list.count++] = create_token(TOKEN_AT, 0, NULL, NULL, 0); break;
             case ',': list.tokens[list.count++] = create_token(TOKEN_COMMA, 0, NULL, NULL, 0); break;
+            case '_': list.tokens[list.count++] = create_token(TOKEN_UNDERSCORE, 0, NULL, NULL, 0); break;
             default:
                 printf("Unknown character: %c\n", c);
                 exit(1);
@@ -308,6 +309,7 @@ void print_tokens(TokenList* list) {
             case TOKEN_DOLLAR: printf("DOLLAR\n"); break;
             case TOKEN_AT: printf("AT\n"); break;
             case TOKEN_COMMA: printf("COMMA\n"); break;
+            case TOKEN_UNDERSCORE: printf("UNDERSCORE\n"); break;
             default: printf("UNKNOWN\n"); break;
         }
     }
