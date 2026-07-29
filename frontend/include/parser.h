@@ -22,6 +22,8 @@ typedef enum {
     AST_SWITCH,
     AST_CASE,
     AST_FOR,
+    AST_RETURN,
+    AST_CALL,
     AST_WHILE
 } ASTNodeType;
 

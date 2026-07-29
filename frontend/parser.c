@@ -116,19 +116,20 @@ ASTNode* parse_statement(TokenList* tokens, int* pos) {
         return create_node(AST_ECHO, 0, NULL, NULL, NULL, 0, expr, NULL);
     } 
     
-    else if (current.type == TOKEN_IDENTIFIER && tokens->tokens[*pos + 1].type == TOKEN_EQUAL) {
-        Token var = current;
-        *pos += 2;
-
-        ASTNode* expr = parse_expression(tokens, pos);
-
-        if (tokens->tokens[*pos].type != TOKEN_SEMICOLON) {
-            printf("Syntax error: expected ';' after assignment at pos=%d\n", *pos);
+    else if (current.type == TOKEN_IDENTIFIER) {
+        const char* actual_type = lookup_symbol(current.name);
+        if (actual_type == NULL) {
+            printf("Semantic error: variable or function '%s' used before declaration\n", current.name);
             exit(1);
         }
-        (*pos)++;
+        
+        ASTNode* expr = parse_expression(tokens, pos);
 
-        return create_node(AST_ASSIGN, 0, var.name, NULL, NULL, 0, expr, NULL);
+        if (tokens->tokens[*pos].type == TOKEN_SEMICOLON) {
+            (*pos)++;
+        }
+
+        return expr;
     }
     
     else if (current.type == TOKEN_LPAREN) {
@@ -277,6 +278,20 @@ ASTNode* parse_statement(TokenList* tokens, int* pos) {
         return func_body_node;
     }
 
+    else if (current.type == TOKEN_RETURN) {
+        (*pos)++; 
+
+        ASTNode* expr = parse_expression(tokens, pos);
+
+        if (tokens->tokens[*pos].type != TOKEN_SEMICOLON) {
+            printf("Syntax error: expected ';' after return statement at pos=%d\n", *pos);
+            exit(1);
+        }
+        (*pos)++;
+
+        return create_node(AST_RETURN, 0, NULL, NULL, expr->data_type, 0, expr, NULL);
+    }
+
     //else if (current.type == TOKEN_SWITCH){
     //    printf("switch\n");
     //}
@@ -334,8 +349,41 @@ ASTNode* parse_expression(TokenList* tokens, int* pos) {
             exit(1);
         }
         
-        left = create_node(AST_VAR, 0, current.name, NULL, actual_type, 0, NULL, NULL);
+        Token var = current;
         (*pos)++;
+
+        if (tokens->tokens[*pos].type == TOKEN_LPAREN) {
+            (*pos)++;
+
+            ASTNode* args_head = NULL;
+            ASTNode* args_tail = NULL;
+
+            while (tokens->tokens[*pos].type != TOKEN_RPAREN && tokens->tokens[*pos].type != TOKEN_EOF) {
+                ASTNode* arg = parse_expression(tokens, pos);
+                
+                if (args_head == NULL) {
+                    args_head = arg;
+                    args_tail = arg;
+                } else {
+                    args_tail->right = arg;
+                    args_tail = arg;
+                }
+
+                if (tokens->tokens[*pos].type == TOKEN_COMMA) {
+                    (*pos)++;
+                }
+            }
+
+            if (tokens->tokens[*pos].type != TOKEN_RPAREN) {
+                printf("Syntax error: expected ')' after function arguments at pos=%d\n", *pos);
+                exit(1);
+            }
+            (*pos)++;
+
+            left = create_node(AST_CALL, 0, var.name, NULL, actual_type, 0, args_head, NULL);
+        } else {
+            left = create_node(AST_VAR, 0, var.name, NULL, actual_type, 0, NULL, NULL);
+        }
     }
     else if (current.type == TOKEN_LPAREN) {
         (*pos)++;
@@ -485,6 +533,16 @@ void print_ast(ASTNode* node, int indent) {
 
         case AST_WHILE:
             printf("While:\n");
+            break;
+
+        case AST_CALL:
+            printf("AST_CALL(func: %s)\n", node->name);
+            print_ast(node->left, indent + 1);
+            break;
+
+        case AST_RETURN:
+            printf("AST_RETURN\n");
+            print_ast(node->left, indent + 1);
             break;
             
         default:

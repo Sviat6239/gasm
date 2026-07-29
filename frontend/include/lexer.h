@@ -59,6 +59,7 @@ typedef enum {
     TOKEN_PLUS_PLUS,
     TOKEN_MINUS_EQUAL,
     TOKEN_MINUS_MINUS,
+    TOKEN_RETURN,
     TOKEN_IDENTIFIER
 } TokenType;
 

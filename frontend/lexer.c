@@ -103,10 +103,11 @@ TokenList lex(const char* source) {
             continue;
         }
 
-        if (isalpha(c)) {
+        if (isalpha(c) || c == '_') {
             char buffer[64];
             int j = 0;
-            while (isalnum(source[i]) && j < 63) {
+
+            while ((isalnum(source[i]) || source[i] == '_') && j < 63) {
                 buffer[j++] = source[i++];
             }
             buffer[j] = '\0';
@@ -157,6 +158,8 @@ TokenList lex(const char* source) {
                 list.tokens[list.count++] = create_token(TOKEN_CASE, 0, NULL, NULL, 0);
             else if (strcmp(buffer, "func") == 0)
                 list.tokens[list.count++] = create_token(TOKEN_FUNC, 0, NULL, NULL, 0);
+            else if (strcmp(buffer, "return") == 0)
+                list.tokens[list.count++] = create_token(TOKEN_RETURN, 0, NULL, NULL, 0);
             else
                 list.tokens[list.count++] = create_token(TOKEN_IDENTIFIER, 0, buffer, NULL, 0);
 
@@ -310,6 +313,7 @@ void print_tokens(TokenList* list) {
             case TOKEN_AT: printf("AT\n"); break;
             case TOKEN_COMMA: printf("COMMA\n"); break;
             case TOKEN_UNDERSCORE: printf("UNDERSCORE\n"); break;
+            case TOKEN_RETURN: printf("RETURN\n"); break;
             default: printf("UNKNOWN\n"); break;
         }
     }
