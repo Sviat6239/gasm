@@ -56,6 +56,12 @@ let mut str msg = "Hello World";
 echo (number);
 ```
 
+## Compilation
+
+```bash
+cc -I./frontend/include gasm.c ./frontend/lexer.c ./frontend/parser.c ./frontend/utils.c
+```
+
 ## Repository Layout
 
 - `code.as` - main sample source file

@@ -277,21 +277,21 @@ ASTNode* parse_statement(TokenList* tokens, int* pos) {
         return func_body_node;
     }
 
-    else if (current.type == TOKEN_SWITCH){
-        printf("switch\n");
-    }
+    //else if (current.type == TOKEN_SWITCH){
+    //    printf("switch\n");
+    //}
 
-    else if (current.type == TOKEN_CASE){
-        printf("case\n");
-    }
+    //else if (current.type == TOKEN_CASE){
+    //    printf("case\n");
+    //}
 
-    else if (current.type == TOKEN_FOR){
-        printf("for\n");
-    }
+    //else if (current.type == TOKEN_FOR){
+    //    printf("for\n");
+    //}
 
-    else if (current.type == TOKEN_WHILE){
-        printf("while\n");
-    }
+    //else if (current.type == TOKEN_WHILE){
+    //    printf("while\n");
+    //}
     
     else {
         ASTNode* expr = parse_expression(tokens, pos);
