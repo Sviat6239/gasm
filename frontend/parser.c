@@ -200,8 +200,81 @@ ASTNode* parse_statement(TokenList* tokens, int* pos) {
         return create_node(AST_IF, 0, NULL, NULL, NULL, 0, cond, body_node);
     }
 
-    else if (current.type == TOKEN_FUNC){
-        printf("func\n");
+    else if (current.type == TOKEN_FUNC) {
+        (*pos)++; 
+
+        const char* return_type = tokens->tokens[*pos].data_type;
+        (*pos)++;
+
+        if (tokens->tokens[*pos].type != TOKEN_IDENTIFIER) {
+            printf("Syntax error: expected function name at pos=%d\n", *pos);
+            exit(1);
+        }
+        Token func_var = tokens->tokens[*pos];
+        (*pos)++;
+
+        add_symbol(func_var.name, return_type);
+
+        if (tokens->tokens[*pos].type != TOKEN_LPAREN) {
+            printf("Syntax error: expected '(' after function name at pos=%d\n", *pos);
+            exit(1);
+        }
+        (*pos)++;
+
+        ASTNode* params_head = NULL;
+        ASTNode* params_tail = NULL;
+
+        while (tokens->tokens[*pos].type != TOKEN_RPAREN && tokens->tokens[*pos].type != TOKEN_EOF) {
+            const char* param_type = tokens->tokens[*pos].data_type;
+            (*pos)++;
+
+            if (tokens->tokens[*pos].type != TOKEN_IDENTIFIER) {
+                printf("Syntax error: expected parameter name at pos=%d\n", *pos);
+                exit(1);
+            }
+            Token param_var = tokens->tokens[*pos];
+            (*pos)++;
+
+            add_symbol(param_var.name, param_type);
+
+            ASTNode* param_node = create_node(AST_VAR, 0, param_var.name, NULL, param_type, 0, NULL, NULL);
+
+            if (params_head == NULL) {
+                params_head = param_node;
+                params_tail = param_node;
+            } else {
+                params_tail->right = param_node;
+                params_tail = param_node;
+            }
+
+            if (tokens->tokens[*pos].type == TOKEN_COMMA) {
+                (*pos)++;
+            }
+        }
+
+        if (tokens->tokens[*pos].type != TOKEN_RPAREN) {
+            printf("Syntax error: expected ')' after parameters at pos=%d\n", *pos);
+            exit(1);
+        }
+        (*pos)++;
+
+        if (tokens->tokens[*pos].type != TOKEN_LBRACE) {
+            printf("Syntax error: expected '{' before function body at pos=%d\n", *pos);
+            exit(1);
+        }
+        (*pos)++;
+
+        ASTNode* body = parse_statement(tokens, pos);
+
+        if (tokens->tokens[*pos].type != TOKEN_RBRACE) {
+            printf("Syntax error: expected '}' after function body at pos=%d\n", *pos);
+            exit(1);
+        }
+        (*pos)++;
+
+        ASTNode* func_body_node = create_node(AST_FUNC, 0, func_var.name, NULL, return_type, 0, params_head, body);
+
+        return func_body_node;
     }
 
     else if (current.type == TOKEN_SWITCH){
