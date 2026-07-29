@@ -36,6 +36,7 @@ typedef struct ASTNode {
     int mutability;
     struct ASTNode* left;
     struct ASTNode* right;
+    struct ASTNode* next;
 } ASTNode;
 
 /* Function declarations */
